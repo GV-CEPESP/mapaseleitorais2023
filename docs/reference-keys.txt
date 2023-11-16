@@ -3,6 +3,7 @@ pré-requisitos
 autores
 meu-primeiro-mapa
 a-eleição-presidencial-de-2014
+a-eleição-presidencial-de-2022
 mapa-municipal
 exercício-final
 extra

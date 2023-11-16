@@ -59,8 +59,46 @@ ganhadores_2014 <- left_join(mapa_brasil, ganhadores_2014, by = "abbrev_state")
 
 Isto gera uma tabela na qual estão presentes os estados, seu devidos ganhadores e os dados cartográficos. A partir destas informações, podemos usar o comando *ggplot* para elaborar o mapa brasileiro colorido com base nos ganhadores. Note que utilizamos a função mais básica possível a fim de gerar este mapa. Ao longo deste workshop, aprenderemos como mudar sua aparência.
 
-```{r , warning = FALSE}
+```{r mapa de 2014, warning = FALSE}
 ganhadores_2014  %>%
   ggplot() + ## Gera o gráfico
   geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
 ```
+
+
+## A Eleição Presidencial de 2022
+
+Os mapas nos ajudam a contar uma história. Agora que geramos o mapa eleitoral da eleição presidencial de 2014, faremos o mesmo procedimento para compará-lo com o que ocorreu em 2022 quando Jair Bolsonaro (PL) foi derrotado pelo petista Lula da Silva. Mais uma vez, nosso trabalho começa a partir da criação de um *tibble* com os vencedores do segundo turno em cada estado brasileiro. Lembre-se que os estados devem ser identificados como *abbrev_state*.
+
+```{r tabela de ganhadores em 2022, message = FALSE}
+ganhadores_2022 <- tibble(abbrev_state = 
+                                    c("RS", "SC", "PR",
+                                      "SP", "MG", "RJ", "ES",
+                                      "MS", "MT", "GO", "DF", "TO",
+                                      "RO", "AC", "AM", "PA", "AP", "RR",
+                                      "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA"),
+                                  ganhador =
+                                    c("Bolsonaro", "Bolsonaro", "Bolsonaro",
+                                      "Bolsonaro", "Lula", "Bolsonaro", "Bolsonaro",
+                                      "Bolsonaro", "Bolsonaro", "Bolsonaro","Bolsonaro", "Lula",
+                                      "Bolsonaro", "Bolsonaro", "Lula", "Lula", "Bolsonaro", "Bolsonaro",
+                                      "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula"))
+```
+
+Como já haviámos baixado o dados cartográficos, não é necessário repetir o processo. Podemos ir diretamente para a etapa de integrá-los ao banco de dados eleitoral de 2022. 
+
+```{r integrando os dados cartográficos à tibble com ganhadores de 2022, warning = FALSE}
+ganhadores_2022 <- left_join(mapa_brasil, ganhadores_2022, by = "abbrev_state")
+```
+
+Por fim, utilizamos o mesmo código da etapa anterior para gerar o mapa de 2022.
+
+```{r mapa de 2022, warning = FALSE}
+ganhadores_2022  %>%
+  ggplot() + ## Gera o gráfico
+  geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
+```
+
+Pronto! Temos nossa primeira história a ser contada. Ainda que existam diferenças, os mapas são muito parecidos. Ou seja, a distribuição geográfica da campanha vitoriosa de Dilma Rousseff em 2014 é muito parecida com aquela realizada por Lula da Silva em 2022. Os mapas demonstram isto claramente!
+
+Agora, se tiver tempo, sugerimos que você faça os mapas para outras eleições presidenciais. Por exemplo, o que aconteceu em 1994 e 2002?
