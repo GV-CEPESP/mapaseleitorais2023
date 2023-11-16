@@ -1,8 +1,8 @@
 sobre-o-workshop
 pré-requisitos
 autores
-mapa-fácil
+meu-primeiro-mapa
+a-eleição-presidencial-de-2014
 mapa-municipal
 exercício-final
 extra
-cover-image-path-to-the-social-sharing-image-like-imagescover.jpg

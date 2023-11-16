@@ -1,16 +1,15 @@
---- 
+---
 title: "Mapas Eleitorais com R"
 author: "Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello"
-date: "`r Sys.Date()`"
+#date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: book
 bibliography: [book.bib, packages.bib]
 url: https://gv-cepesp.github.io/mapaseleitorais2023/
-# cover-image: path to the social sharing image like images/cover.jpg
-description: |
-  Guia do workshop de Mapas Eleitorais com R oferecido no Coda.BR 2023 pelos pesquisadores de pós-doutorado do CEPESP Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello.
-link-citations: yes
-github-repo: https://github.com/GV-CEPESP/mapaseleitorais2023
+#description: |
+#  Texto
+#link-citations: yes
+#github-repo: https://github.com/GV-CEPESP/mapaseleitorais2023
 ---
 
 # Sobre o Workshop
