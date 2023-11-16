@@ -4,7 +4,10 @@ autores
 meu-primeiro-mapa
 a-eleição-presidencial-de-2014
 a-eleição-presidencial-de-2022
-mapa-municipal
+mapas-municipais
+organização-intramunicipal
+section
 exercício-final
 extra
 texto
+preparando-os-dados

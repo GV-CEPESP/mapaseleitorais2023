@@ -1,3 +1,24 @@
-# Mapa municipal
+# Mapas municipais
 
-Texto texto texto.
+## Organização Intramunicipal
+
+Administrativamente, a Justiça Eleitoral se organiza em zonas eleitorais, nas quais estão localizados os locais de votação, que abrigam as seções eleitorais (sendo que cada seção eleitoral corresponde a uma urna). Dentro dos municípios, porém, a organização territorial da Justiça Eleitoral não coincide necessariamente com outras divisões administrativas. Ou seja, os limites das zonas eleitorais muitas vezes não correspondem aos limites de bairros ou distritos.
+
+A figura a seguir, retirada de um artigo do prof. Rodrigo Rodrigues-Silveira (2013), nos dá um exemplo de como a organização territorial não se equivale à organização censitária do Instituto Brasileiro de Geografia e Estatística (IBGE). Na condução do Censo, o IBGE se norteia pelos chamados setores censitários (setores A e B da figura) que são formados por um conjunto de domicílios (domicílios 1 e 2; 3 e 4, respectivamente).
+
+Em detalhe, segundo o <a href="https://censo2010.ibge.gov.br/materiais/guia-do-censo/operacao-censitaria.html" target="blank">IBGE</a>:
+
+> “O setor censitário é a unidade territorial estabelecida para fins de controle cadastral, formado por área contínua, situada em um único quadro urbano ou rural, com dimensão e número de domicílios que permitam o levantamento por um recenseador. Assim sendo, cada recenseador procederá à coleta de informações tendo como meta a cobertura do setor censitário que lhe é designado.” 
+
+Os setores estão localizados dentro de bairros. Os bairros podem ser elementos comuns a setores e locais de votação, mas eles partem de lógicas de organização distintas e que, portanto, precisariam ser harmonizadas na preparação dos dados.
+
+Além disso, os Tribunais Regionais Eleitorais (TREs) não têm o costume de divulgar arquivos espaciais que apresentem os limites dessas zonas. Então, como produzir mapas de resultados eleitorais dentro de municípios?
+
+Para isso, utilizamos outra fonte de dados do Tribunal Superior Eleitoral (TSE). O TSE divulga os endereços de todos os locais de votação brasileiros e as suas seções eleitorais correspondentes de todas as disputas desde 2008 (alguns TREs divulgam essas informações para eleições prévias a 2008) e podem ser usadas para esse fim. Esses registros administrativos têm, inclusive, uma coluna com a informação de bairro desse endereço. 
+
+Bastaria então unir o banco de resultados por seção eleitoral com esse de locais de votação, somar os votos no bairro informado pela coluna dos registros do TSE, acoplar os resultados num mapa e voilà, certo? Infelizmente, não. A informação do bairro advinda dos registros do TSE frequentemente não coincide com o bairro onde geograficamente está esse local de votação (para mais informações, veja Gelape, 2017, 2018). 
+
+Assim, para produzirmos mapas com votações de candidatos dentro de um município, precisamos encontrar a localização dos locais de votação no espaço. Neste exercício, utilizamos um banco de dados disponibilizado pelo prof. Daniel Hidalgo (do Massachusetts Institute of Technology, MIT) que cataloga a latitude e longitude para todos os locais de votação brasileiros entre 2006 e 2020. Esse foi um esforço de pesquisa que cruzou diferentes fontes de dados para determinar as coordenadas geográficas e que contou com a participação do FGV-CEPESP (para mais informações, deem uma olhada no <a href="https://github.com/fdhidalgo/geocode_br_polling_stations" target="blank">repositório do GitHub</a> -- e na <a href="https://raw.githack.com/fdhidalgo/geocode_br_polling_stations/master/doc/geocoding_procedure.html" target="blank">documentação da metodologia deste processo</a>). Com a latitude e longitude, podemos cruzar essa informação espacial com outra(s) informações espaciais, como um mapa de bairros de um município, para passar aos nossos pontos (isto é, os locais de votação) tais informações. 
+
+## Preparando os Dados
+

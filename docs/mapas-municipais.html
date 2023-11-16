@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Parte 3 Mapas municipais | Mapas Eleitorais com R</title>
+  <meta name="description" content="Parte 3 Mapas municipais | Mapas Eleitorais com R" />
+  <meta name="generator" content="bookdown 0.36 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Parte 3 Mapas municipais | Mapas Eleitorais com R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Parte 3 Mapas municipais | Mapas Eleitorais com R" />
+  
+  
+  
+
+<meta name="author" content="Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="meu-primeiro-mapa.html"/>
+<link rel="next" href="exercício-final.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Mapas Eleitorais com R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Texto</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.1</b> Pré-Requisitos</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.2</b> Autores</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="meu-primeiro-mapa.html"><a href="meu-primeiro-mapa.html"><i class="fa fa-check"></i><b>2</b> Meu Primeiro Mapa</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="meu-primeiro-mapa.html"><a href="meu-primeiro-mapa.html#a-eleição-presidencial-de-2014"><i class="fa fa-check"></i><b>2.1</b> A Eleição Presidencial de 2014</a></li>
+<li class="chapter" data-level="2.2" data-path="meu-primeiro-mapa.html"><a href="meu-primeiro-mapa.html#a-eleição-presidencial-de-2022"><i class="fa fa-check"></i><b>2.2</b> A Eleição Presidencial de 2022</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="mapas-municipais.html"><a href="mapas-municipais.html"><i class="fa fa-check"></i><b>3</b> Mapas municipais</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="mapas-municipais.html"><a href="mapas-municipais.html#organização-intramunicipal"><i class="fa fa-check"></i><b>3.1</b> Organização Intramunicipal</a></li>
+<li class="chapter" data-level="3.2" data-path="mapas-municipais.html"><a href="mapas-municipais.html#preparando-os-dados"><i class="fa fa-check"></i><b>3.2</b> Preparando os Dados</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="exercício-final.html"><a href="exercício-final.html"><i class="fa fa-check"></i><b>4</b> Exercício Final</a></li>
+<li class="chapter" data-level="5" data-path="extra.html"><a href="extra.html"><i class="fa fa-check"></i><b>5</b> Extra</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://www.cepesp.io" target="blank">FGV CEPESP</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Mapas Eleitorais com R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="mapas-municipais" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Parte 3</span> Mapas municipais<a href="mapas-municipais.html#mapas-municipais" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="organização-intramunicipal" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Organização Intramunicipal<a href="mapas-municipais.html#organização-intramunicipal" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Administrativamente, a Justiça Eleitoral se organiza em zonas eleitorais, nas quais estão localizados os locais de votação, que abrigam as seções eleitorais (sendo que cada seção eleitoral corresponde a uma urna). Dentro dos municípios, porém, a organização territorial da Justiça Eleitoral não coincide necessariamente com outras divisões administrativas. Ou seja, os limites das zonas eleitorais muitas vezes não correspondem aos limites de bairros ou distritos.</p>
+<p>A figura a seguir, retirada de um artigo do prof. Rodrigo Rodrigues-Silveira (2013), nos dá um exemplo de como a organização territorial não se equivale à organização censitária do Instituto Brasileiro de Geografia e Estatística (IBGE). Na condução do Censo, o IBGE se norteia pelos chamados setores censitários (setores A e B da figura) que são formados por um conjunto de domicílios (domicílios 1 e 2; 3 e 4, respectivamente).</p>
+<p>Em detalhe, segundo o <a href="https://censo2010.ibge.gov.br/materiais/guia-do-censo/operacao-censitaria.html" target="blank">IBGE</a>:</p>
+<blockquote>
+<p>“O setor censitário é a unidade territorial estabelecida para fins de controle cadastral, formado por área contínua, situada em um único quadro urbano ou rural, com dimensão e número de domicílios que permitam o levantamento por um recenseador. Assim sendo, cada recenseador procederá à coleta de informações tendo como meta a cobertura do setor censitário que lhe é designado.”</p>
+</blockquote>
+<p>Os setores estão localizados dentro de bairros. Os bairros podem ser elementos comuns a setores e locais de votação, mas eles partem de lógicas de organização distintas e que, portanto, precisariam ser harmonizadas na preparação dos dados.</p>
+<p>Além disso, os Tribunais Regionais Eleitorais (TREs) não têm o costume de divulgar arquivos espaciais que apresentem os limites dessas zonas. Então, como produzir mapas de resultados eleitorais dentro de municípios?</p>
+<p>Para isso, utilizamos outra fonte de dados do Tribunal Superior Eleitoral (TSE). O TSE divulga os endereços de todos os locais de votação brasileiros e as suas seções eleitorais correspondentes de todas as disputas desde 2008 (alguns TREs divulgam essas informações para eleições prévias a 2008) e podem ser usadas para esse fim. Esses registros administrativos têm, inclusive, uma coluna com a informação de bairro desse endereço.</p>
+<p>Bastaria então unir o banco de resultados por seção eleitoral com esse de locais de votação, somar os votos no bairro informado pela coluna dos registros do TSE, acoplar os resultados num mapa e voilà, certo? Infelizmente, não. A informação do bairro advinda dos registros do TSE frequentemente não coincide com o bairro onde geograficamente está esse local de votação (para mais informações, veja Gelape, 2017, 2018).</p>
+<p>Assim, para produzirmos mapas com votações de candidatos dentro de um município, precisamos encontrar a localização dos locais de votação no espaço. Neste exercício, utilizamos um banco de dados disponibilizado pelo prof. Daniel Hidalgo (do Massachusetts Institute of Technology, MIT) que cataloga a latitude e longitude para todos os locais de votação brasileiros entre 2006 e 2020. Esse foi um esforço de pesquisa que cruzou diferentes fontes de dados para determinar as coordenadas geográficas e que contou com a participação do FGV-CEPESP (para mais informações, deem uma olhada no <a href="https://github.com/fdhidalgo/geocode_br_polling_stations" target="blank">repositório do GitHub</a> – e na <a href="https://raw.githack.com/fdhidalgo/geocode_br_polling_stations/master/doc/geocoding_procedure.html" target="blank">documentação da metodologia deste processo</a>). Com a latitude e longitude, podemos cruzar essa informação espacial com outra(s) informações espaciais, como um mapa de bairros de um município, para passar aos nossos pontos (isto é, os locais de votação) tais informações.</p>
+</div>
+<div id="preparando-os-dados" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Preparando os Dados<a href="mapas-municipais.html#preparando-os-dados" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="meu-primeiro-mapa.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exercício-final.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["fake-book.pdf", "fake-book.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
