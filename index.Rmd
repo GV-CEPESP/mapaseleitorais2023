@@ -1,6 +1,6 @@
 --- 
-title: "A Minimal Book Example"
-author: "John Doe"
+title: "Mapas Eleitorais com R"
+author: "Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: book
@@ -8,53 +8,25 @@ bibliography: [book.bib, packages.bib]
 url: https://gv-cepesp.github.io/mapaseleitorais2023/
 # cover-image: path to the social sharing image like images/cover.jpg
 description: |
-  This is a minimal example of using the bookdown package to write a book.
-  The HTML output format for this example is bookdown::gitbook,
-  set in the _output.yml file.
+  Guia do workshop de Mapas Eleitorais com R oferecido no Coda.BR 2023 pelos pesquisadores de pós-doutorado do CEPESP Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello.
 link-citations: yes
 github-repo: https://github.com/GV-CEPESP/mapaseleitorais2023
 ---
 
-# About
+# Sobre o Workshop
 
-This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports; for example, a math equation $a^2 + b^2 = c^2$.
+Em 2018, PT e PSL protagonizaram a disputa pela presidência. No Capão Redondo, a disputa para deputado reproduziu essa tendência. Porém, em Pinheiros, os mais votados saíram desse padrão: foram PSOL e Novo. Mapas eleitorais permitem investigar esse fenômeno.
 
-## Usage 
+O objetivo desse workshop é ensinar os participantes a trabalhar com dados espaciais no R a partir de informações eleitorais. Nele, vamos apresentar algumas características e cuidados especiais com esse tipo de dados, como associar os resultados eleitorais ao espaço (inclusive intramunicipais), e a produzir mapas.
 
-Each **bookdown** chapter is an .Rmd file, and each .Rmd file can contain one (and only one) chapter. A chapter *must* start with a first-level heading: `# A good chapter`, and can contain one (and only one) first-level heading.
+## Pré-Requisitos
 
-Use second-level and higher headings within chapters like: `## A short section` or `### An even shorter section`.
+R, RStudio, pacotes (tidyverse e sf)
 
-The `index.Rmd` file is required, and is also your first book chapter. It will be the homepage when you render the book.
+## Autores
 
-## Render book
+*Lucas Gelape* é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de São Paulo. Atualmente, pesquisa temas relacionados a política local e geografia eleitoral. No jornalismo, trabalhou no G1 e no Volt Data Lab/Núcleo.
 
-You can render the HTML version of this example book without changing anything:
+*João V. Guedes-Neto* é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de Pittsburgh.
 
-1. Find the **Build** pane in the RStudio IDE, and
-
-1. Click on **Build Book**, then select your output format, or select "All formats" if you'd like to use multiple formats from the same book source files.
-
-Or build the book from the R console:
-
-```{r, eval=FALSE}
-bookdown::render_book()
-```
-
-To render this example to PDF as a `bookdown::pdf_book`, you'll need to install XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): <https://yihui.org/tinytex/>.
-
-## Preview book
-
-As you work, you may start a local server to live preview this HTML book. This preview will update as you edit the book when you save individual .Rmd files. You can start the server in a work session by using the RStudio add-in "Preview book", or from the R console:
-
-```{r eval=FALSE}
-bookdown::serve_book()
-```
-
-
-```{r include=FALSE}
-# automatically create a bib database for R packages
-knitr::write_bib(c(
-  .packages(), 'bookdown', 'knitr', 'rmarkdown'
-), 'packages.bib')
-```
+*Marco Antonio Faganello* é Pesquisador, cientista de dados e pós-doutorando no CEPESP FGV, doutor em Ciência Política pela Universidade Estadual de Campinas (UNICAMP). Atualmente, pesquisa temas relacionados à eleições, partidos, direita e geografia eleitoral.

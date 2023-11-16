@@ -2,10 +2,9 @@ fig:nice-fig
 tab:nice-tab
 eq:binom
 thm:tri
-about
-usage
-render-book
-preview-book
+sobre-o-workshop
+pré-requisitos
+autores
 hello-bookdown
 a-section
 cross
