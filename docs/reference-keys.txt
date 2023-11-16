@@ -6,8 +6,6 @@ a-eleição-presidencial-de-2014
 a-eleição-presidencial-de-2022
 mapas-municipais
 organização-intramunicipal
-section
+preparando-os-dados
 exercício-final
 extra
-texto
-preparando-os-dados
