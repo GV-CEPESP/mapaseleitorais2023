@@ -4,3 +4,4 @@ output_dir: docs
 language:
   ui:
     chapter_name: 'Parte '
+new_session: true
