@@ -6,6 +6,8 @@ Administrativamente, a Justiça Eleitoral se organiza em zonas eleitorais, nas q
 
 A figura a seguir, retirada de um artigo do prof. Rodrigo Rodrigues-Silveira (2013), nos dá um exemplo de como a organização territorial não se equivale à organização censitária do Instituto Brasileiro de Geografia e Estatística (IBGE). Na condução do Censo, o IBGE se norteia pelos chamados setores censitários (setores A e B da figura) que são formados por um conjunto de domicílios (domicílios 1 e 2; 3 e 4, respectivamente).
 
+![Fonte: Rodrigues-Silveira, 2013.](~/figures/mapas-municipais-intro.png)
+
 Em detalhe, segundo o <a href="https://censo2010.ibge.gov.br/materiais/guia-do-censo/operacao-censitaria.html" target="blank">IBGE</a>:
 
 > “O setor censitário é a unidade territorial estabelecida para fins de controle cadastral, formado por área contínua, situada em um único quadro urbano ou rural, com dimensão e número de domicílios que permitam o levantamento por um recenseador. Assim sendo, cada recenseador procederá à coleta de informações tendo como meta a cobertura do setor censitário que lhe é designado.” 
