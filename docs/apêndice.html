@@ -161,7 +161,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.1" data-path="atividades-extras.html"><a href="atividades-extras.html#marta-suplicy-em-2000"><i class="fa fa-check"></i><b>4.1</b> Marta Suplicy em 2000</a></li>
 <li class="chapter" data-level="4.2" data-path="atividades-extras.html"><a href="atividades-extras.html#eduardo-paes-em-2020"><i class="fa fa-check"></i><b>4.2</b> Eduardo Paes em 2020</a></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="apêndice.html"><a href="apêndice.html"><i class="fa fa-check"></i><b>5</b> Apêndice</a></li>
+<li class="chapter" data-level="5" data-path="apêndice.html"><a href="apêndice.html"><i class="fa fa-check"></i><b>5</b> Apêndice</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="apêndice.html"><a href="apêndice.html#resultados-eleitorais"><i class="fa fa-check"></i><b>5.1</b> Resultados Eleitorais</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="apêndice.html"><a href="apêndice.html#são-paulo-em-2020"><i class="fa fa-check"></i><b>5.1.1</b> São Paulo em 2020</a></li>
+<li class="chapter" data-level="5.1.2" data-path="apêndice.html"><a href="apêndice.html#rio-de-janeiro-em-2020"><i class="fa fa-check"></i><b>5.1.2</b> Rio de Janeiro em 2020</a></li>
+<li class="chapter" data-level="5.1.3" data-path="apêndice.html"><a href="apêndice.html#são-paulo-em-2000"><i class="fa fa-check"></i><b>5.1.3</b> São Paulo em 2000</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="apêndice.html"><a href="apêndice.html#locais-de-votação"><i class="fa fa-check"></i><b>5.2</b> Locais de Votação</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="apêndice.html"><a href="apêndice.html#são-paulo-em-2020-1"><i class="fa fa-check"></i><b>5.2.1</b> São Paulo em 2020</a></li>
+<li class="chapter" data-level="5.2.2" data-path="apêndice.html"><a href="apêndice.html#rio-de-janeiro-em-2020-1"><i class="fa fa-check"></i><b>5.2.2</b> Rio de Janeiro em 2020</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="apêndice.html"><a href="apêndice.html#divisões-administrativas"><i class="fa fa-check"></i><b>5.3</b> Divisões Administrativas</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="apêndice.html"><a href="apêndice.html#distritos-de-são-paulo"><i class="fa fa-check"></i><b>5.3.1</b> Distritos de São Paulo</a></li>
+<li class="chapter" data-level="5.3.2" data-path="apêndice.html"><a href="apêndice.html#rio-de-janeiro"><i class="fa fa-check"></i><b>5.3.2</b> Rio de Janeiro</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="apêndice.html"><a href="apêndice.html#sessões-eleitorais"><i class="fa fa-check"></i><b>5.4</b> Sessões Eleitorais</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://www.cepesp.io" target="blank">FGV CEPESP</a></li>
@@ -185,8 +204,193 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="apêndice" class="section level1 hasAnchor" number="5">
 <h1><span class="header-section-number">Parte 5</span> Apêndice<a href="apêndice.html#apêndice" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<p>Texto texto texto.</p>
+<p>Nesta parte, apresentamos o script utilizado na montagem das bases de dados dos candidatos.</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="apêndice.html#cb66-1" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb66-2"><a href="apêndice.html#cb66-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb66-3"><a href="apêndice.html#cb66-3" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb66-4"><a href="apêndice.html#cb66-4" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb66-5"><a href="apêndice.html#cb66-5" tabindex="-1"></a><span class="fu">library</span>(electionsBR)</span>
+<span id="cb66-6"><a href="apêndice.html#cb66-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb66-7"><a href="apêndice.html#cb66-7" tabindex="-1"></a><span class="fu">library</span>(geobr)</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="apêndice.html#cb67-1" tabindex="-1"></a><span class="co"># Cria um diretorio para guardar as bases, caso ele nao exista</span></span>
+<span id="cb67-2"><a href="apêndice.html#cb67-2" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">&quot;base/&quot;</span>)) <span class="fu">dir.create</span>(<span class="st">&quot;base/&quot;</span>)</span></code></pre></div>
+<div id="resultados-eleitorais" class="section level2 hasAnchor" number="5.1">
+<h2><span class="header-section-number">5.1</span> Resultados Eleitorais<a href="apêndice.html#resultados-eleitorais" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="são-paulo-em-2020" class="section level3 hasAnchor" number="5.1.1">
+<h3><span class="header-section-number">5.1.1</span> São Paulo em 2020<a href="apêndice.html#são-paulo-em-2020" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Votação por seção eleitoral dos candidatos Guilherme Boulos, Eduardo Suplicy, Fernando Holiday e Milton Leite na cidade de São Paulo em 2020. Fonte: TSE.</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="apêndice.html#cb68-1" tabindex="-1"></a><span class="co"># Essa funcao esta somente na versao em dev do electionsBR</span></span>
+<span id="cb68-2"><a href="apêndice.html#cb68-2" tabindex="-1"></a><span class="co"># https://github.com/silvadenisson/electionsBR</span></span>
+<span id="cb68-3"><a href="apêndice.html#cb68-3" tabindex="-1"></a>base2020 <span class="ot">&lt;-</span> electionsBR<span class="sc">::</span><span class="fu">elections_tse</span>(<span class="dv">2020</span>, <span class="st">&quot;vote_section&quot;</span>, <span class="st">&quot;SP&quot;</span>)</span>
+<span id="cb68-4"><a href="apêndice.html#cb68-4" tabindex="-1"></a></span>
+<span id="cb68-5"><a href="apêndice.html#cb68-5" tabindex="-1"></a><span class="co"># Prepara banco incluindo agregado de votos por secao</span></span>
+<span id="cb68-6"><a href="apêndice.html#cb68-6" tabindex="-1"></a>base2020 <span class="ot">&lt;-</span> base2020 <span class="sc">|&gt;</span> </span>
+<span id="cb68-7"><a href="apêndice.html#cb68-7" tabindex="-1"></a>  <span class="co"># Filtra pelo municipio de SP, 1o turno e elimina brancos/nulos</span></span>
+<span id="cb68-8"><a href="apêndice.html#cb68-8" tabindex="-1"></a>  <span class="fu">filter</span>(NM_MUNICIPIO <span class="sc">==</span> <span class="st">&quot;SÃO PAULO&quot;</span>,</span>
+<span id="cb68-9"><a href="apêndice.html#cb68-9" tabindex="-1"></a>         NR_TURNO <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb68-10"><a href="apêndice.html#cb68-10" tabindex="-1"></a>         <span class="sc">!</span>NR_VOTAVEL <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">95</span>, <span class="dv">96</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb68-11"><a href="apêndice.html#cb68-11" tabindex="-1"></a>  <span class="co"># Calcula o total de votos validos por cargo/secao</span></span>
+<span id="cb68-12"><a href="apêndice.html#cb68-12" tabindex="-1"></a>  <span class="fu">group_by</span>(DS_CARGO,</span>
+<span id="cb68-13"><a href="apêndice.html#cb68-13" tabindex="-1"></a>           NR_ZONA, NR_SECAO) <span class="sc">|&gt;</span> </span>
+<span id="cb68-14"><a href="apêndice.html#cb68-14" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">votos_validos_secao =</span> <span class="fu">sum</span>(QT_VOTOS)) <span class="sc">|&gt;</span> </span>
+<span id="cb68-15"><a href="apêndice.html#cb68-15" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb68-16"><a href="apêndice.html#cb68-16" tabindex="-1"></a>  <span class="co"># Filtra pelos candidatos escolhidos</span></span>
+<span id="cb68-17"><a href="apêndice.html#cb68-17" tabindex="-1"></a>  <span class="fu">filter</span>(NM_VOTAVEL <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;GUILHERME CASTRO BOULOS&quot;</span>,</span>
+<span id="cb68-18"><a href="apêndice.html#cb68-18" tabindex="-1"></a>                           <span class="st">&quot;EDUARDO MATARAZZO SUPLICY&quot;</span>,</span>
+<span id="cb68-19"><a href="apêndice.html#cb68-19" tabindex="-1"></a>                           <span class="st">&quot;FERNANDO HOLIDAY SILVA BISPO&quot;</span>,</span>
+<span id="cb68-20"><a href="apêndice.html#cb68-20" tabindex="-1"></a>                           <span class="st">&quot;MILTON LEITE DA SILVA&quot;</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb68-21"><a href="apêndice.html#cb68-21" tabindex="-1"></a>  <span class="co"># Seleciona variaveis de interesse</span></span>
+<span id="cb68-22"><a href="apêndice.html#cb68-22" tabindex="-1"></a>  <span class="fu">select</span>(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, </span>
+<span id="cb68-23"><a href="apêndice.html#cb68-23" tabindex="-1"></a>         NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,</span>
+<span id="cb68-24"><a href="apêndice.html#cb68-24" tabindex="-1"></a>         DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) <span class="sc">|&gt;</span> </span>
+<span id="cb68-25"><a href="apêndice.html#cb68-25" tabindex="-1"></a>  <span class="co"># Limpa os nomes de variaveis</span></span>
+<span id="cb68-26"><a href="apêndice.html#cb68-26" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb68-27"><a href="apêndice.html#cb68-27" tabindex="-1"></a></span>
+<span id="cb68-28"><a href="apêndice.html#cb68-28" tabindex="-1"></a><span class="co"># Exporta o banco</span></span>
+<span id="cb68-29"><a href="apêndice.html#cb68-29" tabindex="-1"></a><span class="fu">saveRDS</span>(base2020, <span class="st">&quot;base/base2020_sp.rds&quot;</span>)</span></code></pre></div>
+</div>
+<div id="rio-de-janeiro-em-2020" class="section level3 hasAnchor" number="5.1.2">
+<h3><span class="header-section-number">5.1.2</span> Rio de Janeiro em 2020<a href="apêndice.html#rio-de-janeiro-em-2020" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Votação por seção eleitoral do candidato Eduardo Paes na cidade do Rio de Janeiro em 2020.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="apêndice.html#cb69-1" tabindex="-1"></a><span class="co"># Baixa os dados de voto-secao</span></span>
+<span id="cb69-2"><a href="apêndice.html#cb69-2" tabindex="-1"></a>base2020 <span class="ot">&lt;-</span> <span class="fu">elections_tse</span>(<span class="dv">2020</span>, <span class="st">&quot;vote_section&quot;</span>, <span class="st">&quot;RJ&quot;</span>)</span>
+<span id="cb69-3"><a href="apêndice.html#cb69-3" tabindex="-1"></a></span>
+<span id="cb69-4"><a href="apêndice.html#cb69-4" tabindex="-1"></a><span class="co"># Prepara banco incluindo agregado de votos por secao</span></span>
+<span id="cb69-5"><a href="apêndice.html#cb69-5" tabindex="-1"></a>paes2020 <span class="ot">&lt;-</span> base2020 <span class="sc">|&gt;</span> </span>
+<span id="cb69-6"><a href="apêndice.html#cb69-6" tabindex="-1"></a>  <span class="co"># Filtra pelo municipio do RJ, 1o turno e elimina brancos/nulos</span></span>
+<span id="cb69-7"><a href="apêndice.html#cb69-7" tabindex="-1"></a>  <span class="fu">filter</span>(NM_MUNICIPIO <span class="sc">==</span> <span class="st">&quot;RIO DE JANEIRO&quot;</span>,</span>
+<span id="cb69-8"><a href="apêndice.html#cb69-8" tabindex="-1"></a>         NR_TURNO <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb69-9"><a href="apêndice.html#cb69-9" tabindex="-1"></a>         <span class="sc">!</span>NR_VOTAVEL <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">95</span>, <span class="dv">96</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb69-10"><a href="apêndice.html#cb69-10" tabindex="-1"></a>  <span class="co"># Calcula o total de votos validos por cargo/secao</span></span>
+<span id="cb69-11"><a href="apêndice.html#cb69-11" tabindex="-1"></a>  <span class="fu">group_by</span>(DS_CARGO,</span>
+<span id="cb69-12"><a href="apêndice.html#cb69-12" tabindex="-1"></a>           NR_ZONA, NR_SECAO) <span class="sc">|&gt;</span> </span>
+<span id="cb69-13"><a href="apêndice.html#cb69-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">votos_validos_secao =</span> <span class="fu">sum</span>(QT_VOTOS)) <span class="sc">|&gt;</span> </span>
+<span id="cb69-14"><a href="apêndice.html#cb69-14" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb69-15"><a href="apêndice.html#cb69-15" tabindex="-1"></a>  <span class="co"># Filtra pelo Eduardo Paes</span></span>
+<span id="cb69-16"><a href="apêndice.html#cb69-16" tabindex="-1"></a>  <span class="fu">filter</span>(NR_VOTAVEL <span class="sc">==</span> <span class="dv">25</span> <span class="sc">&amp;</span> DS_CARGO <span class="sc">==</span> <span class="st">&quot;Prefeito&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb69-17"><a href="apêndice.html#cb69-17" tabindex="-1"></a>  <span class="co"># Seleciona variaveis de interesse</span></span>
+<span id="cb69-18"><a href="apêndice.html#cb69-18" tabindex="-1"></a>  <span class="fu">select</span>(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, </span>
+<span id="cb69-19"><a href="apêndice.html#cb69-19" tabindex="-1"></a>         NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,</span>
+<span id="cb69-20"><a href="apêndice.html#cb69-20" tabindex="-1"></a>         DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) <span class="sc">|&gt;</span> </span>
+<span id="cb69-21"><a href="apêndice.html#cb69-21" tabindex="-1"></a>  <span class="co"># Limpa os nomes de variaveis</span></span>
+<span id="cb69-22"><a href="apêndice.html#cb69-22" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb69-23"><a href="apêndice.html#cb69-23" tabindex="-1"></a></span>
+<span id="cb69-24"><a href="apêndice.html#cb69-24" tabindex="-1"></a><span class="co"># Exporta resultado</span></span>
+<span id="cb69-25"><a href="apêndice.html#cb69-25" tabindex="-1"></a><span class="fu">saveRDS</span>(paes2020, <span class="st">&quot;base/base2020_rj.rds&quot;</span>)</span></code></pre></div>
+</div>
+<div id="são-paulo-em-2000" class="section level3 hasAnchor" number="5.1.3">
+<h3><span class="header-section-number">5.1.3</span> São Paulo em 2000<a href="apêndice.html#são-paulo-em-2000" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Shapefile com os pontos dos locais de votação e resultados da eleição municipal de 2000. Fonte: CEM (Centro de Estudos da Métropole, USP).</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="apêndice.html#cb70-1" tabindex="-1"></a><span class="co"># Cria um diretorio temporario no computador</span></span>
+<span id="cb70-2"><a href="apêndice.html#cb70-2" tabindex="-1"></a>dirtemp <span class="ot">&lt;-</span> <span class="fu">tempdir</span>() </span>
+<span id="cb70-3"><a href="apêndice.html#cb70-3" tabindex="-1"></a><span class="co"># Descompacta do arquivo contendo o shp na pasta temporária</span></span>
+<span id="cb70-4"><a href="apêndice.html#cb70-4" tabindex="-1"></a>zipfile <span class="ot">&lt;-</span> <span class="fu">unzip</span>(<span class="st">&quot;base/EL2000_LV_RMSP_CEM_V2.zip&quot;</span>, <span class="at">exdir =</span> dirtemp) </span>
+<span id="cb70-5"><a href="apêndice.html#cb70-5" tabindex="-1"></a></span>
+<span id="cb70-6"><a href="apêndice.html#cb70-6" tabindex="-1"></a><span class="co"># Lê o shp com os pontos dos locais de votação e resultados eleitorais de 2000. </span></span>
+<span id="cb70-7"><a href="apêndice.html#cb70-7" tabindex="-1"></a>lv2000 <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb70-8"><a href="apêndice.html#cb70-8" tabindex="-1"></a>  zipfile[<span class="dv">3</span>], </span>
+<span id="cb70-9"><a href="apêndice.html#cb70-9" tabindex="-1"></a>  <span class="co"># Usamos o ENCODING=WINDOWS-1252 para ajustar os caracteres com acento </span></span>
+<span id="cb70-10"><a href="apêndice.html#cb70-10" tabindex="-1"></a>  <span class="at">options =</span> <span class="st">&quot;ENCODING=WINDOWS-1252&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb70-11"><a href="apêndice.html#cb70-11" tabindex="-1"></a>  <span class="co"># Filtra pontos da cidade de São Paulo. O mapa contém dados de toda a RMSP</span></span>
+<span id="cb70-12"><a href="apêndice.html#cb70-12" tabindex="-1"></a>  <span class="fu">filter</span>(MUN_NOME <span class="sc">==</span> <span class="st">&quot;SAO PAULO&quot;</span>) </span>
+<span id="cb70-13"><a href="apêndice.html#cb70-13" tabindex="-1"></a></span>
+<span id="cb70-14"><a href="apêndice.html#cb70-14" tabindex="-1"></a><span class="co"># Exporta resultado</span></span>
+<span id="cb70-15"><a href="apêndice.html#cb70-15" tabindex="-1"></a><span class="fu">saveRDS</span>(lv2000, <span class="st">&quot;base/base2000_sp.rds&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="locais-de-votação" class="section level2 hasAnchor" number="5.2">
+<h2><span class="header-section-number">5.2</span> Locais de Votação<a href="apêndice.html#locais-de-votação" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Os dados abaixo foram obtidos do Github do Prof. Daniel Hidalgo (MIT). Seu repositório disponibiliza locais de votação entre 2006 e 2020 para todo o Brasil.</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="apêndice.html#cb71-1" tabindex="-1"></a><span class="co">#Baixa o arquivo produzido por Danny Hidalgo com todos os LV entre 2006-2020</span></span>
+<span id="cb71-2"><a href="apêndice.html#cb71-2" tabindex="-1"></a><span class="fu">download.file</span>(</span>
+<span id="cb71-3"><a href="apêndice.html#cb71-3" tabindex="-1"></a>  <span class="st">&quot;https://github.com/fdhidalgo/geocode_br_polling_stations/releases/download/v0.13-beta/geocoded_polling_stations.csv.gz&quot;</span>,</span>
+<span id="cb71-4"><a href="apêndice.html#cb71-4" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">&quot;base&quot;</span>, <span class="st">&quot;geocoded_polling_stations.csv.gz&quot;</span>))</span>
+<span id="cb71-5"><a href="apêndice.html#cb71-5" tabindex="-1"></a></span>
+<span id="cb71-6"><a href="apêndice.html#cb71-6" tabindex="-1"></a><span class="co"># Abre os dados e filtra para o ano de 2020</span></span>
+<span id="cb71-7"><a href="apêndice.html#cb71-7" tabindex="-1"></a>baselv2020 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb71-8"><a href="apêndice.html#cb71-8" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">&quot;base&quot;</span>, <span class="st">&quot;geocoded_polling_stations.csv.gz&quot;</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb71-9"><a href="apêndice.html#cb71-9" tabindex="-1"></a>  <span class="fu">filter</span>(ano <span class="sc">==</span> <span class="dv">2020</span>)</span></code></pre></div>
+<div id="são-paulo-em-2020-1" class="section level3 hasAnchor" number="5.2.1">
+<h3><span class="header-section-number">5.2.1</span> São Paulo em 2020<a href="apêndice.html#são-paulo-em-2020-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Agora podemos filtrar os dados georeferenciados específicos para o município de São Paulo.</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="apêndice.html#cb72-1" tabindex="-1"></a><span class="co"># Filtra o municipio de São Paulo e mantem somente as variaveis de interesse</span></span>
+<span id="cb72-2"><a href="apêndice.html#cb72-2" tabindex="-1"></a>baselv2020_sp <span class="ot">&lt;-</span> baselv2020 <span class="sc">|&gt;</span> </span>
+<span id="cb72-3"><a href="apêndice.html#cb72-3" tabindex="-1"></a>  <span class="fu">filter</span>(nm_localidade <span class="sc">==</span> <span class="st">&quot;SÃO PAULO&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb72-4"><a href="apêndice.html#cb72-4" tabindex="-1"></a>  <span class="co"># Mantem somente 1 nr_locvot por zona. Selecionamos aleatoriamente o escolhido</span></span>
+<span id="cb72-5"><a href="apêndice.html#cb72-5" tabindex="-1"></a>  <span class="fu">group_by</span>(nr_locvot, nr_zona) <span class="sc">|&gt;</span> </span>
+<span id="cb72-6"><a href="apêndice.html#cb72-6" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb72-7"><a href="apêndice.html#cb72-7" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="co"># n = 2.063</span></span>
+<span id="cb72-8"><a href="apêndice.html#cb72-8" tabindex="-1"></a></span>
+<span id="cb72-9"><a href="apêndice.html#cb72-9" tabindex="-1"></a><span class="co"># Exporta banco em rds</span></span>
+<span id="cb72-10"><a href="apêndice.html#cb72-10" tabindex="-1"></a><span class="fu">saveRDS</span>(baselv2020_sp, <span class="st">&quot;base/baseLocais2020SP.rds&quot;</span>)</span></code></pre></div>
+</div>
+<div id="rio-de-janeiro-em-2020-1" class="section level3 hasAnchor" number="5.2.2">
+<h3><span class="header-section-number">5.2.2</span> Rio de Janeiro em 2020<a href="apêndice.html#rio-de-janeiro-em-2020-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Filtramos também os do Rio de Janeiro para 2020.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="apêndice.html#cb73-1" tabindex="-1"></a><span class="co"># Filtra o municipio do RJ e mantem somente as variaveis de interesse</span></span>
+<span id="cb73-2"><a href="apêndice.html#cb73-2" tabindex="-1"></a>baselv2020_rj <span class="ot">&lt;-</span> baselv2020 <span class="sc">|&gt;</span> </span>
+<span id="cb73-3"><a href="apêndice.html#cb73-3" tabindex="-1"></a>  <span class="fu">filter</span>(nm_localidade <span class="sc">==</span> <span class="st">&quot;RIO DE JANEIRO&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb73-4"><a href="apêndice.html#cb73-4" tabindex="-1"></a>  <span class="co"># Ignorando aleatoriamente aquelas que tem mais de 1 nr_locvot por zona</span></span>
+<span id="cb73-5"><a href="apêndice.html#cb73-5" tabindex="-1"></a>  <span class="fu">group_by</span>(nr_locvot, nr_zona) <span class="sc">|&gt;</span> </span>
+<span id="cb73-6"><a href="apêndice.html#cb73-6" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb73-7"><a href="apêndice.html#cb73-7" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="co"># n = 1.422</span></span>
+<span id="cb73-8"><a href="apêndice.html#cb73-8" tabindex="-1"></a></span>
+<span id="cb73-9"><a href="apêndice.html#cb73-9" tabindex="-1"></a><span class="co"># Exporta banco em rds</span></span>
+<span id="cb73-10"><a href="apêndice.html#cb73-10" tabindex="-1"></a><span class="fu">saveRDS</span>(baselv2020_rj, <span class="st">&quot;base/lvrj2020.rds&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="divisões-administrativas" class="section level2 hasAnchor" number="5.3">
+<h2><span class="header-section-number">5.3</span> Divisões Administrativas<a href="apêndice.html#divisões-administrativas" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="distritos-de-são-paulo" class="section level3 hasAnchor" number="5.3.1">
+<h3><span class="header-section-number">5.3.1</span> Distritos de São Paulo<a href="apêndice.html#distritos-de-são-paulo" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="apêndice.html#cb74-1" tabindex="-1"></a><span class="co"># Mapa de polígonos dos distritos de São Paulo. Fonte: IBGE via geobr</span></span>
+<span id="cb74-2"><a href="apêndice.html#cb74-2" tabindex="-1"></a>mapa_bairros <span class="ot">&lt;-</span> <span class="fu">read_neighborhood</span>(<span class="dv">2010</span>)</span>
+<span id="cb74-3"><a href="apêndice.html#cb74-3" tabindex="-1"></a>sp_distritos <span class="ot">&lt;-</span> mapa_bairros <span class="sc">|&gt;</span> <span class="fu">filter</span>(name_muni <span class="sc">==</span> <span class="st">&quot;São Paulo&quot;</span>)</span>
+<span id="cb74-4"><a href="apêndice.html#cb74-4" tabindex="-1"></a></span>
+<span id="cb74-5"><a href="apêndice.html#cb74-5" tabindex="-1"></a><span class="co"># Exporta o objeto espacial em rds</span></span>
+<span id="cb74-6"><a href="apêndice.html#cb74-6" tabindex="-1"></a><span class="fu">saveRDS</span>(sp_distritos, <span class="st">&quot;base/mapa_distritos_sp.rds&quot;</span>)</span></code></pre></div>
+</div>
+<div id="rio-de-janeiro" class="section level3 hasAnchor" number="5.3.2">
+<h3><span class="header-section-number">5.3.2</span> Rio de Janeiro<a href="apêndice.html#rio-de-janeiro" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="apêndice.html#cb75-1" tabindex="-1"></a><span class="co"># Mapa de polígonos dos setores censitários do Rio de Janeiro.</span></span>
+<span id="cb75-2"><a href="apêndice.html#cb75-2" tabindex="-1"></a><span class="co"># Fonte: IBGE (https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/26565-malhas-de-setores-censitarios-divisoes-intramunicipais.html?edicao=26589&amp;t=downloads)</span></span>
+<span id="cb75-3"><a href="apêndice.html#cb75-3" tabindex="-1"></a>rj_sc <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;base/rj_setores_censitarios/33SEE250GC_SIR.shp&quot;</span>,</span>
+<span id="cb75-4"><a href="apêndice.html#cb75-4" tabindex="-1"></a>                 <span class="at">options =</span> <span class="st">&quot;ENCODING=WINDOWS-1252&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb75-5"><a href="apêndice.html#cb75-5" tabindex="-1"></a>  <span class="fu">filter</span>(CD_GEOCODM <span class="sc">==</span> <span class="st">&quot;3304557&quot;</span>)</span>
+<span id="cb75-6"><a href="apêndice.html#cb75-6" tabindex="-1"></a></span>
+<span id="cb75-7"><a href="apêndice.html#cb75-7" tabindex="-1"></a><span class="co"># Exporta o objeto espacial em rds</span></span>
+<span id="cb75-8"><a href="apêndice.html#cb75-8" tabindex="-1"></a><span class="fu">saveRDS</span>(rj_sc, <span class="st">&quot;base/mapa_setores_rj.rds&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="sessões-eleitorais" class="section level2 hasAnchor" number="5.4">
+<h2><span class="header-section-number">5.4</span> Sessões Eleitorais<a href="apêndice.html#sessões-eleitorais" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb76-1"><a href="apêndice.html#cb76-1" tabindex="-1"></a><span class="co"># Informacoes da sessao utilizada na producao final dos bancos</span></span>
+<span id="cb76-2"><a href="apêndice.html#cb76-2" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb76-3"><a href="apêndice.html#cb76-3" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="apêndice.html#cb76-4" tabindex="-1"></a><span class="co"># R version 4.2.2 (2022-10-31)</span></span>
+<span id="cb76-5"><a href="apêndice.html#cb76-5" tabindex="-1"></a><span class="co"># Platform: aarch64-apple-darwin20 (64-bit)</span></span>
+<span id="cb76-6"><a href="apêndice.html#cb76-6" tabindex="-1"></a><span class="co"># Running under: macOS 14.1.1</span></span>
+<span id="cb76-7"><a href="apêndice.html#cb76-7" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb76-8"><a href="apêndice.html#cb76-8" tabindex="-1"></a><span class="co"># locale:</span></span>
+<span id="cb76-9"><a href="apêndice.html#cb76-9" tabindex="-1"></a><span class="co">#   [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span id="cb76-10"><a href="apêndice.html#cb76-10" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb76-11"><a href="apêndice.html#cb76-11" tabindex="-1"></a><span class="co"># attached base packages:</span></span>
+<span id="cb76-12"><a href="apêndice.html#cb76-12" tabindex="-1"></a><span class="co">#   [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb76-13"><a href="apêndice.html#cb76-13" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb76-14"><a href="apêndice.html#cb76-14" tabindex="-1"></a><span class="co"># other attached packages:</span></span>
+<span id="cb76-15"><a href="apêndice.html#cb76-15" tabindex="-1"></a><span class="co">#   [1] readr_2.1.4       geobr_1.7.0       sf_1.0-13         electionsBR_0.3.3 janitor_2.2.0     dplyr_1.1.2       here_1.0.1       </span></span>
+<span id="cb76-16"><a href="apêndice.html#cb76-16" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb76-17"><a href="apêndice.html#cb76-17" tabindex="-1"></a><span class="co"># loaded via a namespace (and not attached):</span></span>
+<span id="cb76-18"><a href="apêndice.html#cb76-18" tabindex="-1"></a><span class="co">#   [1] Rcpp_1.0.10        pillar_1.9.0       compiler_4.2.2     class_7.3-20       tools_4.2.2        bit_4.0.5         </span></span>
+<span id="cb76-19"><a href="apêndice.html#cb76-19" tabindex="-1"></a><span class="co"># [7] lubridate_1.9.2    lifecycle_1.0.3    tibble_3.2.1       timechange_0.2.0   pkgconfig_2.0.3    rlang_1.1.1       </span></span>
+<span id="cb76-20"><a href="apêndice.html#cb76-20" tabindex="-1"></a><span class="co"># [13] DBI_1.1.3          cli_3.6.1          rstudioapi_0.14    parallel_4.2.2     curl_5.0.0         e1071_1.7-13      </span></span>
+<span id="cb76-21"><a href="apêndice.html#cb76-21" tabindex="-1"></a><span class="co"># [19] withr_2.5.0        stringr_1.5.0      httr_1.4.5         hms_1.1.3          generics_0.1.3     vctrs_0.6.2       </span></span>
+<span id="cb76-22"><a href="apêndice.html#cb76-22" tabindex="-1"></a><span class="co"># [25] bit64_4.0.5        classInt_0.4-9     rprojroot_2.0.3    grid_4.2.2         tidyselect_1.2.0   snakecase_0.11.0  </span></span>
+<span id="cb76-23"><a href="apêndice.html#cb76-23" tabindex="-1"></a><span class="co"># [31] glue_1.6.2         data.table_1.14.8  R6_2.5.1           fansi_1.0.4        vroom_1.6.3        tzdb_0.3.0        </span></span>
+<span id="cb76-24"><a href="apêndice.html#cb76-24" tabindex="-1"></a><span class="co"># [37] magrittr_2.0.3     units_0.8-2        utf8_1.2.3         KernSmooth_2.23-20 stringi_1.7.12     proxy_0.4-27      </span></span>
+<span id="cb76-25"><a href="apêndice.html#cb76-25" tabindex="-1"></a><span class="co"># [43] crayon_1.5.2   </span></span></code></pre></div>
 
+</div>
 </div>
             </section>
 

@@ -1,0 +1,218 @@
+# Apêndice
+
+Nesta parte, apresentamos o script utilizado na montagem das bases de dados dos candidatos.
+
+```{r pacotes-finais, message = FALSE, eval = F}
+library(here)
+library(dplyr)
+library(readr)
+library(janitor)
+library(electionsBR)
+library(sf)
+library(geobr)
+```
+
+```{r directory, message = FALSE, eval = F}
+# Cria um diretorio para guardar as bases, caso ele nao exista
+if(!dir.exists("base/")) dir.create("base/")
+```
+
+## Resultados Eleitorais
+
+### São Paulo em 2020
+
+Votação por seção eleitoral dos candidatos Guilherme Boulos, Eduardo Suplicy, Fernando Holiday e Milton Leite na cidade de São Paulo em 2020. Fonte: TSE.
+
+```{r electionsBR-sp-2020, message = FALSE, eval = F}
+# Essa funcao esta somente na versao em dev do electionsBR
+# https://github.com/silvadenisson/electionsBR
+base2020 <- electionsBR::elections_tse(2020, "vote_section", "SP")
+
+# Prepara banco incluindo agregado de votos por secao
+base2020 <- base2020 |> 
+  # Filtra pelo municipio de SP, 1o turno e elimina brancos/nulos
+  filter(NM_MUNICIPIO == "SÃO PAULO",
+         NR_TURNO == 1,
+         !NR_VOTAVEL %in% c(95, 96)) |> 
+  # Calcula o total de votos validos por cargo/secao
+  group_by(DS_CARGO,
+           NR_ZONA, NR_SECAO) |> 
+  mutate(votos_validos_secao = sum(QT_VOTOS)) |> 
+  ungroup() |> 
+  # Filtra pelos candidatos escolhidos
+  filter(NM_VOTAVEL %in% c("GUILHERME CASTRO BOULOS",
+                           "EDUARDO MATARAZZO SUPLICY",
+                           "FERNANDO HOLIDAY SILVA BISPO",
+                           "MILTON LEITE DA SILVA")) |> 
+  # Seleciona variaveis de interesse
+  select(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, 
+         NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,
+         DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) |> 
+  # Limpa os nomes de variaveis
+  clean_names()
+
+# Exporta o banco
+saveRDS(base2020, "base/base2020_sp.rds")
+```
+
+### Rio de Janeiro em 2020
+
+Votação por seção eleitoral do candidato Eduardo Paes na cidade do Rio de Janeiro em 2020.
+
+```{r dados-voto, message = FALSE, eval = F}
+# Baixa os dados de voto-secao
+base2020 <- elections_tse(2020, "vote_section", "RJ")
+
+# Prepara banco incluindo agregado de votos por secao
+paes2020 <- base2020 |> 
+  # Filtra pelo municipio do RJ, 1o turno e elimina brancos/nulos
+  filter(NM_MUNICIPIO == "RIO DE JANEIRO",
+         NR_TURNO == 1,
+         !NR_VOTAVEL %in% c(95, 96)) |> 
+  # Calcula o total de votos validos por cargo/secao
+  group_by(DS_CARGO,
+           NR_ZONA, NR_SECAO) |> 
+  mutate(votos_validos_secao = sum(QT_VOTOS)) |> 
+  ungroup() |> 
+  # Filtra pelo Eduardo Paes
+  filter(NR_VOTAVEL == 25 & DS_CARGO == "Prefeito") |> 
+  # Seleciona variaveis de interesse
+  select(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, 
+         NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,
+         DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) |> 
+  # Limpa os nomes de variaveis
+  clean_names()
+
+# Exporta resultado
+saveRDS(paes2020, "base/base2020_rj.rds")
+```
+
+### São Paulo em 2000
+
+Shapefile com os pontos dos locais de votação e resultados da eleição municipal de 2000. Fonte: CEM (Centro de Estudos da Métropole, USP).
+
+```{r dir-temp, message = FALSE, eval = F}
+# Cria um diretorio temporario no computador
+dirtemp <- tempdir() 
+# Descompacta do arquivo contendo o shp na pasta temporária
+zipfile <- unzip("base/EL2000_LV_RMSP_CEM_V2.zip", exdir = dirtemp) 
+
+# Lê o shp com os pontos dos locais de votação e resultados eleitorais de 2000. 
+lv2000 <- st_read(
+  zipfile[3], 
+  # Usamos o ENCODING=WINDOWS-1252 para ajustar os caracteres com acento 
+  options = "ENCODING=WINDOWS-1252") |>
+  # Filtra pontos da cidade de São Paulo. O mapa contém dados de toda a RMSP
+  filter(MUN_NOME == "SAO PAULO") 
+
+# Exporta resultado
+saveRDS(lv2000, "base/base2000_sp.rds")
+```
+
+
+## Locais de Votação
+
+Os dados abaixo foram obtidos do Github do Prof. Daniel Hidalgo (MIT). Seu repositório disponibiliza locais de votação entre 2006 e 2020 para todo o Brasil.
+
+```{r download-br-hidalgo, message = FALSE, eval = F}
+#Baixa o arquivo produzido por Danny Hidalgo com todos os LV entre 2006-2020
+download.file(
+  "https://github.com/fdhidalgo/geocode_br_polling_stations/releases/download/v0.13-beta/geocoded_polling_stations.csv.gz",
+  here("base", "geocoded_polling_stations.csv.gz"))
+
+# Abre os dados e filtra para o ano de 2020
+baselv2020 <- read_csv(
+  here("base", "geocoded_polling_stations.csv.gz")) |> 
+  filter(ano == 2020)
+```
+
+### São Paulo em 2020
+
+Agora podemos filtrar os dados georeferenciados específicos para o município de São Paulo.
+
+```{r download-sp-hidalgo, message = FALSE, eval = F}
+# Filtra o municipio de São Paulo e mantem somente as variaveis de interesse
+baselv2020_sp <- baselv2020 |> 
+  filter(nm_localidade == "SÃO PAULO") |> 
+  # Mantem somente 1 nr_locvot por zona. Selecionamos aleatoriamente o escolhido
+  group_by(nr_locvot, nr_zona) |> 
+  slice_sample(n = 1) |> 
+  ungroup() # n = 2.063
+
+# Exporta banco em rds
+saveRDS(baselv2020_sp, "base/baseLocais2020SP.rds")
+```
+
+### Rio de Janeiro em 2020
+
+Filtramos também os do Rio de Janeiro para 2020.
+
+```{r download-rj-hidalgo, message = FALSE, eval = F}
+# Filtra o municipio do RJ e mantem somente as variaveis de interesse
+baselv2020_rj <- baselv2020 |> 
+  filter(nm_localidade == "RIO DE JANEIRO") |> 
+  # Ignorando aleatoriamente aquelas que tem mais de 1 nr_locvot por zona
+  group_by(nr_locvot, nr_zona) |> 
+  slice_sample(n = 1) |> 
+  ungroup() # n = 1.422
+
+# Exporta banco em rds
+saveRDS(baselv2020_rj, "base/lvrj2020.rds")
+```
+
+
+## Divisões Administrativas
+
+### Distritos de São Paulo
+
+```{r distritos-sp, message = FALSE, eval = F}
+# Mapa de polígonos dos distritos de São Paulo. Fonte: IBGE via geobr
+mapa_bairros <- read_neighborhood(2010)
+sp_distritos <- mapa_bairros |> filter(name_muni == "São Paulo")
+
+# Exporta o objeto espacial em rds
+saveRDS(sp_distritos, "base/mapa_distritos_sp.rds")
+```
+
+### Rio de Janeiro
+
+```{r distritos-rj, message = FALSE, eval = F}
+# Mapa de polígonos dos setores censitários do Rio de Janeiro.
+# Fonte: IBGE (https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/26565-malhas-de-setores-censitarios-divisoes-intramunicipais.html?edicao=26589&t=downloads)
+rj_sc <- st_read("base/rj_setores_censitarios/33SEE250GC_SIR.shp",
+                 options = "ENCODING=WINDOWS-1252") |> 
+  filter(CD_GEOCODM == "3304557")
+
+# Exporta o objeto espacial em rds
+saveRDS(rj_sc, "base/mapa_setores_rj.rds")
+```
+
+## Sessões Eleitorais
+
+```{r sessoes, message = FALSE, eval = F}
+# Informacoes da sessao utilizada na producao final dos bancos
+sessionInfo()
+
+# R version 4.2.2 (2022-10-31)
+# Platform: aarch64-apple-darwin20 (64-bit)
+# Running under: macOS 14.1.1
+# 
+# locale:
+#   [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+# 
+# attached base packages:
+#   [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#   [1] readr_2.1.4       geobr_1.7.0       sf_1.0-13         electionsBR_0.3.3 janitor_2.2.0     dplyr_1.1.2       here_1.0.1       
+# 
+# loaded via a namespace (and not attached):
+#   [1] Rcpp_1.0.10        pillar_1.9.0       compiler_4.2.2     class_7.3-20       tools_4.2.2        bit_4.0.5         
+# [7] lubridate_1.9.2    lifecycle_1.0.3    tibble_3.2.1       timechange_0.2.0   pkgconfig_2.0.3    rlang_1.1.1       
+# [13] DBI_1.1.3          cli_3.6.1          rstudioapi_0.14    parallel_4.2.2     curl_5.0.0         e1071_1.7-13      
+# [19] withr_2.5.0        stringr_1.5.0      httr_1.4.5         hms_1.1.3          generics_0.1.3     vctrs_0.6.2       
+# [25] bit64_4.0.5        classInt_0.4-9     rprojroot_2.0.3    grid_4.2.2         tidyselect_1.2.0   snakecase_0.11.0  
+# [31] glue_1.6.2         data.table_1.14.8  R6_2.5.1           fansi_1.0.4        vroom_1.6.3        tzdb_0.3.0        
+# [37] magrittr_2.0.3     units_0.8-2        utf8_1.2.3         KernSmooth_2.23-20 stringi_1.7.12     proxy_0.4-27      
+# [43] crayon_1.5.2   
+```
