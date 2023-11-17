@@ -97,6 +97,10 @@ ggplot(mapa) + # Gera gráfico utilizando a base mapa
 
 ## Preparação do Banco de Dados
 
+No último exercício, preparamos o mapa da cidade de São Paulo dividido por seus distritos e, ao fim, localizamos nele cada um dos locais de votação da cidade. Nosso próximo passo será preparar os dados eleitorais para que possamos integrar as bases e, ao fim, gerar o mapa com a distribuição de votos do candidato selecionao (inicialmente, o psolista Guilherme Boulos).
+
+O primeiro passo será gerar uma base *candsp2020_porlv* na qual inserimos apenas o candidato Boulos e somamos a quantidade de votos obtidas em todas as urnas de cada local de votação. Note que você pode realizar o mesmo procedimento para outros candidatos. Para tal, basta substituir "Boulos" pelo nome do seu candidato de escolha. Lembre-se que as possibilidades são Milton Leite, Suplicy e Holiday.
+
 ```{r calcula votos, message = FALSE}
 # Calcula votos por local de votacao
 candsp2020_porlv <- candsp2020 |>
@@ -110,6 +114,8 @@ candsp2020_porlv <- candsp2020 |>
   # Calcula o percencual de votos por local
   mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
 ```
+
+No exercício do mapa do Brasil, utilizamos o comando *left_join* para integrar a base de dados com os ganhadores em cada estado com a base que possuia os polígonos de cada estado (a coluna *geom*). Agora faremos algo muito parecido. Integraremos a base que acabamos de criar (*candsp2020_porlv*) a base que possui os locais de votação (*lvsp2020*). Para tal, também renomeamos o *nr_local_votacao* para *nr_locvot* a fim de assegurar que esta coluna tem o mesmo nome em ambas as bases. Por fim, transformamos as informações em objeto espacial com a função *st_as_sf*.
 
 ```{r integra base e LV, message = FALSE}
 # Une com a base de LV geolocalizado 
