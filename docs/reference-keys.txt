@@ -8,5 +8,6 @@ mapas-municipais
 organização-intramunicipal
 importação-das-bases
 preparação-do-banco-de-dados
+mapa-coroplético
 exercício-final
 extra

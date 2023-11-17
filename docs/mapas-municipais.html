@@ -154,6 +154,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.1" data-path="mapas-municipais.html"><a href="mapas-municipais.html#organização-intramunicipal"><i class="fa fa-check"></i><b>3.1</b> Organização Intramunicipal</a></li>
 <li class="chapter" data-level="3.2" data-path="mapas-municipais.html"><a href="mapas-municipais.html#importação-das-bases"><i class="fa fa-check"></i><b>3.2</b> Importação das Bases</a></li>
 <li class="chapter" data-level="3.3" data-path="mapas-municipais.html"><a href="mapas-municipais.html#preparação-do-banco-de-dados"><i class="fa fa-check"></i><b>3.3</b> Preparação do Banco de Dados</a></li>
+<li class="chapter" data-level="3.4" data-path="mapas-municipais.html"><a href="mapas-municipais.html#mapa-coroplético"><i class="fa fa-check"></i><b>3.4</b> Mapa Coroplético</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="exercício-final.html"><a href="exercício-final.html"><i class="fa fa-check"></i><b>4</b> Exercício Final</a></li>
 <li class="chapter" data-level="5" data-path="extra.html"><a href="extra.html"><i class="fa fa-check"></i><b>5</b> Extra</a></li>
@@ -352,6 +353,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb38-4"><a href="mapas-municipais.html#cb38-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill=</span>votos_cand_porc))<span class="sc">+</span></span>
 <span id="cb38-5"><a href="mapas-municipais.html#cb38-5" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mapa-boulos-1.png" width="672" /></p>
+</div>
+<div id="mapa-coroplético" class="section level2 hasAnchor" number="3.4">
+<h2><span class="header-section-number">3.4</span> Mapa Coroplético<a href="mapas-municipais.html#mapa-coroplético" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Existem diversas escalas para definir os cortes de uma variavel, que vao informar como colorir areas de um mapa. Para mais informacoes, veja este vídeo no <a href="https://www.youtube.com/watch?v=0ebL8OvG8Jc" target="blank">YouTube</a>. Ele está em inglês, mas é possível gerar legendas traduzidas automaticamente.</p>
+<p>Vejam como ao escolher duas delas, produzimos dois mapas que sugerem informacoes diferentes fundamentados na mesma base de dados. Testaremos abaixo a abordagem de Cortes de Jenks (<em>jenks</em>) e Intervalos Geogmétricos (<em>geom</em>).</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="mapas-municipais.html#cb39-1" tabindex="-1"></a><span class="co"># Criamos os cortes e os guardamos num objeto</span></span>
+<span id="cb39-2"><a href="mapas-municipais.html#cb39-2" tabindex="-1"></a>cortes <span class="ot">&lt;-</span> <span class="fu">classIntervals</span>(boulos_final<span class="sc">$</span>votos_cand_porc, <span class="dv">4</span>, <span class="st">&quot;jenks&quot;</span>)</span>
+<span id="cb39-3"><a href="mapas-municipais.html#cb39-3" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="mapas-municipais.html#cb39-4" tabindex="-1"></a><span class="co"># Cria uma variavel com os cortes</span></span>
+<span id="cb39-5"><a href="mapas-municipais.html#cb39-5" tabindex="-1"></a>boulos_final<span class="sc">$</span>cortes_jenks <span class="ot">&lt;-</span> <span class="fu">cut</span>(boulos_final<span class="sc">$</span>votos_cand_porc, cortes<span class="sc">$</span>brks, </span>
+<span id="cb39-6"><a href="mapas-municipais.html#cb39-6" tabindex="-1"></a>                                 <span class="at">include.lowest =</span> T)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="mapas-municipais.html#cb40-1" tabindex="-1"></a><span class="do">## Intervalos geometricos</span></span>
+<span id="cb40-2"><a href="mapas-municipais.html#cb40-2" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="mapas-municipais.html#cb40-3" tabindex="-1"></a><span class="co"># Criamos os cortes e os guardamos num objeto</span></span>
+<span id="cb40-4"><a href="mapas-municipais.html#cb40-4" tabindex="-1"></a>cortes <span class="ot">&lt;-</span> <span class="fu">getBreaks</span>(boulos_final<span class="sc">$</span>votos_cand_porc, <span class="dv">4</span>, <span class="st">&quot;geom&quot;</span>)</span>
+<span id="cb40-5"><a href="mapas-municipais.html#cb40-5" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="mapas-municipais.html#cb40-6" tabindex="-1"></a><span class="co"># inserindo os cortes na base de dados usando a função cut</span></span>
+<span id="cb40-7"><a href="mapas-municipais.html#cb40-7" tabindex="-1"></a>boulos_final<span class="sc">$</span>int_geom <span class="ot">&lt;-</span> <span class="fu">cut</span>(boulos_final<span class="sc">$</span>votos_cand_porc, cortes, </span>
+<span id="cb40-8"><a href="mapas-municipais.html#cb40-8" tabindex="-1"></a>                             <span class="at">include.lowest =</span> T)</span></code></pre></div>
+<p>Agora, faremos a visualização de ambos os cortes seguindo a mesma ordem apresentada anteriormente: <em>jenks</em> e <em>geom</em>.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="mapas-municipais.html#cb41-1" tabindex="-1"></a><span class="co"># Visualizacao dos dois cortes</span></span>
+<span id="cb41-2"><a href="mapas-municipais.html#cb41-2" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb41-3"><a href="mapas-municipais.html#cb41-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>boulos_final, <span class="fu">aes</span>(<span class="at">fill=</span>cortes_jenks))<span class="sc">+</span></span>
+<span id="cb41-4"><a href="mapas-municipais.html#cb41-4" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;RdBu&quot;</span>, <span class="at">name=</span><span class="st">&quot;Votação (%)&quot;</span>)<span class="sc">+</span></span>
+<span id="cb41-5"><a href="mapas-municipais.html#cb41-5" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img src="fake-book_files/figure-html/graficos-jenks-geom-1.png" width="672" /></p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="mapas-municipais.html#cb42-1" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb42-2"><a href="mapas-municipais.html#cb42-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>boulos_final, <span class="fu">aes</span>(<span class="at">fill=</span>int_geom))<span class="sc">+</span></span>
+<span id="cb42-3"><a href="mapas-municipais.html#cb42-3" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;RdBu&quot;</span>, <span class="at">name=</span><span class="st">&quot;Votação (%)&quot;</span>)<span class="sc">+</span></span>
+<span id="cb42-4"><a href="mapas-municipais.html#cb42-4" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img src="fake-book_files/figure-html/graficos-jenks-geom-2.png" width="672" /></p>
+<p>*****Em boa parte dos casos, porem, voce vai querer criar uma escala, a partir dos resultados observados. No codigo abaixo, criamos uma escala manualmente com intervalos de 5 p.p. em 5 p.p., inciando em 10. Alem disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa dos ventos</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="mapas-municipais.html#cb43-1" tabindex="-1"></a><span class="co"># A partir do objeto espacial</span></span>
+<span id="cb43-2"><a href="mapas-municipais.html#cb43-2" tabindex="-1"></a>boulos_final  <span class="sc">|&gt;</span> </span>
+<span id="cb43-3"><a href="mapas-municipais.html#cb43-3" tabindex="-1"></a>  <span class="co"># Cria uma variavel categoria e preenche os niveis, que serao a legenda</span></span>
+<span id="cb43-4"><a href="mapas-municipais.html#cb43-4" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb43-5"><a href="mapas-municipais.html#cb43-5" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">case_when</span>(</span>
+<span id="cb43-6"><a href="mapas-municipais.html#cb43-6" tabindex="-1"></a>      <span class="fu">is.na</span>(votos_cand_porc) <span class="sc">~</span> <span class="st">&quot;Sem LV&quot;</span>,</span>
+<span id="cb43-7"><a href="mapas-municipais.html#cb43-7" tabindex="-1"></a>      votos_cand_porc <span class="sc">&gt;</span> <span class="dv">10</span> <span class="sc">&amp;</span> votos_cand_porc <span class="sc">&lt;=</span> <span class="dv">15</span> <span class="sc">~</span> <span class="st">&quot;10-15%&quot;</span>,</span>
+<span id="cb43-8"><a href="mapas-municipais.html#cb43-8" tabindex="-1"></a>      votos_cand_porc <span class="sc">&gt;</span> <span class="dv">15</span> <span class="sc">&amp;</span> votos_cand_porc <span class="sc">&lt;=</span> <span class="dv">20</span> <span class="sc">~</span> <span class="st">&quot;15-20%&quot;</span>,</span>
+<span id="cb43-9"><a href="mapas-municipais.html#cb43-9" tabindex="-1"></a>      votos_cand_porc <span class="sc">&gt;</span> <span class="dv">20</span> <span class="sc">&amp;</span> votos_cand_porc <span class="sc">&lt;=</span> <span class="dv">25</span> <span class="sc">~</span> <span class="st">&quot;20-25%&quot;</span>,</span>
+<span id="cb43-10"><a href="mapas-municipais.html#cb43-10" tabindex="-1"></a>      votos_cand_porc <span class="sc">&gt;</span> <span class="dv">25</span> <span class="sc">&amp;</span> votos_cand_porc <span class="sc">&lt;=</span> <span class="dv">30</span> <span class="sc">~</span> <span class="st">&quot;25-30%&quot;</span>,</span>
+<span id="cb43-11"><a href="mapas-municipais.html#cb43-11" tabindex="-1"></a>      votos_cand_porc <span class="sc">&gt;</span> <span class="dv">30</span> <span class="sc">~</span> <span class="st">&quot;&gt;30%&quot;</span>),</span>
+<span id="cb43-12"><a href="mapas-municipais.html#cb43-12" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">factor</span>(</span>
+<span id="cb43-13"><a href="mapas-municipais.html#cb43-13" tabindex="-1"></a>      categoria,</span>
+<span id="cb43-14"><a href="mapas-municipais.html#cb43-14" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Sem LV&quot;</span>, <span class="st">&quot;10-15%&quot;</span>, <span class="st">&quot;15-20%&quot;</span>, <span class="st">&quot;20-25%&quot;</span>, <span class="st">&quot;25-30%&quot;</span>, <span class="st">&quot;&gt;30%&quot;</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb43-15"><a href="mapas-municipais.html#cb43-15" tabindex="-1"></a>  <span class="co"># Inicia o ggplot</span></span>
+<span id="cb43-16"><a href="mapas-municipais.html#cb43-16" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb43-17"><a href="mapas-municipais.html#cb43-17" tabindex="-1"></a>  <span class="co"># Usa uma camada de sf</span></span>
+<span id="cb43-18"><a href="mapas-municipais.html#cb43-18" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> categoria), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb43-19"><a href="mapas-municipais.html#cb43-19" tabindex="-1"></a>  <span class="co"># Retira o datum</span></span>
+<span id="cb43-20"><a href="mapas-municipais.html#cb43-20" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb43-21"><a href="mapas-municipais.html#cb43-21" tabindex="-1"></a>  <span class="co"># Coloca o fill na paleta de verdes</span></span>
+<span id="cb43-22"><a href="mapas-municipais.html#cb43-22" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;YlOrBr&quot;</span>) <span class="sc">+</span></span>
+<span id="cb43-23"><a href="mapas-municipais.html#cb43-23" tabindex="-1"></a>  <span class="co"># Adicionar titulo, subtitulo e legenda</span></span>
+<span id="cb43-24"><a href="mapas-municipais.html#cb43-24" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb43-25"><a href="mapas-municipais.html#cb43-25" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Votação de Guilherme Boulos (2020, 1º turno)&quot;</span>,</span>
+<span id="cb43-26"><a href="mapas-municipais.html#cb43-26" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Distritos do município do SP&quot;</span>,</span>
+<span id="cb43-27"><a href="mapas-municipais.html#cb43-27" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Fonte: Elaborado por Gelape, Guedes e Faganello (2023), a partir de</span><span class="sc">\n</span><span class="st">dados de Daniel Hidalgo, TSE, IBGE.&quot;</span>) <span class="sc">+</span></span>
+<span id="cb43-28"><a href="mapas-municipais.html#cb43-28" tabindex="-1"></a>  <span class="co"># Adiciona escala</span></span>
+<span id="cb43-29"><a href="mapas-municipais.html#cb43-29" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_scale</span>(</span>
+<span id="cb43-30"><a href="mapas-municipais.html#cb43-30" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">width_hint =</span> <span class="fl">0.4</span>, <span class="at">line_width =</span> <span class="fl">0.5</span>, </span>
+<span id="cb43-31"><a href="mapas-municipais.html#cb43-31" tabindex="-1"></a>    <span class="at">height =</span> <span class="fu">unit</span>(<span class="fl">0.1</span>,<span class="st">&quot;cm&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb43-32"><a href="mapas-municipais.html#cb43-32" tabindex="-1"></a>  <span class="co"># Coloca titulo na legenda</span></span>
+<span id="cb43-33"><a href="mapas-municipais.html#cb43-33" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">&quot;Votos válidos (%)&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb43-34"><a href="mapas-municipais.html#cb43-34" tabindex="-1"></a>  <span class="co"># Ajusta elementos do tema do ggplot</span></span>
+<span id="cb43-35"><a href="mapas-municipais.html#cb43-35" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb43-36"><a href="mapas-municipais.html#cb43-36" tabindex="-1"></a>    <span class="co"># Posicao e direcao da legenda</span></span>
+<span id="cb43-37"><a href="mapas-municipais.html#cb43-37" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb43-38"><a href="mapas-municipais.html#cb43-38" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
+<span id="cb43-39"><a href="mapas-municipais.html#cb43-39" tabindex="-1"></a>    <span class="co"># Centralizacao de alguns elementos textuais</span></span>
+<span id="cb43-40"><a href="mapas-municipais.html#cb43-40" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb43-41"><a href="mapas-municipais.html#cb43-41" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb43-42"><a href="mapas-municipais.html#cb43-42" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb43-43"><a href="mapas-municipais.html#cb43-43" tabindex="-1"></a>  <span class="co"># Adiciona rosa-dos-ventos</span></span>
+<span id="cb43-44"><a href="mapas-municipais.html#cb43-44" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_north_arrow</span>(</span>
+<span id="cb43-45"><a href="mapas-municipais.html#cb43-45" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">which_north =</span> <span class="st">&quot;true&quot;</span>,</span>
+<span id="cb43-46"><a href="mapas-municipais.html#cb43-46" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">north_arrow_fancy_orienteering</span>(),</span>
+<span id="cb43-47"><a href="mapas-municipais.html#cb43-47" tabindex="-1"></a>    <span class="co"># Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)</span></span>
+<span id="cb43-48"><a href="mapas-municipais.html#cb43-48" tabindex="-1"></a>    <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="fl">0.5</span>, <span class="st">&quot;cm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;cm&quot;</span>)) </span></code></pre></div>
+<p><img src="fake-book_files/figure-html/mapa%20final-1.png" width="672" /></p>
 
 </div>
 </div>

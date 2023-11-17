@@ -233,3 +233,98 @@ boulos_final |>
   geom_sf(aes(fill=votos_cand_porc))+
   theme_void()
 ```
+
+## Mapa Coroplético
+
+Existem diversas escalas para definir os cortes de uma variavel, que vao informar como colorir areas de um mapa. Para mais informacoes, veja este vídeo no <a href="https://www.youtube.com/watch?v=0ebL8OvG8Jc" target="blank">YouTube</a>. Ele está em inglês, mas é possível gerar legendas traduzidas automaticamente.
+
+Vejam como ao escolher duas delas, produzimos dois mapas que sugerem informacoes diferentes fundamentados na mesma base de dados. Testaremos abaixo a abordagem de Cortes de Jenks (*jenks*) e Intervalos Geogmétricos (*geom*).
+
+```{r jenks, message = FALSE}
+# Criamos os cortes e os guardamos num objeto
+cortes <- classIntervals(boulos_final$votos_cand_porc, 4, "jenks")
+
+# Cria uma variavel com os cortes
+boulos_final$cortes_jenks <- cut(boulos_final$votos_cand_porc, cortes$brks, 
+                                 include.lowest = T)
+```
+
+```{r intervalos-geometricos, message = FALSE}
+## Intervalos geometricos
+
+# Criamos os cortes e os guardamos num objeto
+cortes <- getBreaks(boulos_final$votos_cand_porc, 4, "geom")
+
+# inserindo os cortes na base de dados usando a função cut
+boulos_final$int_geom <- cut(boulos_final$votos_cand_porc, cortes, 
+                             include.lowest = T)
+```
+
+Agora, faremos a visualização de ambos os cortes seguindo a mesma ordem apresentada anteriormente: *jenks* e *geom*.
+
+```{r graficos-jenks-geom, message = FALSE}
+# Visualizacao dos dois cortes
+ggplot() +
+  geom_sf(data=boulos_final, aes(fill=cortes_jenks))+
+  scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
+  theme_void()
+
+ggplot() +
+  geom_sf(data=boulos_final, aes(fill=int_geom))+
+  scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
+  theme_void()
+```
+
+
+*****Em boa parte dos casos, porem, voce vai querer criar uma escala, a partir dos resultados observados. No codigo abaixo, criamos uma escala manualmente com intervalos de 5 p.p. em 5 p.p., inciando em 10. Alem disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa dos ventos
+
+```{r mapa final, warning = FALSE}
+# A partir do objeto espacial
+boulos_final  |> 
+  # Cria uma variavel categoria e preenche os niveis, que serao a legenda
+  mutate(
+    categoria = case_when(
+      is.na(votos_cand_porc) ~ "Sem LV",
+      votos_cand_porc > 10 & votos_cand_porc <= 15 ~ "10-15%",
+      votos_cand_porc > 15 & votos_cand_porc <= 20 ~ "15-20%",
+      votos_cand_porc > 20 & votos_cand_porc <= 25 ~ "20-25%",
+      votos_cand_porc > 25 & votos_cand_porc <= 30 ~ "25-30%",
+      votos_cand_porc > 30 ~ ">30%"),
+    categoria = factor(
+      categoria,
+      levels = c("Sem LV", "10-15%", "15-20%", "20-25%", "25-30%", ">30%"))) |> 
+  # Inicia o ggplot
+  ggplot() + 
+  # Usa uma camada de sf
+  geom_sf(aes(fill = categoria), color = "black", size = 0.1) +
+  # Retira o datum
+  coord_sf(datum = NA) +
+  # Coloca o fill na paleta de verdes
+  scale_fill_brewer(palette = "YlOrBr") +
+  # Adicionar titulo, subtitulo e legenda
+  labs(
+    title = "Votação de Guilherme Boulos (2020, 1º turno)",
+    subtitle = "Distritos do município do SP",
+    caption = "Fonte: Elaborado por Gelape, Guedes e Faganello (2023), a partir de\ndados de Daniel Hidalgo, TSE, IBGE.") +
+  # Adiciona escala
+  ggspatial::annotation_scale(
+    location = "br", width_hint = 0.4, line_width = 0.5, 
+    height = unit(0.1,"cm")) +
+  # Coloca titulo na legenda
+  guides(fill = guide_legend(title = "Votos válidos (%)")) +
+  # Ajusta elementos do tema do ggplot
+  theme(
+    # Posicao e direcao da legenda
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    # Centralizacao de alguns elementos textuais
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0.5)) +
+  # Adiciona rosa-dos-ventos
+  ggspatial::annotation_north_arrow(
+    location = "br", which_north = "true",
+    style = north_arrow_fancy_orienteering(),
+    # Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
+    pad_x = unit(0.5, "cm"), pad_y = unit(1, "cm")) 
+```
