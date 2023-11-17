@@ -252,11 +252,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb20-5"><a href="mapas-municipais.html#cb20-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mapa-sp-1.png" width="672" /></p>
 <p>Agora, vamos verificar onde fica cada um dos locais de votação do município de São Paulo. No código abaixo, utilizamos os <em>ggplot</em> para plotar o mapa com os distritos. Depois, com o comando <em>geom_sf(data = lvsp2020)</em>, pedimos ao <em>ggplot</em> para inserir a localização dos locais de votação (base <em>lvsp2020</em>) no mesmo mapa. Por fim, o <em>theme_void</em> ajusta o layout do gráfico para facilitar a visualização.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="mapas-municipais.html#cb21-1" tabindex="-1"></a>mapa <span class="sc">%&gt;%</span> </span>
-<span id="cb21-2"><a href="mapas-municipais.html#cb21-2" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="do">## Gera o gráfico</span></span>
-<span id="cb21-3"><a href="mapas-municipais.html#cb21-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span> <span class="do">## Transforma em mapa</span></span>
-<span id="cb21-4"><a href="mapas-municipais.html#cb21-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> lvsp2020) <span class="sc">+</span> <span class="co"># Adiciona camada com os pontos dos locais de votação</span></span>
-<span id="cb21-5"><a href="mapas-municipais.html#cb21-5" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="co"># Ajusta o layout do gráfico deixando a tela de fundo em branco</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="mapas-municipais.html#cb21-1" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span> <span class="co"># Gera gráfico utilizando a base mapa</span></span>
+<span id="cb21-2"><a href="mapas-municipais.html#cb21-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span> <span class="co"># Transforma em gráfico geoespacial</span></span>
+<span id="cb21-3"><a href="mapas-municipais.html#cb21-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> lvsp2020) <span class="sc">+</span> <span class="co"># Adiciona camada com pontos dos locais de votação</span></span>
+<span id="cb21-4"><a href="mapas-municipais.html#cb21-4" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="co"># Ajusta o layout do gráfico deixando a tela de fundo em branco</span></span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mapa-sp-locais-1.png" width="672" /></p>
 </div>
 <div id="preparação-do-banco-de-dados" class="section level2 hasAnchor" number="3.3">
