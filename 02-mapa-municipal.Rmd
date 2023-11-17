@@ -128,6 +128,8 @@ candsp2020_porlv <- candsp2020_porlv |>
   st_as_sf(sf_column_name = "geometry")
 ```
 
+Pronto! Agora vamos gerar nosso primeiro mapa para pré-visualizar o que fizemos até aqui. A função é muito parecida com as que já utilizamos nos exercícios anteriores. O *ggplot* carrega o gráfico, o primeiro *geom_sf* informa a base com os polígonos e, na linha seguinte, informa que a coluna *votos_cand_porc* deve ser utilizada para estimar o tamanho (*size*) do pontos (quanto mais votos, maiores serão) e a cor (*color*) dos pontos (quanto mais votos, mais claro é a tonalidade do azul).
+
 ```{r candidatos-local, message = FALSE}
 # Pré-visualização dos votos dos candidatos por local de votação
 candsp2020_porlv |> 
@@ -138,20 +140,23 @@ candsp2020_porlv |>
   theme_void()
 ```
 
-
+Note que neste mapa, os locais de votação estão em sua localização original. Ainda não geramos uma base na qual eles são inseridos dentro dos distritos. Para tal, utilizaremos o comando *st_join* (spacial join) para integrar a base de locais de votação (*lvsp2020*) ao *mapa*.
 *** Obter o bairro do local de votacao
 
-```{r spacial joint, message = FALSE}
+```{r spacial join, message = FALSE}
 # Faz o spatial join
 lvsp2020_distrito <- st_join(lvsp2020, mapa)
 ```
 
-## Problemas acontecem!
+Existe, no entanto, um cuidado. Lembre-se que estamos fazendo uma reposição "artificial". Isto é, os locais de votação não foram feitos para se enquadrarem perfeitamente nos distritos de São Paulo. O TRE tem sua própria distribuição espacial que não necessariamente bate com aquela do IBGE. Utilizando o comando *nrow*, verificamos que a base *lvsp2020_distrito* tem uma linha a mais que a base *lvsp2020*! Ou seja, 2.064 linhas comparado com 2.063.
+
 
 ```{r problemas, message = FALSE}
 nrow(lvsp2020)
-nrow(lvsp2020_distrito) # Ele tem uma linha a mais
+nrow(lvsp2020_distrito) # Ele tem uma linha a mais!
 ```
+
+O gráfico que geramos abaixo nos auxilia na identificação do problema. Existe um local de votação que está localizado exatamente na divisa entre Vila Mariana e Bela Vista. Por isso, os nosso trabalho de integrar bases de dados acabou gerando o mesmo local de votação duas vezes--uma para cada bairro.
 
 ```{r identificando o problema, message = FALSE}
 # Isso ocorreu porque um LV está bem na divisa entre dois distritos
@@ -161,27 +166,32 @@ ggplot() +
   theme_void()
 ```
 
-```{r solucao, message = FALSE}
+Existem várias soluções possíveis para este problema. Perceba que não necessariamente existirá a solução perfeita para todos os casos. É necessário refletir sobre o objetivo da análise. Primeiro, poderíamos escolher aleatoriamente onde colocar este local de votação (Vila Mariana ou Bela Vista). Copiamos abaixo o bloco de código que permitirá realizar esta modificação.
+
+```{r solucao alternativa, message = FALSE}
 # Possivel solução: selecionar aleatoriamente o bairro ao qual ele esta atribuido
-lvsp2020_distrito <- lvsp2020_distrito |> 
-  group_by(nr_locvot, nr_zona) |> 
-  slice_sample(n = 1) |> 
-  ungroup() |> 
-  # Seleciona so as variaveis que vamos usar para o mapa
-  select(nr_zona, nr_locvot, name_district) |> 
-  # Retira a geometria, para ela ser tratada como uma tabela
-  st_drop_geometry()
-nrow(lvsp2020_distrito) # 2.063 linhas, pronto!
+#lvsp2020_distrito <- lvsp2020_distrito |> 
+#  group_by(nr_locvot, nr_zona) |> 
+#  slice_sample(n = 1) |> 
+#  ungroup() |> 
+#  # Seleciona so as variaveis que vamos usar para o mapa
+#  select(nr_zona, nr_locvot, name_district) |> 
+#  # Retira a geometria, para ela ser tratada como uma tabela
+#  st_drop_geometry()
+#nrow(lvsp2020_distrito) # 2.063 linhas, pronto!
 ```
 
-**** solução: escolher o primeiro bairro que aparece 
-* ponto_shape <- st_intersects(lvsp2020, mapa, sparse = T)
-* ponto_shape <- unlist(map(ponto_shape, ~.[1])) # faz com que quando exista dois pontos o primeiro seja escolhido
-* ponto_shape <- mapa$name_district[ponto_shape]
-* ponto_shape[269]
-* 
-* lvsp2020$bairro <- ponto_shape
+Para este exercício, selecionamos uma outra solução. Decidimos criar um comando geral que faz com que sempre que existirem dois pontos, o primeiro deles será escolhido.
 
+```{r solucao, message = FALSE}
+# solução: escolher o primeiro bairro que aparece 
+ ponto_shape <- st_intersects(lvsp2020, mapa, sparse = T)
+ ponto_shape <- unlist(map(ponto_shape, ~.[1])) # faz com que quando exista dois pontos o primeiro seja escolhido
+ ponto_shape <- mapa$name_district[ponto_shape]
+ ponto_shape[269]
+ 
+ lvsp2020$bairro <- ponto_shape
+```
 
 
 ```{r agrega votos por distrito, message = FALSE}

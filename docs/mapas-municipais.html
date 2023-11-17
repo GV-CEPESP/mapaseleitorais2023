@@ -154,7 +154,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.1" data-path="mapas-municipais.html"><a href="mapas-municipais.html#organização-intramunicipal"><i class="fa fa-check"></i><b>3.1</b> Organização Intramunicipal</a></li>
 <li class="chapter" data-level="3.2" data-path="mapas-municipais.html"><a href="mapas-municipais.html#importação-das-bases"><i class="fa fa-check"></i><b>3.2</b> Importação das Bases</a></li>
 <li class="chapter" data-level="3.3" data-path="mapas-municipais.html"><a href="mapas-municipais.html#preparação-do-banco-de-dados"><i class="fa fa-check"></i><b>3.3</b> Preparação do Banco de Dados</a></li>
-<li class="chapter" data-level="3.4" data-path="mapas-municipais.html"><a href="mapas-municipais.html#problemas-acontecem"><i class="fa fa-check"></i><b>3.4</b> Problemas acontecem!</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="exercício-final.html"><a href="exercício-final.html"><i class="fa fa-check"></i><b>4</b> Exercício Final</a></li>
 <li class="chapter" data-level="5" data-path="extra.html"><a href="extra.html"><i class="fa fa-check"></i><b>5</b> Extra</a></li>
@@ -283,6 +282,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb23-6"><a href="mapas-municipais.html#cb23-6" tabindex="-1"></a>  <span class="fu">left_join</span>(lvsp2020, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;nr_zona&quot;</span>, <span class="st">&quot;nr_locvot&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb23-7"><a href="mapas-municipais.html#cb23-7" tabindex="-1"></a>  <span class="co"># Transforma em objeto espacial</span></span>
 <span id="cb23-8"><a href="mapas-municipais.html#cb23-8" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">sf_column_name =</span> <span class="st">&quot;geometry&quot;</span>)</span></code></pre></div>
+<p>Pronto! Agora vamos gerar nosso primeiro mapa para pré-visualizar o que fizemos até aqui. A função é muito parecida com as que já utilizamos nos exercícios anteriores. O <em>ggplot</em> carrega o gráfico, o primeiro <em>geom_sf</em> informa a base com os polígonos e, na linha seguinte, informa que a coluna <em>votos_cand_porc</em> deve ser utilizada para estimar o tamanho (<em>size</em>) do pontos (quanto mais votos, maiores serão) e a cor (<em>color</em>) dos pontos (quanto mais votos, mais claro é a tonalidade do azul).</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="mapas-municipais.html#cb24-1" tabindex="-1"></a><span class="co"># Pré-visualização dos votos dos candidatos por local de votação</span></span>
 <span id="cb24-2"><a href="mapas-municipais.html#cb24-2" tabindex="-1"></a>candsp2020_porlv <span class="sc">|&gt;</span> </span>
 <span id="cb24-3"><a href="mapas-municipais.html#cb24-3" tabindex="-1"></a>  <span class="fu">filter</span>(nm_votavel <span class="sc">==</span> <span class="st">&quot;Boulos&quot;</span>) <span class="sc">|&gt;</span> </span>
@@ -291,60 +291,64 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-6"><a href="mapas-municipais.html#cb24-6" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">size=</span>votos_cand_porc, <span class="at">color=</span>votos_cand_porc))<span class="sc">+</span></span>
 <span id="cb24-7"><a href="mapas-municipais.html#cb24-7" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/candidatos-local-1.png" width="672" /></p>
-<p>*** Obter o bairro do local de votacao</p>
+<p>Note que neste mapa, os locais de votação estão em sua localização original. Ainda não geramos uma base na qual eles são inseridos dentro dos distritos. Para tal, utilizaremos o comando <em>st_join</em> (spacial join) para integrar a base de locais de votação (<em>lvsp2020</em>) ao <em>mapa</em>.
+*** Obter o bairro do local de votacao</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="mapas-municipais.html#cb25-1" tabindex="-1"></a><span class="co"># Faz o spatial join</span></span>
 <span id="cb25-2"><a href="mapas-municipais.html#cb25-2" tabindex="-1"></a>lvsp2020_distrito <span class="ot">&lt;-</span> <span class="fu">st_join</span>(lvsp2020, mapa)</span></code></pre></div>
-</div>
-<div id="problemas-acontecem" class="section level2 hasAnchor" number="3.4">
-<h2><span class="header-section-number">3.4</span> Problemas acontecem!<a href="mapas-municipais.html#problemas-acontecem" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Existe, no entanto, um cuidado. Lembre-se que estamos fazendo uma reposição “artificial”. Isto é, os locais de votação não foram feitos para se enquadrarem perfeitamente nos distritos de São Paulo. O TRE tem sua própria distribuição espacial que não necessariamente bate com aquela do IBGE. Utilizando o comando <em>nrow</em>, verificamos que a base <em>lvsp2020_distrito</em> tem uma linha a mais que a base <em>lvsp2020</em>! Ou seja, 2.064 linhas comparado com 2.063.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="mapas-municipais.html#cb26-1" tabindex="-1"></a><span class="fu">nrow</span>(lvsp2020)</span></code></pre></div>
 <pre><code>## [1] 2063</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="mapas-municipais.html#cb28-1" tabindex="-1"></a><span class="fu">nrow</span>(lvsp2020_distrito) <span class="co"># Ele tem uma linha a mais</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="mapas-municipais.html#cb28-1" tabindex="-1"></a><span class="fu">nrow</span>(lvsp2020_distrito) <span class="co"># Ele tem uma linha a mais!</span></span></code></pre></div>
 <pre><code>## [1] 2064</code></pre>
+<p>O gráfico que geramos abaixo nos auxilia na identificação do problema. Existe um local de votação que está localizado exatamente na divisa entre Vila Mariana e Bela Vista. Por isso, os nosso trabalho de integrar bases de dados acabou gerando o mesmo local de votação duas vezes–uma para cada bairro.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="mapas-municipais.html#cb30-1" tabindex="-1"></a><span class="co"># Isso ocorreu porque um LV está bem na divisa entre dois distritos</span></span>
 <span id="cb30-2"><a href="mapas-municipais.html#cb30-2" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb30-3"><a href="mapas-municipais.html#cb30-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data=</span>mapa <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name_district <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Vila Mariana&quot;</span>, <span class="st">&quot;Bela Vista&quot;</span>)))<span class="sc">+</span></span>
 <span id="cb30-4"><a href="mapas-municipais.html#cb30-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> lvsp2020 <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">269</span>), <span class="at">size=</span><span class="dv">2</span>)<span class="sc">+</span></span>
 <span id="cb30-5"><a href="mapas-municipais.html#cb30-5" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/identificando%20o%20problema-1.png" width="672" /></p>
+<p>Existem várias soluções possíveis para este problema. Perceba que não necessariamente existirá a solução perfeita para todos os casos. É necessário refletir sobre o objetivo da análise. Primeiro, poderíamos escolher aleatoriamente onde colocar este local de votação (Vila Mariana ou Bela Vista). Copiamos abaixo o bloco de código que permitirá realizar esta modificação.</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="mapas-municipais.html#cb31-1" tabindex="-1"></a><span class="co"># Possivel solução: selecionar aleatoriamente o bairro ao qual ele esta atribuido</span></span>
-<span id="cb31-2"><a href="mapas-municipais.html#cb31-2" tabindex="-1"></a>lvsp2020_distrito <span class="ot">&lt;-</span> lvsp2020_distrito <span class="sc">|&gt;</span> </span>
-<span id="cb31-3"><a href="mapas-municipais.html#cb31-3" tabindex="-1"></a>  <span class="fu">group_by</span>(nr_locvot, nr_zona) <span class="sc">|&gt;</span> </span>
-<span id="cb31-4"><a href="mapas-municipais.html#cb31-4" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb31-5"><a href="mapas-municipais.html#cb31-5" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb31-6"><a href="mapas-municipais.html#cb31-6" tabindex="-1"></a>  <span class="co"># Seleciona so as variaveis que vamos usar para o mapa</span></span>
-<span id="cb31-7"><a href="mapas-municipais.html#cb31-7" tabindex="-1"></a>  <span class="fu">select</span>(nr_zona, nr_locvot, name_district) <span class="sc">|&gt;</span> </span>
-<span id="cb31-8"><a href="mapas-municipais.html#cb31-8" tabindex="-1"></a>  <span class="co"># Retira a geometria, para ela ser tratada como uma tabela</span></span>
-<span id="cb31-9"><a href="mapas-municipais.html#cb31-9" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>()</span>
-<span id="cb31-10"><a href="mapas-municipais.html#cb31-10" tabindex="-1"></a><span class="fu">nrow</span>(lvsp2020_distrito) <span class="co"># 2.063 linhas, pronto!</span></span></code></pre></div>
-<pre><code>## [1] 2063</code></pre>
-<p>**** solução: escolher o primeiro bairro que aparece
-* ponto_shape &lt;- st_intersects(lvsp2020, mapa, sparse = T)
-* ponto_shape &lt;- unlist(map(ponto_shape, ~.[1])) # faz com que quando exista dois pontos o primeiro seja escolhido
-* ponto_shape &lt;- mapa<span class="math inline">\(name_district[ponto_shape] * ponto_shape[269] * * lvsp2020\)</span>bairro &lt;- ponto_shape</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="mapas-municipais.html#cb33-1" tabindex="-1"></a><span class="co"># agregação dos votos nos locais de votação por distrito</span></span>
-<span id="cb33-2"><a href="mapas-municipais.html#cb33-2" tabindex="-1"></a><span class="co"># mensuração dos votos percentuais por local de votação</span></span>
-<span id="cb33-3"><a href="mapas-municipais.html#cb33-3" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="mapas-municipais.html#cb33-4" tabindex="-1"></a>candsp2020_pordist <span class="ot">&lt;-</span> candsp2020_porlv <span class="sc">|&gt;</span></span>
-<span id="cb33-5"><a href="mapas-municipais.html#cb33-5" tabindex="-1"></a>  <span class="co"># Retira a informacao da geometria do ponto</span></span>
-<span id="cb33-6"><a href="mapas-municipais.html#cb33-6" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
-<span id="cb33-7"><a href="mapas-municipais.html#cb33-7" tabindex="-1"></a>  <span class="co"># Traz a informacao do distrito referente ao ponto, que obtivemos acima</span></span>
-<span id="cb33-8"><a href="mapas-municipais.html#cb33-8" tabindex="-1"></a>  <span class="fu">left_join</span>(lvsp2020_distrito, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;nr_zona&quot;</span>, <span class="st">&quot;nr_locvot&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="mapas-municipais.html#cb34-1" tabindex="-1"></a><span class="co"># Soma os votos do candidato por distrito e calcula o %</span></span>
-<span id="cb34-2"><a href="mapas-municipais.html#cb34-2" tabindex="-1"></a>candsp2020_pordist <span class="ot">&lt;-</span> candsp2020_pordist <span class="sc">|&gt;</span> </span>
-<span id="cb34-3"><a href="mapas-municipais.html#cb34-3" tabindex="-1"></a>  <span class="fu">group_by</span>(name_district, nm_votavel) <span class="sc">|&gt;</span></span>
-<span id="cb34-4"><a href="mapas-municipais.html#cb34-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">votos_cand =</span> <span class="fu">sum</span>(votos_cand),</span>
-<span id="cb34-5"><a href="mapas-municipais.html#cb34-5" tabindex="-1"></a>            <span class="at">votos_validos =</span> <span class="fu">sum</span>(votos_validos)) <span class="sc">|&gt;</span> </span>
-<span id="cb34-6"><a href="mapas-municipais.html#cb34-6" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb34-7"><a href="mapas-municipais.html#cb34-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">votos_cand_porc =</span> <span class="fu">round</span>(votos_cand<span class="sc">/</span>votos_validos<span class="sc">*</span><span class="dv">100</span>,<span class="dv">1</span>)) </span></code></pre></div>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="mapas-municipais.html#cb35-1" tabindex="-1"></a><span class="co"># Cria um objeto espacial em que passamos para o mapa a votacao</span></span>
-<span id="cb35-2"><a href="mapas-municipais.html#cb35-2" tabindex="-1"></a><span class="co"># de Boulos em cada um dos distritos de SP</span></span>
-<span id="cb35-3"><a href="mapas-municipais.html#cb35-3" tabindex="-1"></a>boulos_final <span class="ot">&lt;-</span> <span class="fu">left_join</span>(mapa, candsp2020_pordist, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name_district&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="mapas-municipais.html#cb36-1" tabindex="-1"></a><span class="co"># pré-visualização dos votos dos candidatos por distrito</span></span>
-<span id="cb36-2"><a href="mapas-municipais.html#cb36-2" tabindex="-1"></a>boulos_final <span class="sc">|&gt;</span> </span>
-<span id="cb36-3"><a href="mapas-municipais.html#cb36-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb36-4"><a href="mapas-municipais.html#cb36-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill=</span>votos_cand_porc))<span class="sc">+</span></span>
-<span id="cb36-5"><a href="mapas-municipais.html#cb36-5" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<span id="cb31-2"><a href="mapas-municipais.html#cb31-2" tabindex="-1"></a><span class="co">#lvsp2020_distrito &lt;- lvsp2020_distrito |&gt; </span></span>
+<span id="cb31-3"><a href="mapas-municipais.html#cb31-3" tabindex="-1"></a><span class="co">#  group_by(nr_locvot, nr_zona) |&gt; </span></span>
+<span id="cb31-4"><a href="mapas-municipais.html#cb31-4" tabindex="-1"></a><span class="co">#  slice_sample(n = 1) |&gt; </span></span>
+<span id="cb31-5"><a href="mapas-municipais.html#cb31-5" tabindex="-1"></a><span class="co">#  ungroup() |&gt; </span></span>
+<span id="cb31-6"><a href="mapas-municipais.html#cb31-6" tabindex="-1"></a><span class="co">#  # Seleciona so as variaveis que vamos usar para o mapa</span></span>
+<span id="cb31-7"><a href="mapas-municipais.html#cb31-7" tabindex="-1"></a><span class="co">#  select(nr_zona, nr_locvot, name_district) |&gt; </span></span>
+<span id="cb31-8"><a href="mapas-municipais.html#cb31-8" tabindex="-1"></a><span class="co">#  # Retira a geometria, para ela ser tratada como uma tabela</span></span>
+<span id="cb31-9"><a href="mapas-municipais.html#cb31-9" tabindex="-1"></a><span class="co">#  st_drop_geometry()</span></span>
+<span id="cb31-10"><a href="mapas-municipais.html#cb31-10" tabindex="-1"></a><span class="co">#nrow(lvsp2020_distrito) # 2.063 linhas, pronto!</span></span></code></pre></div>
+<p>Para este exercício, selecionamos uma outra solução. Decidimos criar um comando geral que faz com que sempre que existirem dois pontos, o primeiro deles será escolhido.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="mapas-municipais.html#cb32-1" tabindex="-1"></a><span class="co"># solução: escolher o primeiro bairro que aparece </span></span>
+<span id="cb32-2"><a href="mapas-municipais.html#cb32-2" tabindex="-1"></a> ponto_shape <span class="ot">&lt;-</span> <span class="fu">st_intersects</span>(lvsp2020, mapa, <span class="at">sparse =</span> T)</span>
+<span id="cb32-3"><a href="mapas-municipais.html#cb32-3" tabindex="-1"></a> ponto_shape <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">map</span>(ponto_shape, <span class="sc">~</span>.[<span class="dv">1</span>])) <span class="co"># faz com que quando exista dois pontos o primeiro seja escolhido</span></span>
+<span id="cb32-4"><a href="mapas-municipais.html#cb32-4" tabindex="-1"></a> ponto_shape <span class="ot">&lt;-</span> mapa<span class="sc">$</span>name_district[ponto_shape]</span>
+<span id="cb32-5"><a href="mapas-municipais.html#cb32-5" tabindex="-1"></a> ponto_shape[<span class="dv">269</span>]</span></code></pre></div>
+<pre><code>## [1] &quot;Bela Vista&quot;</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="mapas-municipais.html#cb34-1" tabindex="-1"></a> lvsp2020<span class="sc">$</span>bairro <span class="ot">&lt;-</span> ponto_shape</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="mapas-municipais.html#cb35-1" tabindex="-1"></a><span class="co"># agregação dos votos nos locais de votação por distrito</span></span>
+<span id="cb35-2"><a href="mapas-municipais.html#cb35-2" tabindex="-1"></a><span class="co"># mensuração dos votos percentuais por local de votação</span></span>
+<span id="cb35-3"><a href="mapas-municipais.html#cb35-3" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="mapas-municipais.html#cb35-4" tabindex="-1"></a>candsp2020_pordist <span class="ot">&lt;-</span> candsp2020_porlv <span class="sc">|&gt;</span></span>
+<span id="cb35-5"><a href="mapas-municipais.html#cb35-5" tabindex="-1"></a>  <span class="co"># Retira a informacao da geometria do ponto</span></span>
+<span id="cb35-6"><a href="mapas-municipais.html#cb35-6" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb35-7"><a href="mapas-municipais.html#cb35-7" tabindex="-1"></a>  <span class="co"># Traz a informacao do distrito referente ao ponto, que obtivemos acima</span></span>
+<span id="cb35-8"><a href="mapas-municipais.html#cb35-8" tabindex="-1"></a>  <span class="fu">left_join</span>(lvsp2020_distrito, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;nr_zona&quot;</span>, <span class="st">&quot;nr_locvot&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="mapas-municipais.html#cb36-1" tabindex="-1"></a><span class="co"># Soma os votos do candidato por distrito e calcula o %</span></span>
+<span id="cb36-2"><a href="mapas-municipais.html#cb36-2" tabindex="-1"></a>candsp2020_pordist <span class="ot">&lt;-</span> candsp2020_pordist <span class="sc">|&gt;</span> </span>
+<span id="cb36-3"><a href="mapas-municipais.html#cb36-3" tabindex="-1"></a>  <span class="fu">group_by</span>(name_district, nm_votavel) <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="mapas-municipais.html#cb36-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">votos_cand =</span> <span class="fu">sum</span>(votos_cand),</span>
+<span id="cb36-5"><a href="mapas-municipais.html#cb36-5" tabindex="-1"></a>            <span class="at">votos_validos =</span> <span class="fu">sum</span>(votos_validos)) <span class="sc">|&gt;</span> </span>
+<span id="cb36-6"><a href="mapas-municipais.html#cb36-6" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb36-7"><a href="mapas-municipais.html#cb36-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">votos_cand_porc =</span> <span class="fu">round</span>(votos_cand<span class="sc">/</span>votos_validos<span class="sc">*</span><span class="dv">100</span>,<span class="dv">1</span>)) </span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="mapas-municipais.html#cb37-1" tabindex="-1"></a><span class="co"># Cria um objeto espacial em que passamos para o mapa a votacao</span></span>
+<span id="cb37-2"><a href="mapas-municipais.html#cb37-2" tabindex="-1"></a><span class="co"># de Boulos em cada um dos distritos de SP</span></span>
+<span id="cb37-3"><a href="mapas-municipais.html#cb37-3" tabindex="-1"></a>boulos_final <span class="ot">&lt;-</span> <span class="fu">left_join</span>(mapa, candsp2020_pordist, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name_district&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="mapas-municipais.html#cb38-1" tabindex="-1"></a><span class="co"># pré-visualização dos votos dos candidatos por distrito</span></span>
+<span id="cb38-2"><a href="mapas-municipais.html#cb38-2" tabindex="-1"></a>boulos_final <span class="sc">|&gt;</span> </span>
+<span id="cb38-3"><a href="mapas-municipais.html#cb38-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb38-4"><a href="mapas-municipais.html#cb38-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill=</span>votos_cand_porc))<span class="sc">+</span></span>
+<span id="cb38-5"><a href="mapas-municipais.html#cb38-5" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mapa-boulos-1.png" width="672" /></p>
 
 </div>
@@ -409,20 +413,6 @@ gitbook.start({
 });
 </script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 </body>
 
 </html>
