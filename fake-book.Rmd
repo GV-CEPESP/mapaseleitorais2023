@@ -1,0 +1,651 @@
+---
+title: "Mapas Eleitorais com R"
+author: "Lucas Gelape, João V. Guedes-Neto e Marco Antonio Faganello"
+#date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+url: https://gv-cepesp.github.io/mapaseleitorais2023/
+#description: |
+#  Texto
+#link-citations: yes
+#github-repo: https://github.com/GV-CEPESP/mapaseleitorais2023
+---
+
+# Sobre o Workshop
+
+Em 2018, PT e PSL protagonizaram a disputa pela presidência. No Capão Redondo, a disputa para deputado reproduziu essa tendência. Porém, em Pinheiros, os mais votados saíram desse padrão: foram PSOL e Novo. Mapas eleitorais permitem investigar esse fenômeno.
+
+O objetivo desse workshop é ensinar os participantes a trabalhar com dados espaciais no R a partir de informações eleitorais. Nele, vamos apresentar algumas características e cuidados especiais com esse tipo de dados, como associar os resultados eleitorais ao espaço (inclusive intramunicipais), e a produzir mapas.
+
+## Pré-Requisitos
+
+R, RStudio, pacotes (tidyverse e sf)
+
+## Autores
+
+*Lucas Gelape* é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de São Paulo. Atualmente, pesquisa temas relacionados a política local e geografia eleitoral. No jornalismo, trabalhou no G1 e no Volt Data Lab/Núcleo.
+
+*João V. Guedes-Neto* é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de Pittsburgh.
+
+*Marco Antonio Faganello* é Pesquisador, cientista de dados e pós-doutorando no CEPESP FGV, doutor em Ciência Política pela Universidade Estadual de Campinas (UNICAMP). Atualmente, pesquisa temas relacionados à eleições, partidos, direita e geografia eleitoral.
+
+<!--chapter:end:index.Rmd-->
+
+# Meu Primeiro Mapa
+
+## A Eleição Presidencial de 2014
+
+Em 2014, a então presidente Dilma Rousseff (PT) enfrentou o tucano Aécio Neves no segundo turno da eleição presidencial. Para visualizar o resultado desta disputa, elaboraremos um "mapa fácil" que colore os estados brasileiros de acordo com seu candidato mais votado.
+
+Para tal, utilizaremos apenas quatro pacotes. O primeiro deles, *dplyr*, nos ajuda a preparar a tabela com os dados eleitorais e realizar manipulações a fim de prepará-lo para nossas análises. Com função semelhante, o *sf* nos auxiliar a manipular dados espaciais--essencial para a maior parte das análise que utilizam mapas. O *ggplot2*, pacote frequentemente utilizado para visualização de dados, nos ajudará a "plotar" as informações nos mapas. Por fim, o pacote *geobr* foi desenvolvido para gerar "shape files" (arquivos com dados espaciais), os quais utilizaremos como parâmetros para nossos mapas.
+
+```{r carregando os pacotes, message = FALSE}
+## Carregando os pacotes relevantes
+library(dplyr) ## Gramática para manipulação de dados
+library(sf) ## Gramática para dados espaciais
+library(ggplot2) ## Elaboração de gráficos
+library(geobr) ## Mapas brasileiros
+```
+
+Nosso próximo passo é gerar uma tabela (*tibble*) com os dados que queremos plotar no mapa. Ou seja, uma coluna para os estados brasileiros e outra indicando o candidato vencedor. É importante notar que o nome da variável "estados" (a primeira linha da coluna) precisa estar alinhada com a nomenclatura utilizada no pacote *geobr*. Por tal motivo, utilizaremos o termo *abbrev_state* (referindo-se a abreviação dos nomes dos estados).
+
+No bloco abaixo, apresentamos uma forma simples para gerar esta tabela. No entanto, também é possível produzí-la no MS Excel (ou seu software de preferência) e importá-la para o R.
+
+```{r gerando a tabela para 2014, message = FALSE}
+ganhadores_2014 <- tibble(abbrev_state = 
+                            c("RS", "SC", "PR",
+                              "SP", "MG", "RJ", "ES",
+                              "MS", "MT", "GO", "DF", "TO",
+                              "RO", "AC", "AM", "PA", "AP", "RR",
+                              "MA", "PI", "CE", "RN", "PB", 
+                              "PE", "AL", "SE", "BA"),
+                          ganhador =
+                            c("Aécio", "Aécio", "Aécio",
+                              "Aécio", "Dilma", "Dilma", "Aécio",
+                              "Aécio", "Aécio", "Aécio","Aécio", "Dilma",
+                              "Aécio", "Aécio", "Dilma", "Dilma", "Dilma", "Aécio",
+                              "Dilma", "Dilma", "Dilma", "Dilma", "Dilma", 
+                              "Dilma", "Dilma", "Dilma", "Dilma"))
+```
+
+A tabela (*tibble*) construída será como esta que apresentamos abaixo.
+
+```{r tabela do segundo turno de 2014}
+data.frame(ganhadores_2014)
+```
+
+Nosso próximo passo é baixar os dados cartográficos do pacote *geobr*. Basicamente, queremos baixar uma tabela que contenha os estados brasileiros e informações geográficas (e geométricas!) nos informando como eles devem ser "desenhados".
+
+```{r baixando dados cartográficos, message = FALSE}
+mapa_brasil <- read_state(code_state="all",
+                          year=2018,
+                          showProgress = FALSE)
+```
+
+Agora temos dois *tibbles* complementares. O *ganhadores_2014* inclui qual candidato ganhou o segundo turno da eleição presidencial de 2014 em cada estado brasileiro. O *mapa_brasil* contém informação cartográfica sobre cada um dos estados brasileiros. Como os estados são identificados a partir da coluna *abbrev_state* em ambos os bancos de dados, agora podemos utilizar o comando *left_join* para integrá-los.
+
+```{r integrando os dados cartográficos à tibble com ganhadores, warning = FALSE}
+ganhadores_2014 <- left_join(mapa_brasil, ganhadores_2014, by = "abbrev_state")
+```
+
+Isto gera uma tabela na qual estão presentes os estados, seu devidos ganhadores e os dados cartográficos. A partir destas informações, podemos usar o comando *ggplot* para elaborar o mapa brasileiro colorido com base nos ganhadores. Note que utilizamos a função mais básica possível a fim de gerar este mapa. Ao longo deste workshop, aprenderemos como mudar sua aparência.
+
+```{r mapa de 2014, warning = FALSE}
+ganhadores_2014  %>%
+  ggplot() + ## Gera o gráfico
+  geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
+```
+
+
+## A Eleição Presidencial de 2022
+
+Os mapas nos ajudam a contar uma história. Agora que geramos o mapa eleitoral da eleição presidencial de 2014, faremos o mesmo procedimento para compará-lo com o que ocorreu em 2022 quando Jair Bolsonaro (PL) foi derrotado pelo petista Lula da Silva. Mais uma vez, nosso trabalho começa a partir da criação de um *tibble* com os vencedores do segundo turno em cada estado brasileiro. Lembre-se que os estados devem ser identificados como *abbrev_state*.
+
+```{r tabela de ganhadores em 2022, message = FALSE}
+ganhadores_2022 <- tibble(abbrev_state = 
+                                    c("RS", "SC", "PR",
+                                      "SP", "MG", "RJ", "ES",
+                                      "MS", "MT", "GO", "DF", "TO",
+                                      "RO", "AC", "AM", "PA", "AP", "RR",
+                                      "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA"),
+                                  ganhador =
+                                    c("Bolsonaro", "Bolsonaro", "Bolsonaro",
+                                      "Bolsonaro", "Lula", "Bolsonaro", "Bolsonaro",
+                                      "Bolsonaro", "Bolsonaro", "Bolsonaro","Bolsonaro", "Lula",
+                                      "Bolsonaro", "Bolsonaro", "Lula", "Lula", "Bolsonaro", "Bolsonaro",
+                                      "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula"))
+```
+
+Como já haviámos baixado o dados cartográficos, não é necessário repetir o processo. Podemos ir diretamente para a etapa de integrá-los ao banco de dados eleitoral de 2022. 
+
+```{r integrando os dados cartográficos à tibble com ganhadores de 2022, warning = FALSE}
+ganhadores_2022 <- left_join(mapa_brasil, ganhadores_2022, by = "abbrev_state")
+```
+
+Por fim, utilizamos o mesmo código da etapa anterior para gerar o mapa de 2022.
+
+```{r mapa de 2022, warning = FALSE}
+ganhadores_2022  %>%
+  ggplot() + ## Gera o gráfico
+  geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
+```
+
+Pronto! Temos nossa primeira história a ser contada. Ainda que existam diferenças, os mapas são muito parecidos. Ou seja, a distribuição geográfica da campanha vitoriosa de Dilma Rousseff em 2014 é muito parecida com aquela realizada por Lula da Silva em 2022. Os mapas demonstram isto claramente!
+
+Agora, se tiver tempo, sugerimos que você faça os mapas para outras eleições presidenciais. Por exemplo, o que aconteceu em 1994 e 2002?
+
+<!--chapter:end:01-mapa-facil.Rmd-->
+
+# Mapas municipais
+
+## Organização Intramunicipal
+
+Administrativamente, a Justiça Eleitoral se organiza em zonas eleitorais, nas quais estão localizados os locais de votação, que abrigam as seções eleitorais (sendo que cada seção eleitoral corresponde a uma urna). Dentro dos municípios, porém, a organização territorial da Justiça Eleitoral não coincide necessariamente com outras divisões administrativas. Ou seja, os limites das zonas eleitorais muitas vezes não correspondem aos limites de bairros ou distritos.
+
+Além disso, os Tribunais Regionais Eleitorais (TREs) não têm o costume de divulgar arquivos espaciais que apresentem os limites dessas zonas. Então, como produzir mapas de resultados eleitorais dentro de municípios?
+
+Para isso, utilizamos outra fonte de dados do Tribunal Superior Eleitoral (TSE). O TSE divulga os endereços de todos os locais de votação brasileiros e as suas seções eleitorais correspondentes de todas as disputas desde 2008 (alguns TREs divulgam essas informações para eleições prévias a 2008) e podem ser usadas para esse fim. Esses registros administrativos têm, inclusive, uma coluna com a informação de bairro desse endereço. 
+
+Bastaria então unir o banco de resultados por seção eleitoral com esse de locais de votação, somar os votos no bairro informado pela coluna dos registros do TSE, acoplar os resultados num mapa e voilà, certo? Infelizmente, não. A informação do bairro advinda dos registros do TSE frequentemente não coincide com o bairro onde geograficamente está esse local de votação (para mais informações, veja Gelape, 2017, 2018). 
+
+Assim, para produzirmos mapas com votações de candidatos dentro de um município, precisamos encontrar a localização dos locais de votação no espaço. Neste exercício, utilizamos um banco de dados disponibilizado pelo prof. Daniel Hidalgo (do Massachusetts Institute of Technology, MIT) que cataloga a latitude e longitude para todos os locais de votação brasileiros entre 2006 e 2020. Esse foi um esforço de pesquisa que cruzou diferentes fontes de dados para determinar as coordenadas geográficas e que contou com a participação do FGV-CEPESP (para mais informações, deem uma olhada no <a href="https://github.com/fdhidalgo/geocode_br_polling_stations" target="blank">repositório do GitHub</a> -- e na <a href="https://raw.githack.com/fdhidalgo/geocode_br_polling_stations/master/doc/geocoding_procedure.html" target="blank">documentação da metodologia deste processo</a>). Com a latitude e longitude, podemos cruzar essa informação espacial com outra(s) informações espaciais, como um mapa de bairros de um município, para passar aos nossos pontos (isto é, os locais de votação) tais informações. 
+
+## Importação das Bases
+
+Neste exercício, prepararemos um mapa da cidade de São Paulo contendo os dados de votação por seção eleitoral do candidato a prefeito Guilherme Boulos (PSOL) em 2020.
+
+Nosso primeiro passo, como no exercício anterior, será carregar os pacotes relevantes para a nossa análise. O pacote *tidyverse* inclui ferramentas importantes já utilizadas anteriormente, como o *ggplot2* e o *dplyr*. Também carregamos novamente os pacotes *sf* e *geobr*. Temos, no entanto, três novidades. Primeiro, o *ggspatial* nos ajudar a plotar mapas mais detalhados (de certa maneira, ele é utilizado em conjunto com o *ggplot2*). O *classInt* nos ajuda a preparar mapas, por exemplo, a partir de métodos de seleção de intervalos. Por fim, o pacote *cartography* melhora a apresentação dos mapas a partir de elementos mais sofisticados, como a inclusão da rosa dos ventos, legendas etc.
+
+```{r carregando os pacotes relevantes, message = FALSE}
+library(tidyverse)
+library(sf)
+library(geobr)
+library(ggspatial)
+library(classInt)
+library(cartography)
+```
+
+Agora que já temos os pacotes carregados, vamos baixar os bancos de dados (todos preparados em formato *RDS*). Em primeiro lugar, baixamos a base de dados contendo dados de votacao por secao eleitoral do candidato a prefeito Guilherme Boulos (PSOL), e dos candidatos a vereador Milton Leite (DEM), Fernando Holiday (PATRIOTA) e Eduardo Suplicy (PT). Ela está salva como *base2020.rds*.
+
+Para facilitar nossa análise, aproveitamos o mesmo bloco de código para encurtar os nomes de cada um destes candidatos. Para tal, utilizamos as funções *mutate* e *case_when* do pacote *dplyr*.
+
+```{r carrega bd de votação por seção eleitoral, message = FALSE}
+candsp2020 <- readRDS("base/base2020.rds") |> 
+  mutate(nm_votavel = case_when(
+    nm_votavel == "MILTON LEITE DA SILVA" ~ "Milton Leite",
+    nm_votavel == "GUILHERME CASTRO BOULOS" ~ "Boulos",
+    nm_votavel == "EDUARDO MATARAZZO SUPLICY" ~ "Suplicy",
+    nm_votavel == "FERNANDO HOLIDAY SILVA BISPO" ~ "Holiday"))
+```
+
+Para se ter ideia de seu conteúdo, apresentamos sua *head* abaixo. São 28 colunas (variáveis) e 80.984 linhas (observações) contendo o número de votos que cada um dos três candidatos obteve na eleição de 2020, sendo Boulos para prefeito e os demais para vereador.
+
+```{r ver bd de votação por seção eleitoral, message = FALSE}
+head(candsp2020)
+```
+
+Nosso próximo passo é carregar a base com dados geolocalizados de cada um dos locais de votação no município de São Paulo. Seu nome é *baselocais2020SP.rds*.
+
+```{r carrega bd de local por seção eleitoral, message = FALSE}
+lvsp2020 <- readRDS("base/baseLocais2020SP.rds")
+```
+
+Ao abrir esta base de dados, você verá o endereço de cada local de votação (por ex., o Colégio Objetivo na Av. Paulista, 900, Bela Vista), acompanhado de sua longitude e latitude, além de outros dados espaciais. A base possui 2.063 observações e 19 variáveis.
+
+```{r ver bd de local por seção eleitoral, message = FALSE}
+head(lvsp2020)
+```
+
+Nosso próximo passo será conventer os dados de longitude (*long*) e latitude (*lat*) utilizando o pacote *sf* em um objeto de *featires espaciais*. Isto é importante para compatibilizar a estrutura dos dados com os pacotes e mapas com os quais estamos trabalhando. Mais especificamente, a transformação tem por objetivo utilizar o sistema de referência de coordenadas (CRS) SIRGAS 2000. Este passo é padrão para a elaboração da maioria dos mapas brasileiros.
+
+```{r compatibilizacao dos mapas, message = FALSE}
+lvsp2020 <- 
+  lvsp2020 |> 
+  # Convertendo o dataframe 'lvsp2020' em um objeto de features espaciais ('sf')
+  st_as_sf(
+    coords = c("long", "lat"), # Definindo as colunas 'long' e 'lat' como coordenadas
+    crs = 4674                  # Definindo o sistema de referência de coordenadas (CRS) como 4674 - SIRGAS 2000
+  ) 
+```
+
+Pronto! Já temos os locais de votação e quantos votos os candidatos obtiveram em cada um deles. Temos, no entanto, um desafio. Havíamos falado que a Justiça Eleitoral se abriga por zonas eleitorais mas os limites destas zonas geralmente não são divulgados pelos TREs. O que nós faremos, então, é utilizar outra delimitação espacial como "aproximação" para apresentar a distribuição dos votos no município de São Paulo. Uma estratégia comum é separar os locais de votação por distrito (o equivalente a bairro no município de São Paulo). Na base de dados *mapas_distritos_sp.rds* temos os mapas dos 96 distritos deste município. Por isso, iremos carregá-la agora.
+
+```{r carrega bd de mapas dos distritos de São Paulo, message = FALSE}
+mapa <- readRDS("base/mapa_distritos_sp.rds")
+```
+
+Esta base se parece com aquelas que chamamos de *mapa_brasil* na parte anterior deste workshop. Para cada um dos distritos (coluna *name_district*), ela possui uma coluna chamada *geom* com a informação do polígono que representa o território do distrito. Veja abaixo como fica um mapa simples no qual utilizamos estes polígonos para plotar os distritos na cidade de São Paulo.
+
+```{r mapa-sp, warning = FALSE}
+# pre-visualização do mapa com shape dos distritos da cidade de Sao Paulo
+# usand ggplot2
+ggplot(mapa) +
+  # Adicionando camadas de features espaciais ao gráfico
+  geom_sf()
+```
+
+Agora, vamos verificar onde fica cada um dos locais de votação do município de São Paulo. No código abaixo, utilizamos os *ggplot* para plotar o mapa com os distritos. Depois, com o comando *geom_sf(data = lvsp2020)*, pedimos ao *ggplot* para inserir a localização dos locais de votação (base *lvsp2020*) no mesmo mapa. Por fim, o *theme_void* ajusta o layout do gráfico para facilitar a visualização.
+
+```{r mapa-sp-locais, warning = FALSE}
+ggplot(mapa) + # Gera gráfico utilizando a base mapa
+  geom_sf() + # Transforma em gráfico geoespacial
+  geom_sf(data = lvsp2020) + # Adiciona camada com pontos dos locais de votação
+  theme_void() # Ajusta o layout do gráfico deixando a tela de fundo em branco
+```
+
+## Preparação do Banco de Dados
+
+No último exercício, preparamos o mapa da cidade de São Paulo dividido por seus distritos e, ao fim, localizamos nele cada um dos locais de votação da cidade. Nosso próximo passo será preparar os dados eleitorais para que possamos integrar as bases e, ao fim, gerar o mapa com a distribuição de votos do candidato selecionao (inicialmente, o psolista Guilherme Boulos).
+
+O primeiro passo será gerar uma base *candsp2020_porlv* na qual inserimos apenas o candidato Boulos e somamos a quantidade de votos obtidas em todas as urnas de cada local de votação. Note que você pode realizar o mesmo procedimento para outros candidatos. Para tal, basta substituir "Boulos" pelo nome do seu candidato de escolha. Lembre-se que as possibilidades são Milton Leite, Suplicy e Holiday.
+
+```{r calcula votos, message = FALSE}
+# Calcula votos por local de votacao
+candsp2020_porlv <- candsp2020 |>
+  # Filtra somente pelo Boulos
+  filter(nm_votavel == "Boulos") |> 
+  # Soma os votos do candidato e total da urna por local de votacao
+  group_by(nr_zona, nr_local_votacao, nm_votavel) |>
+  summarise(votos_cand = sum(qt_votos),
+            votos_validos = sum(voto_val_total_secao)) |>
+  ungroup() |> 
+  # Calcula o percencual de votos por local
+  mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
+```
+
+No exercício do mapa do Brasil, utilizamos o comando *left_join* para integrar a base de dados com os ganhadores em cada estado com a base que possuia os polígonos de cada estado (a coluna *geom*). Agora faremos algo muito parecido. Integraremos a base que acabamos de criar (*candsp2020_porlv*) a base que possui os locais de votação (*lvsp2020*). Para tal, também renomeamos o *nr_local_votacao* para *nr_locvot* a fim de assegurar que esta coluna tem o mesmo nome em ambas as bases. Por fim, transformamos as informações em objeto espacial com a função *st_as_sf*.
+
+```{r integra base e LV, message = FALSE}
+# Une com a base de LV geolocalizado 
+candsp2020_porlv <- candsp2020_porlv |>   
+  # Renomeia a variavel nr_local_votacao para facilitar o join
+  rename(nr_locvot = nr_local_votacao) |>
+  # Traz a informacao da base de LV geolocalizado
+  left_join(lvsp2020, by = c("nr_zona", "nr_locvot")) |>
+  # Transforma em objeto espacial
+  st_as_sf(sf_column_name = "geometry")
+```
+
+Pronto! Agora vamos gerar nosso primeiro mapa para pré-visualizar o que fizemos até aqui. A função é muito parecida com as que já utilizamos nos exercícios anteriores. O *ggplot* carrega o gráfico, o primeiro *geom_sf* informa a base com os polígonos e, na linha seguinte, informa que a coluna *votos_cand_porc* deve ser utilizada para estimar o tamanho (*size*) do pontos (quanto mais votos, maiores serão) e a cor (*color*) dos pontos (quanto mais votos, mais claro é a tonalidade do azul).
+
+```{r candidatos-local, message = FALSE}
+# Pré-visualização dos votos dos candidatos por local de votação
+candsp2020_porlv |> 
+  filter(nm_votavel == "Boulos") |> 
+  ggplot() +
+  geom_sf(data=mapa)+
+  geom_sf(aes(size=votos_cand_porc, color=votos_cand_porc))+
+  theme_void()
+```
+
+Note que neste mapa, os locais de votação estão em sua localização original. Ainda não geramos uma base na qual eles são inseridos dentro dos distritos. Para tal, utilizaremos o comando *st_join* (spacial join) para integrar a base de locais de votação (*lvsp2020*) ao *mapa*.
+*** Obter o bairro do local de votacao
+
+```{r spacial join, message = FALSE}
+# Faz o spatial join
+lvsp2020_distrito <- st_join(lvsp2020, mapa)
+```
+
+Existe, no entanto, um cuidado. Lembre-se que estamos fazendo uma reposição "artificial". Isto é, os locais de votação não foram feitos para se enquadrarem perfeitamente nos distritos de São Paulo. O TRE tem sua própria distribuição espacial que não necessariamente bate com aquela do IBGE. Utilizando o comando *nrow*, verificamos que a base *lvsp2020_distrito* tem uma linha a mais que a base *lvsp2020*! Ou seja, 2.064 linhas comparado com 2.063.
+
+
+```{r problemas, message = FALSE}
+nrow(lvsp2020)
+nrow(lvsp2020_distrito) # Ele tem uma linha a mais!
+```
+
+O gráfico que geramos abaixo nos auxilia na identificação do problema. Existe um local de votação que está localizado exatamente na divisa entre Vila Mariana e Bela Vista. Por isso, os nosso trabalho de integrar bases de dados acabou gerando o mesmo local de votação duas vezes--uma para cada bairro.
+
+```{r identificando o problema, message = FALSE}
+# Isso ocorreu porque um LV está bem na divisa entre dois distritos
+ggplot() +
+  geom_sf(data=mapa %>% filter(name_district %in% c("Vila Mariana", "Bela Vista")))+
+  geom_sf(data = lvsp2020 |> slice(269), size=2)+
+  theme_void()
+```
+
+Existem várias soluções possíveis para este problema. Perceba que não necessariamente existirá a solução perfeita para todos os casos. É necessário refletir sobre o objetivo da análise. Primeiro, poderíamos escolher aleatoriamente onde colocar este local de votação (Vila Mariana ou Bela Vista). Copiamos abaixo o bloco de código que permitirá realizar esta modificação.
+
+```{r solucao alternativa, message = FALSE}
+# Possivel solução: selecionar aleatoriamente o bairro ao qual ele esta atribuido
+#lvsp2020_distrito <- lvsp2020_distrito |> 
+#  group_by(nr_locvot, nr_zona) |> 
+#  slice_sample(n = 1) |> 
+#  ungroup() |> 
+#  # Seleciona so as variaveis que vamos usar para o mapa
+#  select(nr_zona, nr_locvot, name_district) |> 
+#  # Retira a geometria, para ela ser tratada como uma tabela
+#  st_drop_geometry()
+#nrow(lvsp2020_distrito) # 2.063 linhas, pronto!
+```
+
+Para este exercício, selecionamos uma outra solução. Decidimos criar um comando geral que faz com que sempre que existirem dois pontos, o primeiro deles será escolhido.
+
+```{r solucao, message = FALSE}
+# solução: escolher o primeiro bairro que aparece 
+ ponto_shape <- st_intersects(lvsp2020, mapa, sparse = T)
+ ponto_shape <- unlist(map(ponto_shape, ~.[1])) # faz com que quando exista dois pontos o primeiro seja escolhido
+ ponto_shape <- mapa$name_district[ponto_shape]
+ ponto_shape[269]
+ 
+ lvsp2020$bairro <- ponto_shape
+```
+
+Da mesma forma que criamos uma base com votos por local de votação (*candsp2020_porlv*), agora criamos uma base que apresenta os votos por distrito (*candsp2020_pordist*). Lembre-se que isto foi possível porque compatibilizamos ambas as localizações geográficas. 
+
+```{r agrega votos por distrito, message = FALSE}
+# agregação dos votos nos locais de votação por distrito
+candsp2020_pordist <- candsp2020_porlv |>
+  # Retira a informacao da geometria do ponto
+  st_drop_geometry() |>
+  # Traz a informacao do distrito referente ao ponto, que obtivemos acima
+  left_join(lvsp2020_distrito, by = c("nr_zona", "nr_locvot"))
+```
+
+Para melhorar a visualização dos dados, calculamos na coluna *votos_cand_porc* a porcentagem dos votos que o candidato Boulos recebeu em cada distrito. 
+
+```{r calcula porcentagem dos votos, message = FALSE}
+# Soma os votos do candidato por distrito e calcula o %
+candsp2020_pordist <- candsp2020_pordist |> 
+  group_by(name_district, nm_votavel) |>
+  summarise(votos_cand = sum(votos_cand),
+            votos_validos = sum(votos_validos)) |> 
+  ungroup() |> 
+  mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
+``` 
+
+Por fim, geramos um objeto espacial integrando com o comando *left_join* a base geoespacial *mapa* à base eleitoral *candsp2020_pordist* com base na coluna *name_district* que define o nome dos distritos. Ou seja, queremos saber as informações espaciais para cada um dos distritos agora que já sabemos a proporção de votos que o Boulo obteve em cada um deles.
+
+```{r objeto espacial boulos, message = FALSE}
+# Cria um objeto espacial em que passamos para o mapa a votacao
+# de Boulos em cada um dos distritos de SP
+boulos_final <- left_join(mapa, candsp2020_pordist, by = c("name_district"))
+```
+
+Pronto! Agora já podemos pré-visualizar o mapa de votação do Boulos por distrito de São Paulo! Mais uma vez, utilizamos o comando *ggplot* para gerar o gráfico e, dentro do comando *geom_sf*, utilizamos a função *fill* para preencher cada distrito com tonalidades diferentes de acordo com a porcentagem de votos obtida pelo candidato selecionado (*votos_cand_porc*).
+
+```{r mapa-boulos, warning = FALSE}
+# pré-visualização dos votos dos candidatos por distrito
+boulos_final |> 
+  ggplot() +
+  geom_sf(aes(fill=votos_cand_porc))+
+  theme_void()
+```
+
+## Mapa Coroplético
+
+Existem diversas escalas para definir os cortes de uma variavel, que vao informar como colorir areas de um mapa. Para mais informacoes, veja este vídeo no <a href="https://www.youtube.com/watch?v=0ebL8OvG8Jc" target="blank">YouTube</a>. Ele está em inglês, mas é possível gerar legendas traduzidas automaticamente.
+
+Vejam como ao escolher duas delas, produzimos dois mapas que sugerem informacoes diferentes fundamentados na mesma base de dados. Testaremos abaixo a abordagem de Cortes de Jenks (*jenks*) e Intervalos Geogmétricos (*geom*).
+
+O corte de *jenks* é feito com o pacote *classIntervals* que carregamos para nosso primeiro exercício. Note que ao fim do comando, identificamos o tipo de corte.
+
+```{r jenks, message = FALSE}
+# Cria os cortes e os guardamos em um objeto
+cortes <- classIntervals(boulos_final$votos_cand_porc, 4, "jenks")
+
+# Cria uma variável com os cortes
+boulos_final$cortes_jenks <- cut(boulos_final$votos_cand_porc, cortes$brks, 
+                                 include.lowest = T)
+```
+
+Agora realizamos um procedimento muito parecido para gerar os intervalos geométricos. Para tal, substituímos *jenks* por *geom*.
+
+```{r intervalos-geometricos, message = FALSE}
+# Cria os cortes e os guardamos em um objeto
+cortes <- getBreaks(boulos_final$votos_cand_porc, 4, "geom")
+
+# Insere os cortes na base de dados usando a função cut
+boulos_final$int_geom <- cut(boulos_final$votos_cand_porc, cortes, 
+                             include.lowest = T)
+```
+
+Agora, faremos a visualização de ambos os cortes. Começamos pelo *jenks*.
+
+```{r graficos-jenks, message = FALSE}
+# Visualização do corte jenks
+ggplot() +
+  geom_sf(data=boulos_final, aes(fill=cortes_jenks))+
+  scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
+  theme_void()
+```
+
+O código apresentado logo abaixo gera o mesmo mapa utilizando os cortes *geom*. Note na legenda que os cortes são consideravelmente diferentes. Isto leva a apresentação de gráficos com cores igualmente diferentes. Compare as diferentes regiões da cidade. É visível que, dependendo do corte, o mapa pode acabar contando uma história diferente. Por tanto, é importante refletir antes de decidir qual corte será utilizado. Mais uma vez, não existe solução perfeita.
+
+```{r graficos-geom, message = FALSE}
+# Visualização do corte geom
+ggplot() +
+  geom_sf(data=boulos_final, aes(fill=int_geom))+
+  scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
+  theme_void()
+```
+
+Em boa parte dos casos, porém, você vai querer criar uma escala a partir dos resultados observados. Por exemplo, em vez do corte elaborado pela metodologia *geom* que gerou uma categoria variando entre 11,6% e 14,9%, talvez você queira um corte indo de 10,0% até 15,0%. No código abaixo, criamos uma escala manualmente com intervalos de 5 p.p. em 5 p.p., inciando em 10. 
+
+Além disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa dos ventos. Você poderá ver como modificar cada um destes elementos a partir dos comentários que inserimos no bloco de código. Como você perceberá, o resultado final parece muito mais profissional (e agradável aos olhos) que os mapas gerados nos exercícios anteriores.
+
+```{r mapa final, warning = FALSE}
+# A partir do objeto espacial
+boulos_final  |> 
+  # Cria uma variável categórica e preenche os níveis que serão a legenda
+  mutate(
+    categoria = case_when(
+      is.na(votos_cand_porc) ~ "Sem LV",
+      votos_cand_porc > 10 & votos_cand_porc <= 15 ~ "10-15%",
+      votos_cand_porc > 15 & votos_cand_porc <= 20 ~ "15-20%",
+      votos_cand_porc > 20 & votos_cand_porc <= 25 ~ "20-25%",
+      votos_cand_porc > 25 & votos_cand_porc <= 30 ~ "25-30%",
+      votos_cand_porc > 30 ~ ">30%"),
+    categoria = factor(
+      categoria,
+      levels = c("Sem LV", "10-15%", "15-20%", "20-25%", "25-30%", ">30%"))) |> 
+  # Inicia o ggplot
+  ggplot() + 
+  # Usa uma camada de sf
+  geom_sf(aes(fill = categoria), color = "black", size = 0.1) +
+  # Retira o datum
+  coord_sf(datum = NA) +
+  # Coloca o fill na paleta de verdes
+  scale_fill_brewer(palette = "YlOrBr") +
+  # Adicionar título, subtítulo e legenda
+  labs(
+    title = "Votação de Guilherme Boulos (2020, 1º turno)",
+    subtitle = "Distritos do município do SP",
+    caption = "Fonte: Elaborado por Gelape, Guedes e Faganello (2023), a partir de\ndados de Daniel Hidalgo, TSE, IBGE.") +
+  # Adiciona escala
+  ggspatial::annotation_scale(
+    location = "br", width_hint = 0.4, line_width = 0.5, 
+    height = unit(0.1,"cm")) +
+  # Coloca título na legenda
+  guides(fill = guide_legend(title = "Votos válidos (%)")) +
+  # Ajusta elementos do tema do ggplot
+  theme(
+    # Posição e direção da legenda
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    # Centralização de alguns elementos textuais
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0.5)) +
+  # Adiciona rosa-dos-ventos
+  ggspatial::annotation_north_arrow(
+    location = "br", which_north = "true",
+    style = north_arrow_fancy_orienteering(),
+    # Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
+    pad_x = unit(0.5, "cm"), pad_y = unit(1, "cm")) 
+```
+
+<!--chapter:end:02-mapa-municipal.Rmd-->
+
+# Atividades Extras
+
+## Marta Suplicy em 2000
+
+Nosso primeiro passo é sempre carregar os pacotes que são relevantes para o nosso trabalho. A única novidade em relação aos exercícios anteriores é o pacote *RColorBrewer*. Já que queremos plotar mapas bonitos, ele nos auxília apresentando uma série de paletas de cores adicionais.
+
+```{r pacotes, message = FALSE}
+library(dplyr)
+library(tidyr)
+library(sf)
+library(ggplot2)
+library(ggspatial)
+library(RColorBrewer)
+```
+
+Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada *lv2000*). Além dela, também importaremos o mapa de distritos de São Paulo.
+
+```{r importa-bases, message = FALSE}
+# Importa os dados de resultado por local de votação em SP
+lv2000 <- readRDS("base/base2000_sp.rds")
+
+# Importa o mapa de distritos de São Paulo
+mapa <- readRDS("base/mapa_distritos_sp.rds")
+```
+
+Agora identificaremos o total de votos por local de votação. Note que a base *lv2000* do CEM/USP já contém os dados de votação dos candidatos a prefeito. Nela, as colunas com os dados de votação seguem o seguinte padrão: PF00_111. Neste código, PF indica votação para prefeito; o primeiro dígito depois de "_" indica o turno; os dois números seguintes indicam o número do prefeito. A coluna com a votação da Marta Suplicy no primeiro turno, portanto, é PF00_113. Para mais informações, consulte a <a href="https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg" target="blank">documentação em PDF</a> preparada pelos pesquisadores do CEM/USP.
+
+
+```{r votos-por-LV, message = FALSE}
+# Obtenção do total de votos validos para prefeito por local de votação
+votos_pref <- lv2000 |>
+  # Remove as colunas de geometria espacial
+  st_drop_geometry() |>  
+  # Seleciona as colunas 'ID' e um intervalo de colunas de 'PF00_111' a 'PF00_156'
+  select(ID, PF00_111:PF00_156) |>  
+  # Transforma as colunas de votos em linhas
+  pivot_longer(cols = c(PF00_111:PF00_156),
+               names_to = "coluna",
+               values_to = "voto") |>  
+  # Substitui valores NA em 'voto' por 0
+  mutate(voto = replace_na(voto, 0)) |>  
+  # Cria uma nova coluna 'voto_total' que é a soma dos votos por 'ID'
+  group_by(ID) |>  
+  summarise(voto_total = sum(voto)) |> 
+  ungroup()
+```
+
+
+
+```{r tibble-marta, message = FALSE}
+# Cria um novo tibble 'lv2000_2' a partir do 'lv2000'
+lv2000_2 <- lv2000 |> 
+  # Combina 'lv2000' com 'votos_pref' usando um leftjoin pelo 'ID'
+  left_join(votos_pref, by = "ID") |>  
+  # Seleciona as colunas 'ID', 'PF00_113' e 'voto_total'
+  select(ID, PF00_113, voto_total)  
+```
+
+Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos).
+
+```{r spatial-join-marta, message = FALSE}
+# Spatial join dos pontos com os poligonos 
+# trazendo informação dos polígonos para os pontos
+mapa_unificado <- st_join(lv2000_2, mapa) 
+```
+
+DEU ERRO! Por que? Investigue a razão!
+
+```{r crs-marta, message = FALSE}
+# Transforma o crs para 4674
+lv2000_2 <- st_transform(lv2000_2, crs = 4674) 
+```
+
+O que mudamos aqui? O sistema de referencia de coordenadas! Agora os dois objetos espaciais estao sob o mesmo crs
+
+```{r integra-bases, message = FALSE}
+# Unifica as bases com st_join. 
+# Isso garante que os pontos sejam associados espacialmente com os poligonos
+mapa_unificado <- st_join(mapa, lv2000_2) 
+```
+
+Por que mapa_unificado agora tem 1135 linhas e não 1134? 
+Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.
+
+Agrupar as votações da candidata por distrito
+
+```{r porcetagem-votos-marta, message = FALSE}
+# Usa o tibble 'mapa_unificado'
+mapa_final <- mapa_unificado |>  
+  # Calcula a soma total dos votos para 'Marta' e no total em cada distrito
+  group_by(name_district) |>  
+  summarise(marta = sum(PF00_113),  
+            voto_total = sum(voto_total)) |>  
+  ungroup() |> 
+  # Calcula a porcentagem de votos para 'Marta' e arredonda para 1 casa decimal
+  mutate(porc = round(marta/voto_total*100, 1))  
+```
+
+```{r ajuda-visualiza-marta, message = FALSE}
+# Cria uma variavel categorica para melhorar a visualizacao
+mapa_final <- mutate(
+  mapa_final,
+  voto_cat = case_when(
+    is.na(porc) ~ "Sem LV",
+    TRUE ~ cut(porc,
+               seq(25, 49, 6),
+               labels = c("25-31%", "31-37%",
+                          "37-43%","43-49%"))))
+```
+
+Produz a visualizacao de mapa com ggplot
+
+```{r visualiza-marta, message = FALSE}
+# Monta uma string de cores.
+cores <- brewer.pal(4, "OrRd")
+cores <- c(cores, "#999999")
+
+# Inicia o ggplot
+mapa_final |>
+  ggplot() + 
+  # Usa uma camada de sf
+  geom_sf(aes_string(fill = "voto_cat"), color = "black", size = 0.1) +
+  # Retira o datum
+  theme_void() +
+  # Coloca o fill na paleta de verdes
+  scale_fill_manual(values = cores) +
+  # Adicionar titulo, subtitulo e legenda
+  labs(
+    title = "Votação de Marta Suplicy (2000, 1º turno)",
+    subtitle = "Distritos do município de São Paulo",
+    caption = "Fonte: Elaborado a partir de\ndados do CEM e IBGE.") +
+  # Adiciona escala
+  ggspatial::annotation_scale(
+    location = "br", width_hint = 0.4, line_width = 0.5, 
+    height = unit(0.1,"cm")) +
+  # Coloca titulo na legenda
+  guides(fill = guide_legend(title = "Votos válidos")) +
+  # Ajusta elementos do tema do ggplot
+  theme(
+    # Posicao e direcao da legenda
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    # Centralizacao de alguns elementos textuais
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0.5)) +
+  # Adiciona rosa-dos-ventos
+  ggspatial::annotation_north_arrow(
+    location = "br", which_north = "true",
+    style = north_arrow_fancy_orienteering(),
+    # Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
+    pad_x = unit(17.5, "cm"), pad_y = unit(8.5, "cm")) 
+```
+
+
+## Eduardo Paes em 2020
+
+<!--chapter:end:03-exercicio-final.Rmd-->
+
+# Apêndice
+
+Texto texto texto.
+
+<!--chapter:end:04-extras.Rmd-->
+
+`r if (knitr::is_html_output()) '
+# References {-}
+'`
+
+<!--chapter:end:05-references.Rmd-->
+
