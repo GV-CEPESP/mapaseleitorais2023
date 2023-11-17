@@ -53,6 +53,70 @@
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 
 
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
 
 <style type="text/css">
   
@@ -75,7 +139,7 @@
 <li><a href="./">Mapas Eleitorais com R</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Texto</a>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Sobre o Workshop</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.1</b> Pré-Requisitos</a></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.2</b> Autores</a></li>
@@ -123,116 +187,115 @@
 <h1><span class="header-section-number">Parte 4</span> Atividades Extras<a href="atividades-extras.html#atividades-extras" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="marta-suplicy-em-2000" class="section level2 hasAnchor" number="4.1">
 <h2><span class="header-section-number">4.1</span> Marta Suplicy em 2000<a href="atividades-extras.html#marta-suplicy-em-2000" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p><em>#</em> Pacotes ======================================================================
-library(dplyr)
-library(tidyr)
-library(sf)
-library(ggplot2)
-library(ggspatial)
-library(RColorBrewer)</p>
-<p><em>#</em> Importação de dados ==========================================================</p>
-<p><em>#</em> Importa os dados de resultado por local de votação em SP
-lv2000 &lt;- readRDS(“base/base2000_sp.rds”)</p>
-<p><em>#</em> Importa o mapa de distritos de São Paulo
-mapa &lt;- readRDS(“base/mapa_distritos_sp.rds”)</p>
-<p><em>#</em> Identificar o total de votos por LV ==========================================</p>
-<p><em>#</em> A base lv2000 do CEM já contém os dados de votação dos candidatos a prefeito.</p>
-<p>As colunas com os dados de votação seguem o seguinte padrão: PF00_111 - PF indica votação para prefeito,o primeiro dígito depois de _ indica o turno, e os dois números seguintes indicam o número do prefeito. A coluna com a votação da Marta Suplicy no primeiro turno portanto é PF00_113. Mais informações consulte a documentação em PDF no arquivo disponivel em: <a href="https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg" class="uri">https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg</a></p>
-<p>*# Obtencao do total de votos validos para prefeito por LV
-votos_pref &lt;- lv2000 |&gt;
-# Remove as colunas de geometria espacial
-st_drop_geometry() |&gt;<br />
-# Seleciona as colunas ‘ID’ e um intervalo de colunas de ‘PF00_111’ a ‘PF00_156’
-select(ID, PF00_111:PF00_156) |&gt;<br />
-# Transforma as colunas de votos em linhas
-pivot_longer(cols = c(PF00_111:PF00_156),
-names_to = “coluna”,
-values_to = “voto”) |&gt;<br />
-# Substitui valores NA em ‘voto’ por 0
-mutate(voto = replace_na(voto, 0)) |&gt;<br />
-# Cria uma nova coluna ‘voto_total’ que é a soma dos votos por ‘ID’
-group_by(ID) |&gt;<br />
-summarise(voto_total = sum(voto)) |&gt;
-ungroup()</p>
-<p>*# Cria um novo tibble ‘lv2000_2’ a partir do ‘lv2000’
-lv2000_2 &lt;- lv2000 |&gt;
-# Combina ‘lv2000’ com ‘votos_pref’ usando um leftjoin pelo ‘ID’
-left_join(votos_pref, by = “ID”) |&gt;<br />
-# Seleciona as colunas ‘ID’, ‘PF00_113’ e ‘voto_total’
-select(ID, PF00_113, voto_total)</p>
-<p>*# Unir a base de LV (ponto) com seus respecitvos distritos (poligonos) =========</p>
-<p><em># Spatial join dos pontos com os poligonos
-</em># (trazer informacao dos poligonos para pontos)
-mapa_unificado &lt;- st_join(lv2000_2, mapa)</p>
-<p>*### DEU ERRO! Por que? Investigue a razão!</p>
-<p>*# Transforma o crs para 4674
-lv2000_2 &lt;- st_transform(lv2000_2, crs = 4674)</p>
-<p><em># O que mudamos aqui?
-</em># O sistema de referencia de coordenadas!
-*# Agora os dois objetos espaciais estao sob o mesmo crs</p>
-<p><em># Unifica as bases com st_join.
-</em># Isso garante que os pontos sejam associados espacialmente com os poligonos
-mapa_unificado &lt;- st_join(mapa, lv2000_2)</p>
-<p><em># Por que mapa_unificado agora tem 1135 linhas e não 1134?
-</em># Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
-<p>*# Agrupar as votações da candidata por distrito ================================</p>
-<p><em># Usa o tibble ‘mapa_unificado’
-mapa_final &lt;- mapa_unificado |&gt;<br />
-# Calcula a soma total dos votos para ‘Marta’ e no total em cada distrito
-group_by(name_district) |&gt;<br />
-summarise(marta = sum(PF00_113),<br />
-voto_total = sum(voto_total)) |&gt;<br />
-ungroup() |&gt;
-# Calcula a porcentagem de votos para ‘Marta’ e arredonda para 1 casa decimal
-mutate(porc = round(marta/voto_total</em>100, 1))</p>
-<p>*# Cria uma variavel categorica para melhorar a visualizacao
-mapa_final &lt;- mutate(
-mapa_final,
-voto_cat = case_when(
-is.na(porc) ~ “Sem LV”,
-TRUE ~ cut(porc,
-seq(25, 49, 6),
-labels = c(“25-31%”, “31-37%”,
-“37-43%”,“43-49%”))))</p>
-<p>*# Produz a visualizacao de mapa com ggplot =====================================</p>
-<p>*# Monta uma string de cores.
-cores &lt;- brewer.pal(4, “OrRd”)
-cores &lt;- c(cores, “#999999”)</p>
-<p>*# Inicia o ggplot
-mapa_final |&gt;
-ggplot() +
-# Usa uma camada de sf
-geom_sf(aes_string(fill = “voto_cat”), color = “black”, size = 0.1) +
-# Retira o datum
-theme_void() +
-# Coloca o fill na paleta de verdes
-scale_fill_manual(values = cores) +
-# Adicionar titulo, subtitulo e legenda
-labs(
-title = “Votação de Marta Suplicy (2000, 1º turno)”,
-subtitle = “Distritos do município de São Paulo”,
-caption = “Fonte: Elaborado a partir dedo CEM e IBGE.”) +
-# Adiciona escala
-ggspatial::annotation_scale(
-location = “br”, width_hint = 0.4, line_width = 0.5,
-height = unit(0.1,“cm”)) +
-# Coloca titulo na legenda
-guides(fill = guide_legend(title = “Votos válidos”)) +
-# Ajusta elementos do tema do ggplot
-theme(
-# Posicao e direcao da legenda
-legend.position = “bottom”,
-legend.direction = “horizontal”,
-# Centralizacao de alguns elementos textuais
-plot.title = element_text(hjust = 0.5),
-plot.subtitle = element_text(hjust = 0.5),
-plot.caption = element_text(hjust = 0.5)) +
-# Adiciona rosa-dos-ventos
-ggspatial::annotation_north_arrow(
-location = “br”, which_north = “true”,
-style = north_arrow_fancy_orienteering(),
-# Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
-pad_x = unit(17.5, “cm”), pad_y = unit(8.5, “cm”))</p>
+<p>Nosso primeiro passo é sempre carregar os pacotes que são relevantes para o nosso trabalho. A única novidade em relação aos exercícios anteriores é o pacote <em>RColorBrewer</em>. Já que queremos plotar mapas bonitos, ele nos auxília apresentando uma série de paletas de cores adicionais.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="atividades-extras.html#cb44-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb44-2"><a href="atividades-extras.html#cb44-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb44-3"><a href="atividades-extras.html#cb44-3" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb44-4"><a href="atividades-extras.html#cb44-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb44-5"><a href="atividades-extras.html#cb44-5" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
+<span id="cb44-6"><a href="atividades-extras.html#cb44-6" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span></code></pre></div>
+<p>Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada <em>lv2000</em>). Além dela, também importaremos o mapa de distritos de São Paulo.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="atividades-extras.html#cb45-1" tabindex="-1"></a><span class="co"># Importa os dados de resultado por local de votação em SP</span></span>
+<span id="cb45-2"><a href="atividades-extras.html#cb45-2" tabindex="-1"></a>lv2000 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2000_sp.rds&quot;</span>)</span>
+<span id="cb45-3"><a href="atividades-extras.html#cb45-3" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="atividades-extras.html#cb45-4" tabindex="-1"></a><span class="co"># Importa o mapa de distritos de São Paulo</span></span>
+<span id="cb45-5"><a href="atividades-extras.html#cb45-5" tabindex="-1"></a>mapa <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/mapa_distritos_sp.rds&quot;</span>)</span></code></pre></div>
+<p>Agora identificaremos o total de votos por local de votação. Note que a base <em>lv2000</em> do CEM/USP já contém os dados de votação dos candidatos a prefeito. Nela, as colunas com os dados de votação seguem o seguinte padrão: PF00_111. Neste código, PF indica votação para prefeito; o primeiro dígito depois de “_” indica o turno; os dois números seguintes indicam o número do prefeito. A coluna com a votação da Marta Suplicy no primeiro turno, portanto, é PF00_113. Para mais informações, consulte a <a href="https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg" target="blank">documentação em PDF</a> preparada pelos pesquisadores do CEM/USP.</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="atividades-extras.html#cb46-1" tabindex="-1"></a><span class="co"># Obtenção do total de votos validos para prefeito por local de votação</span></span>
+<span id="cb46-2"><a href="atividades-extras.html#cb46-2" tabindex="-1"></a>votos_pref <span class="ot">&lt;-</span> lv2000 <span class="sc">|&gt;</span></span>
+<span id="cb46-3"><a href="atividades-extras.html#cb46-3" tabindex="-1"></a>  <span class="co"># Remove as colunas de geometria espacial</span></span>
+<span id="cb46-4"><a href="atividades-extras.html#cb46-4" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span>  </span>
+<span id="cb46-5"><a href="atividades-extras.html#cb46-5" tabindex="-1"></a>  <span class="co"># Seleciona as colunas &#39;ID&#39; e um intervalo de colunas de &#39;PF00_111&#39; a &#39;PF00_156&#39;</span></span>
+<span id="cb46-6"><a href="atividades-extras.html#cb46-6" tabindex="-1"></a>  <span class="fu">select</span>(ID, PF00_111<span class="sc">:</span>PF00_156) <span class="sc">|&gt;</span>  </span>
+<span id="cb46-7"><a href="atividades-extras.html#cb46-7" tabindex="-1"></a>  <span class="co"># Transforma as colunas de votos em linhas</span></span>
+<span id="cb46-8"><a href="atividades-extras.html#cb46-8" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(PF00_111<span class="sc">:</span>PF00_156),</span>
+<span id="cb46-9"><a href="atividades-extras.html#cb46-9" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">&quot;coluna&quot;</span>,</span>
+<span id="cb46-10"><a href="atividades-extras.html#cb46-10" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">&quot;voto&quot;</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb46-11"><a href="atividades-extras.html#cb46-11" tabindex="-1"></a>  <span class="co"># Substitui valores NA em &#39;voto&#39; por 0</span></span>
+<span id="cb46-12"><a href="atividades-extras.html#cb46-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">voto =</span> <span class="fu">replace_na</span>(voto, <span class="dv">0</span>)) <span class="sc">|&gt;</span>  </span>
+<span id="cb46-13"><a href="atividades-extras.html#cb46-13" tabindex="-1"></a>  <span class="co"># Cria uma nova coluna &#39;voto_total&#39; que é a soma dos votos por &#39;ID&#39;</span></span>
+<span id="cb46-14"><a href="atividades-extras.html#cb46-14" tabindex="-1"></a>  <span class="fu">group_by</span>(ID) <span class="sc">|&gt;</span>  </span>
+<span id="cb46-15"><a href="atividades-extras.html#cb46-15" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">voto_total =</span> <span class="fu">sum</span>(voto)) <span class="sc">|&gt;</span> </span>
+<span id="cb46-16"><a href="atividades-extras.html#cb46-16" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="atividades-extras.html#cb47-1" tabindex="-1"></a><span class="co"># Cria um novo tibble &#39;lv2000_2&#39; a partir do &#39;lv2000&#39;</span></span>
+<span id="cb47-2"><a href="atividades-extras.html#cb47-2" tabindex="-1"></a>lv2000_2 <span class="ot">&lt;-</span> lv2000 <span class="sc">|&gt;</span> </span>
+<span id="cb47-3"><a href="atividades-extras.html#cb47-3" tabindex="-1"></a>  <span class="co"># Combina &#39;lv2000&#39; com &#39;votos_pref&#39; usando um leftjoin pelo &#39;ID&#39;</span></span>
+<span id="cb47-4"><a href="atividades-extras.html#cb47-4" tabindex="-1"></a>  <span class="fu">left_join</span>(votos_pref, <span class="at">by =</span> <span class="st">&quot;ID&quot;</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb47-5"><a href="atividades-extras.html#cb47-5" tabindex="-1"></a>  <span class="co"># Seleciona as colunas &#39;ID&#39;, &#39;PF00_113&#39; e &#39;voto_total&#39;</span></span>
+<span id="cb47-6"><a href="atividades-extras.html#cb47-6" tabindex="-1"></a>  <span class="fu">select</span>(ID, PF00_113, voto_total)  </span></code></pre></div>
+<p>Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos).</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="atividades-extras.html#cb48-1" tabindex="-1"></a><span class="do">## Spatial join dos pontos com os poligonos </span></span>
+<span id="cb48-2"><a href="atividades-extras.html#cb48-2" tabindex="-1"></a><span class="do">## trazendo informação dos polígonos para os pontos</span></span>
+<span id="cb48-3"><a href="atividades-extras.html#cb48-3" tabindex="-1"></a><span class="co">#mapa_unificado &lt;- st_join(lv2000_2, mapa) </span></span></code></pre></div>
+<p>DEU ERRO! Por que? Investigue a razão!</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="atividades-extras.html#cb49-1" tabindex="-1"></a><span class="co"># Transforma o crs para 4674</span></span>
+<span id="cb49-2"><a href="atividades-extras.html#cb49-2" tabindex="-1"></a>lv2000_2 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(lv2000_2, <span class="at">crs =</span> <span class="dv">4674</span>) </span></code></pre></div>
+<p>O que mudamos aqui? O sistema de referencia de coordenadas! Agora os dois objetos espaciais estao sob o mesmo crs</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="atividades-extras.html#cb50-1" tabindex="-1"></a><span class="co"># Unifica as bases com st_join. </span></span>
+<span id="cb50-2"><a href="atividades-extras.html#cb50-2" tabindex="-1"></a><span class="co"># Isso garante que os pontos sejam associados espacialmente com os poligonos</span></span>
+<span id="cb50-3"><a href="atividades-extras.html#cb50-3" tabindex="-1"></a>mapa_unificado <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mapa, lv2000_2) </span></code></pre></div>
+<p>Por que mapa_unificado agora tem 1135 linhas e não 1134?
+Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
+<p>Agrupar as votações da candidata por distrito</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="atividades-extras.html#cb51-1" tabindex="-1"></a><span class="co"># Usa o tibble &#39;mapa_unificado&#39;</span></span>
+<span id="cb51-2"><a href="atividades-extras.html#cb51-2" tabindex="-1"></a>mapa_final <span class="ot">&lt;-</span> mapa_unificado <span class="sc">|&gt;</span>  </span>
+<span id="cb51-3"><a href="atividades-extras.html#cb51-3" tabindex="-1"></a>  <span class="co"># Calcula a soma total dos votos para &#39;Marta&#39; e no total em cada distrito</span></span>
+<span id="cb51-4"><a href="atividades-extras.html#cb51-4" tabindex="-1"></a>  <span class="fu">group_by</span>(name_district) <span class="sc">|&gt;</span>  </span>
+<span id="cb51-5"><a href="atividades-extras.html#cb51-5" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">marta =</span> <span class="fu">sum</span>(PF00_113),  </span>
+<span id="cb51-6"><a href="atividades-extras.html#cb51-6" tabindex="-1"></a>            <span class="at">voto_total =</span> <span class="fu">sum</span>(voto_total)) <span class="sc">|&gt;</span>  </span>
+<span id="cb51-7"><a href="atividades-extras.html#cb51-7" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb51-8"><a href="atividades-extras.html#cb51-8" tabindex="-1"></a>  <span class="co"># Calcula a porcentagem de votos para &#39;Marta&#39; e arredonda para 1 casa decimal</span></span>
+<span id="cb51-9"><a href="atividades-extras.html#cb51-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">porc =</span> <span class="fu">round</span>(marta<span class="sc">/</span>voto_total<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>))  </span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="atividades-extras.html#cb52-1" tabindex="-1"></a><span class="co"># Cria uma variavel categorica para melhorar a visualizacao</span></span>
+<span id="cb52-2"><a href="atividades-extras.html#cb52-2" tabindex="-1"></a>mapa_final <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
+<span id="cb52-3"><a href="atividades-extras.html#cb52-3" tabindex="-1"></a>  mapa_final,</span>
+<span id="cb52-4"><a href="atividades-extras.html#cb52-4" tabindex="-1"></a>  <span class="at">voto_cat =</span> <span class="fu">case_when</span>(</span>
+<span id="cb52-5"><a href="atividades-extras.html#cb52-5" tabindex="-1"></a>    <span class="fu">is.na</span>(porc) <span class="sc">~</span> <span class="st">&quot;Sem LV&quot;</span>,</span>
+<span id="cb52-6"><a href="atividades-extras.html#cb52-6" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">cut</span>(porc,</span>
+<span id="cb52-7"><a href="atividades-extras.html#cb52-7" tabindex="-1"></a>               <span class="fu">seq</span>(<span class="dv">25</span>, <span class="dv">49</span>, <span class="dv">6</span>),</span>
+<span id="cb52-8"><a href="atividades-extras.html#cb52-8" tabindex="-1"></a>               <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;25-31%&quot;</span>, <span class="st">&quot;31-37%&quot;</span>,</span>
+<span id="cb52-9"><a href="atividades-extras.html#cb52-9" tabindex="-1"></a>                          <span class="st">&quot;37-43%&quot;</span>,<span class="st">&quot;43-49%&quot;</span>))))</span></code></pre></div>
+<p>Produz a visualizacao de mapa com ggplot</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="atividades-extras.html#cb53-1" tabindex="-1"></a><span class="co"># Monta uma string de cores.</span></span>
+<span id="cb53-2"><a href="atividades-extras.html#cb53-2" tabindex="-1"></a>cores <span class="ot">&lt;-</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;OrRd&quot;</span>)</span>
+<span id="cb53-3"><a href="atividades-extras.html#cb53-3" tabindex="-1"></a>cores <span class="ot">&lt;-</span> <span class="fu">c</span>(cores, <span class="st">&quot;#999999&quot;</span>)</span>
+<span id="cb53-4"><a href="atividades-extras.html#cb53-4" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="atividades-extras.html#cb53-5" tabindex="-1"></a><span class="co"># Inicia o ggplot</span></span>
+<span id="cb53-6"><a href="atividades-extras.html#cb53-6" tabindex="-1"></a>mapa_final <span class="sc">|&gt;</span></span>
+<span id="cb53-7"><a href="atividades-extras.html#cb53-7" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb53-8"><a href="atividades-extras.html#cb53-8" tabindex="-1"></a>  <span class="co"># Usa uma camada de sf</span></span>
+<span id="cb53-9"><a href="atividades-extras.html#cb53-9" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes_string</span>(<span class="at">fill =</span> <span class="st">&quot;voto_cat&quot;</span>), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb53-10"><a href="atividades-extras.html#cb53-10" tabindex="-1"></a>  <span class="co"># Retira o datum</span></span>
+<span id="cb53-11"><a href="atividades-extras.html#cb53-11" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb53-12"><a href="atividades-extras.html#cb53-12" tabindex="-1"></a>  <span class="co"># Coloca o fill na paleta de verdes</span></span>
+<span id="cb53-13"><a href="atividades-extras.html#cb53-13" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cores) <span class="sc">+</span></span>
+<span id="cb53-14"><a href="atividades-extras.html#cb53-14" tabindex="-1"></a>  <span class="co"># Adicionar titulo, subtitulo e legenda</span></span>
+<span id="cb53-15"><a href="atividades-extras.html#cb53-15" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb53-16"><a href="atividades-extras.html#cb53-16" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Votação de Marta Suplicy (2000, 1º turno)&quot;</span>,</span>
+<span id="cb53-17"><a href="atividades-extras.html#cb53-17" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Distritos do município de São Paulo&quot;</span>,</span>
+<span id="cb53-18"><a href="atividades-extras.html#cb53-18" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Fonte: Elaborado a partir de</span><span class="sc">\n</span><span class="st">dados do CEM e IBGE.&quot;</span>) <span class="sc">+</span></span>
+<span id="cb53-19"><a href="atividades-extras.html#cb53-19" tabindex="-1"></a>  <span class="co"># Adiciona escala</span></span>
+<span id="cb53-20"><a href="atividades-extras.html#cb53-20" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_scale</span>(</span>
+<span id="cb53-21"><a href="atividades-extras.html#cb53-21" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">width_hint =</span> <span class="fl">0.4</span>, <span class="at">line_width =</span> <span class="fl">0.5</span>, </span>
+<span id="cb53-22"><a href="atividades-extras.html#cb53-22" tabindex="-1"></a>    <span class="at">height =</span> <span class="fu">unit</span>(<span class="fl">0.1</span>,<span class="st">&quot;cm&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb53-23"><a href="atividades-extras.html#cb53-23" tabindex="-1"></a>  <span class="co"># Coloca titulo na legenda</span></span>
+<span id="cb53-24"><a href="atividades-extras.html#cb53-24" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">&quot;Votos válidos&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb53-25"><a href="atividades-extras.html#cb53-25" tabindex="-1"></a>  <span class="co"># Ajusta elementos do tema do ggplot</span></span>
+<span id="cb53-26"><a href="atividades-extras.html#cb53-26" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb53-27"><a href="atividades-extras.html#cb53-27" tabindex="-1"></a>    <span class="co"># Posicao e direcao da legenda</span></span>
+<span id="cb53-28"><a href="atividades-extras.html#cb53-28" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb53-29"><a href="atividades-extras.html#cb53-29" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
+<span id="cb53-30"><a href="atividades-extras.html#cb53-30" tabindex="-1"></a>    <span class="co"># Centralizacao de alguns elementos textuais</span></span>
+<span id="cb53-31"><a href="atividades-extras.html#cb53-31" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb53-32"><a href="atividades-extras.html#cb53-32" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb53-33"><a href="atividades-extras.html#cb53-33" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb53-34"><a href="atividades-extras.html#cb53-34" tabindex="-1"></a>  <span class="co"># Adiciona rosa-dos-ventos</span></span>
+<span id="cb53-35"><a href="atividades-extras.html#cb53-35" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_north_arrow</span>(</span>
+<span id="cb53-36"><a href="atividades-extras.html#cb53-36" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">which_north =</span> <span class="st">&quot;true&quot;</span>,</span>
+<span id="cb53-37"><a href="atividades-extras.html#cb53-37" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">north_arrow_fancy_orienteering</span>(),</span>
+<span id="cb53-38"><a href="atividades-extras.html#cb53-38" tabindex="-1"></a>    <span class="co"># Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)</span></span>
+<span id="cb53-39"><a href="atividades-extras.html#cb53-39" tabindex="-1"></a>    <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="fl">17.5</span>, <span class="st">&quot;cm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="fl">8.5</span>, <span class="st">&quot;cm&quot;</span>)) </span></code></pre></div>
+<p><img src="fake-book_files/figure-html/visualiza-marta-1.png" width="672" /></p>
 </div>
 <div id="eduardo-paes-em-2020" class="section level2 hasAnchor" number="4.2">
 <h2><span class="header-section-number">4.2</span> Eduardo Paes em 2020<a href="atividades-extras.html#eduardo-paes-em-2020" class="anchor-section" aria-label="Anchor link to header"></a></h2>

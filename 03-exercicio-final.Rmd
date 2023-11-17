@@ -59,9 +59,9 @@ lv2000_2 <- lv2000 |>
 Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos).
 
 ```{r spatial-join-marta, message = FALSE}
-# Spatial join dos pontos com os poligonos 
-# trazendo informação dos polígonos para os pontos
-mapa_unificado <- st_join(lv2000_2, mapa) 
+## Spatial join dos pontos com os poligonos 
+## trazendo informação dos polígonos para os pontos
+#mapa_unificado <- st_join(lv2000_2, mapa) 
 ```
 
 DEU ERRO! Por que? Investigue a razão!
