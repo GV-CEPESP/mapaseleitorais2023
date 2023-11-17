@@ -243,10 +243,10 @@ Vejam como ao escolher duas delas, produzimos dois mapas que sugerem informacoes
 O corte de *jenks* é feito com o pacote *classIntervals* que carregamos para nosso primeiro exercício. Note que ao fim do comando, identificamos o tipo de corte.
 
 ```{r jenks, message = FALSE}
-# Criamos os cortes e os guardamos num objeto
+# Cria os cortes e os guardamos em um objeto
 cortes <- classIntervals(boulos_final$votos_cand_porc, 4, "jenks")
 
-# Cria uma variavel com os cortes
+# Cria uma variável com os cortes
 boulos_final$cortes_jenks <- cut(boulos_final$votos_cand_porc, cortes$brks, 
                                  include.lowest = T)
 ```
@@ -254,12 +254,10 @@ boulos_final$cortes_jenks <- cut(boulos_final$votos_cand_porc, cortes$brks,
 Agora realizamos um procedimento muito parecido para gerar os intervalos geométricos. Para tal, substituímos *jenks* por *geom*.
 
 ```{r intervalos-geometricos, message = FALSE}
-## Intervalos geometricos
-
-# Criamos os cortes e os guardamos num objeto
+# Cria os cortes e os guardamos em um objeto
 cortes <- getBreaks(boulos_final$votos_cand_porc, 4, "geom")
 
-# inserindo os cortes na base de dados usando a função cut
+# Insere os cortes na base de dados usando a função cut
 boulos_final$int_geom <- cut(boulos_final$votos_cand_porc, cortes, 
                              include.lowest = T)
 ```
@@ -267,7 +265,7 @@ boulos_final$int_geom <- cut(boulos_final$votos_cand_porc, cortes,
 Agora, faremos a visualização de ambos os cortes. Começamos pelo *jenks*.
 
 ```{r graficos-jenks, message = FALSE}
-# Visualizacao dos dois cortes
+# Visualização do corte jenks
 ggplot() +
   geom_sf(data=boulos_final, aes(fill=cortes_jenks))+
   scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
@@ -277,6 +275,7 @@ ggplot() +
 O código apresentado logo abaixo gera o mesmo mapa utilizando os cortes *geom*. Note na legenda que os cortes são consideravelmente diferentes. Isto leva a apresentação de gráficos com cores igualmente diferentes. Compare as diferentes regiões da cidade. É visível que, dependendo do corte, o mapa pode acabar contando uma história diferente. Por tanto, é importante refletir antes de decidir qual corte será utilizado. Mais uma vez, não existe solução perfeita.
 
 ```{r graficos-geom, message = FALSE}
+# Visualização do corte geom
 ggplot() +
   geom_sf(data=boulos_final, aes(fill=int_geom))+
   scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
@@ -290,7 +289,7 @@ Além disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa 
 ```{r mapa final, warning = FALSE}
 # A partir do objeto espacial
 boulos_final  |> 
-  # Cria uma variavel categoria e preenche os niveis, que serao a legenda
+  # Cria uma variável categórica e preenche os níveis que serão a legenda
   mutate(
     categoria = case_when(
       is.na(votos_cand_porc) ~ "Sem LV",
@@ -310,7 +309,7 @@ boulos_final  |>
   coord_sf(datum = NA) +
   # Coloca o fill na paleta de verdes
   scale_fill_brewer(palette = "YlOrBr") +
-  # Adicionar titulo, subtitulo e legenda
+  # Adicionar título, subtítulo e legenda
   labs(
     title = "Votação de Guilherme Boulos (2020, 1º turno)",
     subtitle = "Distritos do município do SP",
@@ -319,14 +318,14 @@ boulos_final  |>
   ggspatial::annotation_scale(
     location = "br", width_hint = 0.4, line_width = 0.5, 
     height = unit(0.1,"cm")) +
-  # Coloca titulo na legenda
+  # Coloca título na legenda
   guides(fill = guide_legend(title = "Votos válidos (%)")) +
   # Ajusta elementos do tema do ggplot
   theme(
-    # Posicao e direcao da legenda
+    # Posição e direção da legenda
     legend.position = "bottom",
     legend.direction = "horizontal",
-    # Centralizacao de alguns elementos textuais
+    # Centralização de alguns elementos textuais
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5),
     plot.caption = element_text(hjust = 0.5)) +
