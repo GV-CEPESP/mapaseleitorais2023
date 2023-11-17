@@ -5,7 +5,7 @@ bookdown::gitbook:
       before: |
         <li><a href="./">Mapas Eleitorais com R</a></li>
       after: |
-        <li><a href="https://www.cepesp.io" target="blank">FGV CEPESP</a></li>
+        <li><b><a href="https://www.cepesp.io" target="blank">FGV CEPESP</a></b></li>
 #    edit: https://github.com/GV-CEPESP/mapaseleitorais2023/%s
 #    download: ["pdf", "epub"]
 bookdown::pdf_book:
