@@ -97,6 +97,118 @@ ggplot(mapa) + # Gera gráfico utilizando a base mapa
 
 ## Preparação do Banco de Dados
 
+```{r calcula votos, message = FALSE}
+# Calcula votos por local de votacao
+candsp2020_porlv <- candsp2020 |>
+  # Filtra somente pelo Boulos
+  filter(nm_votavel == "Boulos") |> 
+  # Soma os votos do candidato e total da urna por local de votacao
+  group_by(nr_zona, nr_local_votacao, nm_votavel) |>
+  summarise(votos_cand = sum(qt_votos),
+            votos_validos = sum(voto_val_total_secao)) |>
+  ungroup() |> 
+  # Calcula o percencual de votos por local
+  mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
+```
+
+```{r integra base e LV, message = FALSE}
+# Une com a base de LV geolocalizado 
+candsp2020_porlv <- candsp2020_porlv |>   
+  # Renomeia a variavel nr_local_votacao para facilitar o join
+  rename(nr_locvot = nr_local_votacao) |>
+  # Traz a informacao da base de LV geolocalizado
+  left_join(lvsp2020, by = c("nr_zona", "nr_locvot")) |>
+  # Transforma em objeto espacial
+  st_as_sf(sf_column_name = "geometry")
+```
+
+```{r candidatos-local, message = FALSE}
+# Pré-visualização dos votos dos candidatos por local de votação
+candsp2020_porlv |> 
+  filter(nm_votavel == "Boulos") |> 
+  ggplot() +
+  geom_sf(data=mapa)+
+  geom_sf(aes(size=votos_cand_porc, color=votos_cand_porc))+
+  theme_void()
+```
+
+
+*** Obter o bairro do local de votacao
+
+```{r spacial joint, message = FALSE}
+# Faz o spatial join
+lvsp2020_distrito <- st_join(lvsp2020, mapa)
+```
+
+## Problemas acontecem!
+
+```{r problemas, message = FALSE}
+nrow(lvsp2020)
+nrow(lvsp2020_distrito) # Ele tem uma linha a mais
+```
+
+```{r identificando o problema, message = FALSE}
+# Isso ocorreu porque um LV está bem na divisa entre dois distritos
+ggplot() +
+  geom_sf(data=mapa %>% filter(name_district %in% c("Vila Mariana", "Bela Vista")))+
+  geom_sf(data = lvsp2020 |> slice(269), size=2)+
+  theme_void()
+```
+
+```{r solucao, message = FALSE}
+# Possivel solução: selecionar aleatoriamente o bairro ao qual ele esta atribuido
+lvsp2020_distrito <- lvsp2020_distrito |> 
+  group_by(nr_locvot, nr_zona) |> 
+  slice_sample(n = 1) |> 
+  ungroup() |> 
+  # Seleciona so as variaveis que vamos usar para o mapa
+  select(nr_zona, nr_locvot, name_district) |> 
+  # Retira a geometria, para ela ser tratada como uma tabela
+  st_drop_geometry()
+nrow(lvsp2020_distrito) # 2.063 linhas, pronto!
+```
+
+**** solução: escolher o primeiro bairro que aparece 
+* ponto_shape <- st_intersects(lvsp2020, mapa, sparse = T)
+* ponto_shape <- unlist(map(ponto_shape, ~.[1])) # faz com que quando exista dois pontos o primeiro seja escolhido
+* ponto_shape <- mapa$name_district[ponto_shape]
+* ponto_shape[269]
+* 
+* lvsp2020$bairro <- ponto_shape
 
 
 
+```{r agrega votos por distrito, message = FALSE}
+# agregação dos votos nos locais de votação por distrito
+# mensuração dos votos percentuais por local de votação
+
+candsp2020_pordist <- candsp2020_porlv |>
+  # Retira a informacao da geometria do ponto
+  st_drop_geometry() |>
+  # Traz a informacao do distrito referente ao ponto, que obtivemos acima
+  left_join(lvsp2020_distrito, by = c("nr_zona", "nr_locvot"))
+```
+
+```{r calcula porcentagem dos votos, message = FALSE}
+# Soma os votos do candidato por distrito e calcula o %
+candsp2020_pordist <- candsp2020_pordist |> 
+  group_by(name_district, nm_votavel) |>
+  summarise(votos_cand = sum(votos_cand),
+            votos_validos = sum(votos_validos)) |> 
+  ungroup() |> 
+  mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
+``` 
+
+```{r objeto espacial boulos, message = FALSE}
+# Cria um objeto espacial em que passamos para o mapa a votacao
+# de Boulos em cada um dos distritos de SP
+boulos_final <- left_join(mapa, candsp2020_pordist, by = c("name_district"))
+```
+
+```{r mapa-boulos, warning = FALSE}
+# pré-visualização dos votos dos candidatos por distrito
+boulos_final |> 
+  ggplot() +
+  geom_sf(aes(fill=votos_cand_porc))+
+  theme_void()
+```
