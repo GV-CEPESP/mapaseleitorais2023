@@ -26,6 +26,6 @@ R, RStudio, pacotes (tidyverse e sf)
 
 *Lucas Gelape* (https://lgelape.github.io/) é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de São Paulo. Atualmente, pesquisa temas relacionados a política local e geografia eleitoral. No jornalismo, trabalhou no G1 e no Volt Data Lab/Núcleo.
 
-*João V. Guedes-Neto* (https://joaoguedesneto.github.io/) é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de Pittsburgh. É especialista em psicologia política, investigando o comportamento dos eleitores, políticos e burocratas.
+*João V. Guedes-Neto* (https://joaoguedesneto.github.io/) é pesquisador de pós-doutorado no CEPESP FGV, doutor em Ciência Política pela Universidade de Pittsburgh. É especialista em psicologia política, investigando o comportamento dos eleitores, políticos e burocratas. Antes de retornar ao Brasil, foi professor na Kean University (Nova Jersey, EUA).
 
 *Marco Antonio Faganello* (https://github.com/marcofaga) é Pesquisador, cientista de dados e pós-doutorando no CEPESP FGV, doutor em Ciência Política pela Universidade Estadual de Campinas (UNICAMP). Atualmente, pesquisa temas relacionados à eleições, partidos, direita e geografia eleitoral.
