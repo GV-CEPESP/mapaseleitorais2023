@@ -240,6 +240,8 @@ Existem diversas escalas para definir os cortes de uma variavel, que vao informa
 
 Vejam como ao escolher duas delas, produzimos dois mapas que sugerem informacoes diferentes fundamentados na mesma base de dados. Testaremos abaixo a abordagem de Cortes de Jenks (*jenks*) e Intervalos Geogmétricos (*geom*).
 
+O corte de *jenks* é feito com o pacote *classIntervals* que carregamos para nosso primeiro exercício. Note que ao fim do comando, identificamos o tipo de corte.
+
 ```{r jenks, message = FALSE}
 # Criamos os cortes e os guardamos num objeto
 cortes <- classIntervals(boulos_final$votos_cand_porc, 4, "jenks")
@@ -248,6 +250,8 @@ cortes <- classIntervals(boulos_final$votos_cand_porc, 4, "jenks")
 boulos_final$cortes_jenks <- cut(boulos_final$votos_cand_porc, cortes$brks, 
                                  include.lowest = T)
 ```
+
+Agora realizamos um procedimento muito parecido para gerar os intervalos geométricos. Para tal, substituímos *jenks* por *geom*.
 
 ```{r intervalos-geometricos, message = FALSE}
 ## Intervalos geometricos
@@ -260,23 +264,28 @@ boulos_final$int_geom <- cut(boulos_final$votos_cand_porc, cortes,
                              include.lowest = T)
 ```
 
-Agora, faremos a visualização de ambos os cortes seguindo a mesma ordem apresentada anteriormente: *jenks* e *geom*.
+Agora, faremos a visualização de ambos os cortes. Começamos pelo *jenks*.
 
-```{r graficos-jenks-geom, message = FALSE}
+```{r graficos-jenks, message = FALSE}
 # Visualizacao dos dois cortes
 ggplot() +
   geom_sf(data=boulos_final, aes(fill=cortes_jenks))+
   scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
   theme_void()
+```
 
+O código apresentado logo abaixo gera o mesmo mapa utilizando os cortes *geom*. Note na legenda que os cortes são consideravelmente diferentes. Isto leva a apresentação de gráficos com cores igualmente diferentes. Compare as diferentes regiões da cidade. É visível que, dependendo do corte, o mapa pode acabar contando uma história diferente. Por tanto, é importante refletir antes de decidir qual corte será utilizado. Mais uma vez, não existe solução perfeita.
+
+```{r graficos-geom, message = FALSE}
 ggplot() +
   geom_sf(data=boulos_final, aes(fill=int_geom))+
   scale_fill_brewer(palette = "RdBu", name="Votação (%)")+
   theme_void()
 ```
 
+Em boa parte dos casos, porém, você vai querer criar uma escala a partir dos resultados observados. Por exemplo, em vez do corte elaborado pela metodologia *geom* que gerou uma categoria variando entre 11,6% e 14,9%, talvez você queira um corte indo de 10,0% até 15,0%. No código abaixo, criamos uma escala manualmente com intervalos de 5 p.p. em 5 p.p., inciando em 10. 
 
-*****Em boa parte dos casos, porem, voce vai querer criar uma escala, a partir dos resultados observados. No codigo abaixo, criamos uma escala manualmente com intervalos de 5 p.p. em 5 p.p., inciando em 10. Alem disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa dos ventos
+Além disso, incluimos diversos elementos, como titulo, legenda, escala, e rosa dos ventos. Você poderá ver como modificar cada um destes elementos a partir dos comentários que inserimos no bloco de código. Como você perceberá, o resultado final parece muito mais profissional (e agradável aos olhos) que os mapas gerados nos exercícios anteriores.
 
 ```{r mapa final, warning = FALSE}
 # A partir do objeto espacial
