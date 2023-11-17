@@ -193,17 +193,18 @@ Para este exercício, selecionamos uma outra solução. Decidimos criar um coman
  lvsp2020$bairro <- ponto_shape
 ```
 
+Da mesma forma que criamos uma base com votos por local de votação (*candsp2020_porlv*), agora criamos uma base que apresenta os votos por distrito (*candsp2020_pordist*). Lembre-se que isto foi possível porque compatibilizamos ambas as localizações geográficas. 
 
 ```{r agrega votos por distrito, message = FALSE}
 # agregação dos votos nos locais de votação por distrito
-# mensuração dos votos percentuais por local de votação
-
 candsp2020_pordist <- candsp2020_porlv |>
   # Retira a informacao da geometria do ponto
   st_drop_geometry() |>
   # Traz a informacao do distrito referente ao ponto, que obtivemos acima
   left_join(lvsp2020_distrito, by = c("nr_zona", "nr_locvot"))
 ```
+
+Para melhorar a visualização dos dados, calculamos na coluna *votos_cand_porc* a porcentagem dos votos que o candidato Boulos recebeu em cada distrito. 
 
 ```{r calcula porcentagem dos votos, message = FALSE}
 # Soma os votos do candidato por distrito e calcula o %
@@ -215,11 +216,15 @@ candsp2020_pordist <- candsp2020_pordist |>
   mutate(votos_cand_porc = round(votos_cand/votos_validos*100,1)) 
 ``` 
 
+Por fim, geramos um objeto espacial integrando com o comando *left_join* a base geoespacial *mapa* à base eleitoral *candsp2020_pordist* com base na coluna *name_district* que define o nome dos distritos. Ou seja, queremos saber as informações espaciais para cada um dos distritos agora que já sabemos a proporção de votos que o Boulo obteve em cada um deles.
+
 ```{r objeto espacial boulos, message = FALSE}
 # Cria um objeto espacial em que passamos para o mapa a votacao
 # de Boulos em cada um dos distritos de SP
 boulos_final <- left_join(mapa, candsp2020_pordist, by = c("name_district"))
 ```
+
+Pronto! Agora já podemos pré-visualizar o mapa de votação do Boulos por distrito de São Paulo! Mais uma vez, utilizamos o comando *ggplot* para gerar o gráfico e, dentro do comando *geom_sf*, utilizamos a função *fill* para preencher cada distrito com tonalidades diferentes de acordo com a porcentagem de votos obtida pelo candidato selecionado (*votos_cand_porc*).
 
 ```{r mapa-boulos, warning = FALSE}
 # pré-visualização dos votos dos candidatos por distrito
