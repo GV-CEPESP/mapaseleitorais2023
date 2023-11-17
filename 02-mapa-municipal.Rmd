@@ -78,7 +78,7 @@ mapa <- readRDS("base/mapa_distritos_sp.rds")
 
 Esta base se parece com aquelas que chamamos de *mapa_brasil* na parte anterior deste workshop. Para cada um dos distritos (coluna *name_district*), ela possui uma coluna chamada *geom* com a informação do polígono que representa o território do distrito. Veja abaixo como fica um mapa simples no qual utilizamos estes polígonos para plotar os distritos na cidade de São Paulo.
 
-```{r mostra o mapa de São Paulo, message = FALSE}
+```{r mostra o mapa de São Paulo}
 # pre-visualização do mapa com shape dos distritos da cidade de Sao Paulo
 # usand ggplot2
 ggplot(mapa) +
@@ -88,11 +88,15 @@ ggplot(mapa) +
 
 Agora, vamos verificar onde fica cada um dos locais de votação do município de São Paulo. No código abaixo, utilizamos os *ggplot* para plotar o mapa com os distritos. Depois, com o comando *geom_sf(data = lvsp2020)*, pedimos ao *ggplot* para inserir a localização dos locais de votação (base *lvsp2020*) no mesmo mapa. Por fim, o *theme_void* ajusta o layout do gráfico para facilitar a visualização.
 
-```{r mostra o mapa de São Paulo com locais de votação, message = FALSE}
+```{r mostra o mapa de São Paulo com locais de votação}
 ggplot(mapa) + 
   geom_sf() +
   geom_sf(data = lvsp2020) + #adicinando camada com os pontos dos locais de votação
   theme_void() #ajusta o layout do gráfico deixando a tela de fundo em branco
 ```
+
+## Preparação do Banco de Dados
+
+
 
 
