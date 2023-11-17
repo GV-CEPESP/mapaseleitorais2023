@@ -194,7 +194,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb44-4"><a href="atividades-extras.html#cb44-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb44-5"><a href="atividades-extras.html#cb44-5" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
 <span id="cb44-6"><a href="atividades-extras.html#cb44-6" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span></code></pre></div>
-<p>Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada <em>lv2000</em>). Além dela, também importaremos o mapa de distritos de São Paulo.</p>
+<p>Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada <em>lv2000</em>). Além dela, também importaremos o mapa de distritos de São Paulo (<em>mapa</em>).</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="atividades-extras.html#cb45-1" tabindex="-1"></a><span class="co"># Importa os dados de resultado por local de votação em SP</span></span>
 <span id="cb45-2"><a href="atividades-extras.html#cb45-2" tabindex="-1"></a>lv2000 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2000_sp.rds&quot;</span>)</span>
 <span id="cb45-3"><a href="atividades-extras.html#cb45-3" tabindex="-1"></a></span>
@@ -217,26 +217,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb46-14"><a href="atividades-extras.html#cb46-14" tabindex="-1"></a>  <span class="fu">group_by</span>(ID) <span class="sc">|&gt;</span>  </span>
 <span id="cb46-15"><a href="atividades-extras.html#cb46-15" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">voto_total =</span> <span class="fu">sum</span>(voto)) <span class="sc">|&gt;</span> </span>
 <span id="cb46-16"><a href="atividades-extras.html#cb46-16" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+<p>Nosso próximo passo, mais uma vez, é usar o comando <em>left_join</em> para integrar a base de dados de locais de votação (<em>lv2000</em>) com a de votos para prefeita (<em>votos_pref</em>) e selecionar apenas os votos da candidata Marta Suplicy. Chamaremos esta nova base de <em>lv2000_2</em>.</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="atividades-extras.html#cb47-1" tabindex="-1"></a><span class="co"># Cria um novo tibble &#39;lv2000_2&#39; a partir do &#39;lv2000&#39;</span></span>
 <span id="cb47-2"><a href="atividades-extras.html#cb47-2" tabindex="-1"></a>lv2000_2 <span class="ot">&lt;-</span> lv2000 <span class="sc">|&gt;</span> </span>
 <span id="cb47-3"><a href="atividades-extras.html#cb47-3" tabindex="-1"></a>  <span class="co"># Combina &#39;lv2000&#39; com &#39;votos_pref&#39; usando um leftjoin pelo &#39;ID&#39;</span></span>
 <span id="cb47-4"><a href="atividades-extras.html#cb47-4" tabindex="-1"></a>  <span class="fu">left_join</span>(votos_pref, <span class="at">by =</span> <span class="st">&quot;ID&quot;</span>) <span class="sc">|&gt;</span>  </span>
 <span id="cb47-5"><a href="atividades-extras.html#cb47-5" tabindex="-1"></a>  <span class="co"># Seleciona as colunas &#39;ID&#39;, &#39;PF00_113&#39; e &#39;voto_total&#39;</span></span>
 <span id="cb47-6"><a href="atividades-extras.html#cb47-6" tabindex="-1"></a>  <span class="fu">select</span>(ID, PF00_113, voto_total)  </span></code></pre></div>
-<p>Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos).</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="atividades-extras.html#cb48-1" tabindex="-1"></a><span class="do">## Spatial join dos pontos com os poligonos </span></span>
-<span id="cb48-2"><a href="atividades-extras.html#cb48-2" tabindex="-1"></a><span class="do">## trazendo informação dos polígonos para os pontos</span></span>
-<span id="cb48-3"><a href="atividades-extras.html#cb48-3" tabindex="-1"></a><span class="co">#mapa_unificado &lt;- st_join(lv2000_2, mapa) </span></span></code></pre></div>
-<p>DEU ERRO! Por que? Investigue a razão!</p>
+<p>Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos). Para tal, utilizamos o comando de spacial join (<em>st_join</em>). Retire o “#” do comando abaixo e verifique o resultado.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="atividades-extras.html#cb48-1" tabindex="-1"></a><span class="co">#mapa_unificado &lt;- st_join(lv2000_2, mapa) </span></span></code></pre></div>
+<p>Oops. DEU ERRO! Você deve ter visto uma mensagem em vermelho como a seguir:</p>
+<blockquote>
+<p>Error in st_geos_binop(“intersects”, x, y, sparse = sparse, prepared = prepared, :
+st_crs(x) == st_crs(y) is not TRUE</p>
+</blockquote>
+<p>O que aconteceu? Investigue a razão! O código abaixo dá uma pista.</p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="atividades-extras.html#cb49-1" tabindex="-1"></a><span class="co"># Transforma o crs para 4674</span></span>
 <span id="cb49-2"><a href="atividades-extras.html#cb49-2" tabindex="-1"></a>lv2000_2 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(lv2000_2, <span class="at">crs =</span> <span class="dv">4674</span>) </span></code></pre></div>
-<p>O que mudamos aqui? O sistema de referencia de coordenadas! Agora os dois objetos espaciais estao sob o mesmo crs</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="atividades-extras.html#cb50-1" tabindex="-1"></a><span class="co"># Unifica as bases com st_join. </span></span>
-<span id="cb50-2"><a href="atividades-extras.html#cb50-2" tabindex="-1"></a><span class="co"># Isso garante que os pontos sejam associados espacialmente com os poligonos</span></span>
-<span id="cb50-3"><a href="atividades-extras.html#cb50-3" tabindex="-1"></a>mapa_unificado <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mapa, lv2000_2) </span></code></pre></div>
-<p>Por que mapa_unificado agora tem 1135 linhas e não 1134?
-Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
-<p>Agrupar as votações da candidata por distrito</p>
+<p>O que mudamos aqui? O sistema de referencia de coordenadas! Lembra que no último exercício vimos que existe um formato usualmente adotado nos mapas brasileiros? Ele é o SIRGAS 2000 e é indicado pelo número 4674. Agora que utilizamos o comando <em>st_transform</em> e indicamos o código correto, os dois objetos espaciais estao sob o mesmo CRS.</p>
+<p>Agora que está tudo certo, podemos usar o <em>st_join</em> para que os pontos sejam associados espacialmente com os polígonos.</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="atividades-extras.html#cb50-1" tabindex="-1"></a>mapa_unificado <span class="ot">&lt;-</span> <span class="fu">st_join</span>(mapa, lv2000_2) </span></code></pre></div>
+<p>Por que <em>mapa_unificado</em> agora tem 1.135 linhas e não 1.134? Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
+<p>Nosso próximo passo será agrupar as votações da candidata por distrito e, como fizemos anteriormente, calcular a proporção de votos para cada uma destas localidades.</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="atividades-extras.html#cb51-1" tabindex="-1"></a><span class="co"># Usa o tibble &#39;mapa_unificado&#39;</span></span>
 <span id="cb51-2"><a href="atividades-extras.html#cb51-2" tabindex="-1"></a>mapa_final <span class="ot">&lt;-</span> mapa_unificado <span class="sc">|&gt;</span>  </span>
 <span id="cb51-3"><a href="atividades-extras.html#cb51-3" tabindex="-1"></a>  <span class="co"># Calcula a soma total dos votos para &#39;Marta&#39; e no total em cada distrito</span></span>
@@ -246,6 +248,7 @@ Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
 <span id="cb51-7"><a href="atividades-extras.html#cb51-7" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb51-8"><a href="atividades-extras.html#cb51-8" tabindex="-1"></a>  <span class="co"># Calcula a porcentagem de votos para &#39;Marta&#39; e arredonda para 1 casa decimal</span></span>
 <span id="cb51-9"><a href="atividades-extras.html#cb51-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">porc =</span> <span class="fu">round</span>(marta<span class="sc">/</span>voto_total<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>))  </span></code></pre></div>
+<p>Agora precisamos decidir como vamos agrupar os dados para preparar a legenda do nosso gráfico. Ela indica como será feita a escala de cores para o nosso gráfico. Uma dica é retornar a discussão sobre Cortes de Jenks que realizamos no exercício anterior. Para este novo mapa, utilizaremos as seguintes categorias: “25-31%”, “31-37%”, “37-43%”, e “43-49%”.</p>
 <div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="atividades-extras.html#cb52-1" tabindex="-1"></a><span class="co"># Cria uma variavel categorica para melhorar a visualizacao</span></span>
 <span id="cb52-2"><a href="atividades-extras.html#cb52-2" tabindex="-1"></a>mapa_final <span class="ot">&lt;-</span> <span class="fu">mutate</span>(</span>
 <span id="cb52-3"><a href="atividades-extras.html#cb52-3" tabindex="-1"></a>  mapa_final,</span>
@@ -254,8 +257,8 @@ Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.</p>
 <span id="cb52-6"><a href="atividades-extras.html#cb52-6" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="fu">cut</span>(porc,</span>
 <span id="cb52-7"><a href="atividades-extras.html#cb52-7" tabindex="-1"></a>               <span class="fu">seq</span>(<span class="dv">25</span>, <span class="dv">49</span>, <span class="dv">6</span>),</span>
 <span id="cb52-8"><a href="atividades-extras.html#cb52-8" tabindex="-1"></a>               <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;25-31%&quot;</span>, <span class="st">&quot;31-37%&quot;</span>,</span>
-<span id="cb52-9"><a href="atividades-extras.html#cb52-9" tabindex="-1"></a>                          <span class="st">&quot;37-43%&quot;</span>,<span class="st">&quot;43-49%&quot;</span>))))</span></code></pre></div>
-<p>Produz a visualizacao de mapa com ggplot</p>
+<span id="cb52-9"><a href="atividades-extras.html#cb52-9" tabindex="-1"></a>                          <span class="st">&quot;37-43%&quot;</span>, <span class="st">&quot;43-49%&quot;</span>))))</span></code></pre></div>
+<p>Por fim, utilizaremos todos estes dados para produzir o gráfico final com a distribuição de votos (proporcional por distrito) da Marta Suplicy na eleição para prefeita no ano 2000.</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="atividades-extras.html#cb53-1" tabindex="-1"></a><span class="co"># Monta uma string de cores.</span></span>
 <span id="cb53-2"><a href="atividades-extras.html#cb53-2" tabindex="-1"></a>cores <span class="ot">&lt;-</span> <span class="fu">brewer.pal</span>(<span class="dv">4</span>, <span class="st">&quot;OrRd&quot;</span>)</span>
 <span id="cb53-3"><a href="atividades-extras.html#cb53-3" tabindex="-1"></a>cores <span class="ot">&lt;-</span> <span class="fu">c</span>(cores, <span class="st">&quot;#999999&quot;</span>)</span>

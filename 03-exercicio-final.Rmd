@@ -13,7 +13,7 @@ library(ggspatial)
 library(RColorBrewer)
 ```
 
-Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada *lv2000*). Além dela, também importaremos o mapa de distritos de São Paulo.
+Os procedimentos iniciais são muito parecidos com o que realizamos para as tarefas anteriores. Começamos baixando a base de dados que possui os resultados por local de votação na cidade de São Paulo no ano 2000 (nomeada *lv2000*). Além dela, também importaremos o mapa de distritos de São Paulo (*mapa*).
 
 ```{r importa-bases, message = FALSE}
 # Importa os dados de resultado por local de votação em SP
@@ -24,7 +24,6 @@ mapa <- readRDS("base/mapa_distritos_sp.rds")
 ```
 
 Agora identificaremos o total de votos por local de votação. Note que a base *lv2000* do CEM/USP já contém os dados de votação dos candidatos a prefeito. Nela, as colunas com os dados de votação seguem o seguinte padrão: PF00_111. Neste código, PF indica votação para prefeito; o primeiro dígito depois de "_" indica o turno; os dois números seguintes indicam o número do prefeito. A coluna com a votação da Marta Suplicy no primeiro turno, portanto, é PF00_113. Para mais informações, consulte a <a href="https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg" target="blank">documentação em PDF</a> preparada pelos pesquisadores do CEM/USP.
-
 
 ```{r votos-por-LV, message = FALSE}
 # Obtenção do total de votos validos para prefeito por local de votação
@@ -45,7 +44,7 @@ votos_pref <- lv2000 |>
   ungroup()
 ```
 
-
+Nosso próximo passo, mais uma vez, é usar o comando *left_join* para integrar a base de dados de locais de votação (*lv2000*) com a de votos para prefeita (*votos_pref*) e selecionar apenas os votos da candidata Marta Suplicy. Chamaremos esta nova base de *lv2000_2*.
 
 ```{r tibble-marta, message = FALSE}
 # Cria um novo tibble 'lv2000_2' a partir do 'lv2000'
@@ -56,33 +55,35 @@ lv2000_2 <- lv2000 |>
   select(ID, PF00_113, voto_total)  
 ```
 
-Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos).
+Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos). Para tal, utilizamos o comando de spacial join (*st_join*). Retire o "#" do comando abaixo e verifique o resultado.
 
 ```{r spatial-join-marta, message = FALSE}
-## Spatial join dos pontos com os poligonos 
-## trazendo informação dos polígonos para os pontos
 #mapa_unificado <- st_join(lv2000_2, mapa) 
 ```
 
-DEU ERRO! Por que? Investigue a razão!
+Oops. DEU ERRO! Você deve ter visto uma mensagem em vermelho como a seguir:
+
+> Error in st_geos_binop("intersects", x, y, sparse = sparse, prepared = prepared,  : 
+>  st_crs(x) == st_crs(y) is not TRUE
+
+O que aconteceu? Investigue a razão! O código abaixo dá uma pista.
 
 ```{r crs-marta, message = FALSE}
 # Transforma o crs para 4674
 lv2000_2 <- st_transform(lv2000_2, crs = 4674) 
 ```
 
-O que mudamos aqui? O sistema de referencia de coordenadas! Agora os dois objetos espaciais estao sob o mesmo crs
+O que mudamos aqui? O sistema de referencia de coordenadas! Lembra que no último exercício vimos que existe um formato usualmente adotado nos mapas brasileiros? Ele é o SIRGAS 2000 e é indicado pelo número 4674. Agora que utilizamos o comando *st_transform* e indicamos o código correto, os dois objetos espaciais estao sob o mesmo CRS. 
+
+Agora que está tudo certo, podemos usar o *st_join* para que os pontos sejam associados espacialmente com os polígonos.
 
 ```{r integra-bases, message = FALSE}
-# Unifica as bases com st_join. 
-# Isso garante que os pontos sejam associados espacialmente com os poligonos
 mapa_unificado <- st_join(mapa, lv2000_2) 
 ```
 
-Por que mapa_unificado agora tem 1135 linhas e não 1134? 
-Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.
+Por que *mapa_unificado* agora tem 1.135 linhas e não 1.134? Dica: investigue o distrito (em mapa) de Marsilac no extremo sul da cidade.
 
-Agrupar as votações da candidata por distrito
+Nosso próximo passo será agrupar as votações da candidata por distrito e, como fizemos anteriormente, calcular a proporção de votos para cada uma destas localidades.
 
 ```{r porcetagem-votos-marta, message = FALSE}
 # Usa o tibble 'mapa_unificado'
@@ -96,6 +97,8 @@ mapa_final <- mapa_unificado |>
   mutate(porc = round(marta/voto_total*100, 1))  
 ```
 
+Agora precisamos decidir como vamos agrupar os dados para preparar a legenda do nosso gráfico. Ela indica como será feita a escala de cores para o nosso gráfico. Uma dica é retornar a discussão sobre Cortes de Jenks que realizamos no exercício anterior. Para este novo mapa, utilizaremos as seguintes categorias: "25-31%", "31-37%", "37-43%", e "43-49%".
+
 ```{r ajuda-visualiza-marta, message = FALSE}
 # Cria uma variavel categorica para melhorar a visualizacao
 mapa_final <- mutate(
@@ -105,10 +108,10 @@ mapa_final <- mutate(
     TRUE ~ cut(porc,
                seq(25, 49, 6),
                labels = c("25-31%", "31-37%",
-                          "37-43%","43-49%"))))
+                          "37-43%", "43-49%"))))
 ```
 
-Produz a visualizacao de mapa com ggplot
+Por fim, utilizaremos todos estes dados para produzir o gráfico final com a distribuição de votos (proporcional por distrito) da Marta Suplicy na eleição para prefeita no ano 2000.
 
 ```{r visualiza-marta, message = FALSE}
 # Monta uma string de cores.
