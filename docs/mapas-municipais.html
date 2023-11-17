@@ -139,7 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">Mapas Eleitorais com R</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Texto</a>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Sobre o Workshop</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.1</b> Pré-Requisitos</a></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.2</b> Autores</a></li>
@@ -191,22 +191,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">3.2</span> Importação das Bases<a href="mapas-municipais.html#importação-das-bases" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Neste exercício, prepararemos um mapa da cidade de São Paulo contendo os dados de votação por seção eleitoral do candidato a prefeito Guilherme Boulos (PSOL) em 2020.</p>
 <p>Nosso primeiro passo, como no exercício anterior, será carregar os pacotes relevantes para a nossa análise. O pacote <em>tidyverse</em> inclui ferramentas importantes já utilizadas anteriormente, como o <em>ggplot2</em> e o <em>dplyr</em>. Também carregamos novamente os pacotes <em>sf</em> e <em>geobr</em>. Temos, no entanto, três novidades. Primeiro, o <em>ggspatial</em> nos ajudar a plotar mapas mais detalhados (de certa maneira, ele é utilizado em conjunto com o <em>ggplot2</em>). O <em>classInt</em> nos ajuda a preparar mapas, por exemplo, a partir de métodos de seleção de intervalos. Por fim, o pacote <em>cartography</em> melhora a apresentação dos mapas a partir de elementos mais sofisticados, como a inclusão da rosa dos ventos, legendas etc.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="mapas-municipais.html#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="mapas-municipais.html#cb1-2" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-3"><a href="mapas-municipais.html#cb1-3" tabindex="-1"></a><span class="fu">library</span>(geobr)</span>
-<span id="cb1-4"><a href="mapas-municipais.html#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
-<span id="cb1-5"><a href="mapas-municipais.html#cb1-5" tabindex="-1"></a><span class="fu">library</span>(classInt)</span>
-<span id="cb1-6"><a href="mapas-municipais.html#cb1-6" tabindex="-1"></a><span class="fu">library</span>(cartography)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="mapas-municipais.html#cb11-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb11-2"><a href="mapas-municipais.html#cb11-2" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb11-3"><a href="mapas-municipais.html#cb11-3" tabindex="-1"></a><span class="fu">library</span>(geobr)</span>
+<span id="cb11-4"><a href="mapas-municipais.html#cb11-4" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
+<span id="cb11-5"><a href="mapas-municipais.html#cb11-5" tabindex="-1"></a><span class="fu">library</span>(classInt)</span>
+<span id="cb11-6"><a href="mapas-municipais.html#cb11-6" tabindex="-1"></a><span class="fu">library</span>(cartography)</span></code></pre></div>
 <p>Agora que já temos os pacotes carregados, vamos baixar os bancos de dados (todos preparados em formato <em>RDS</em>). Em primeiro lugar, baixamos a base de dados contendo dados de votacao por secao eleitoral do candidato a prefeito Guilherme Boulos (PSOL), e dos candidatos a vereador Milton Leite (DEM), Fernando Holiday (PATRIOTA) e Eduardo Suplicy (PT). Ela está salva como <em>base2020.rds</em>.</p>
 <p>Para facilitar nossa análise, aproveitamos o mesmo bloco de código para encurtar os nomes de cada um destes candidatos. Para tal, utilizamos as funções <em>mutate</em> e <em>case_when</em> do pacote <em>dplyr</em>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="mapas-municipais.html#cb2-1" tabindex="-1"></a>candsp2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2020.rds&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-2"><a href="mapas-municipais.html#cb2-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nm_votavel =</span> <span class="fu">case_when</span>(</span>
-<span id="cb2-3"><a href="mapas-municipais.html#cb2-3" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;MILTON LEITE DA SILVA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Milton Leite&quot;</span>,</span>
-<span id="cb2-4"><a href="mapas-municipais.html#cb2-4" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;GUILHERME CASTRO BOULOS&quot;</span> <span class="sc">~</span> <span class="st">&quot;Boulos&quot;</span>,</span>
-<span id="cb2-5"><a href="mapas-municipais.html#cb2-5" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;EDUARDO MATARAZZO SUPLICY&quot;</span> <span class="sc">~</span> <span class="st">&quot;Suplicy&quot;</span>,</span>
-<span id="cb2-6"><a href="mapas-municipais.html#cb2-6" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;FERNANDO HOLIDAY SILVA BISPO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Holiday&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="mapas-municipais.html#cb12-1" tabindex="-1"></a>candsp2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2020.rds&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="mapas-municipais.html#cb12-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nm_votavel =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-3"><a href="mapas-municipais.html#cb12-3" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;MILTON LEITE DA SILVA&quot;</span> <span class="sc">~</span> <span class="st">&quot;Milton Leite&quot;</span>,</span>
+<span id="cb12-4"><a href="mapas-municipais.html#cb12-4" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;GUILHERME CASTRO BOULOS&quot;</span> <span class="sc">~</span> <span class="st">&quot;Boulos&quot;</span>,</span>
+<span id="cb12-5"><a href="mapas-municipais.html#cb12-5" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;EDUARDO MATARAZZO SUPLICY&quot;</span> <span class="sc">~</span> <span class="st">&quot;Suplicy&quot;</span>,</span>
+<span id="cb12-6"><a href="mapas-municipais.html#cb12-6" tabindex="-1"></a>    nm_votavel <span class="sc">==</span> <span class="st">&quot;FERNANDO HOLIDAY SILVA BISPO&quot;</span> <span class="sc">~</span> <span class="st">&quot;Holiday&quot;</span>))</span></code></pre></div>
 <p>Para se ter ideia de seu conteúdo, apresentamos sua <em>head</em> abaixo. São 28 colunas (variáveis) e 80.984 linhas (observações) contendo o número de votos que cada um dos três candidatos obteve na eleição de 2020, sendo Boulos para prefeito e os demais para vereador.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="mapas-municipais.html#cb3-1" tabindex="-1"></a><span class="fu">head</span>(candsp2020)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="mapas-municipais.html#cb13-1" tabindex="-1"></a><span class="fu">head</span>(candsp2020)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 28
 ##   dt_geracao hh_geracao ano_eleicao cd_tipo_eleicao nm_tipo_eleicao   nr_turno cd_eleicao ds_eleicao        dt_eleicao tp_abrangencia sg_uf sg_ue nm_ue
 ##   &lt;chr&gt;      &lt;time&gt;           &lt;dbl&gt;           &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;             &lt;chr&gt;      &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt;
@@ -220,9 +220,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## #   nm_votavel &lt;chr&gt;, qt_votos &lt;dbl&gt;, nr_local_votacao &lt;dbl&gt;, sq_candidato &lt;dbl&gt;, nm_local_votacao &lt;chr&gt;, ds_local_votacao_endereco &lt;chr&gt;,
 ## #   voto_total_secao &lt;dbl&gt;, voto_val_total_secao &lt;dbl&gt;</code></pre>
 <p>Nosso próximo passo é carregar a base com dados geolocalizados de cada um dos locais de votação no município de São Paulo. Seu nome é <em>baselocais2020SP.rds</em>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="mapas-municipais.html#cb5-1" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/baseLocais2020SP.rds&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="mapas-municipais.html#cb15-1" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/baseLocais2020SP.rds&quot;</span>)</span></code></pre></div>
 <p>Ao abrir esta base de dados, você verá o endereço de cada local de votação (por ex., o Colégio Objetivo na Av. Paulista, 900, Bela Vista), acompanhado de sua longitude e latitude, além de outros dados espaciais. A base possui 2.063 observações e 19 variáveis.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="mapas-municipais.html#cb6-1" tabindex="-1"></a><span class="fu">head</span>(lvsp2020)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="mapas-municipais.html#cb16-1" tabindex="-1"></a><span class="fu">head</span>(lvsp2020)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 19
 ##   local_id   ano sg_uf cd_localidade_tse cod_localidade_ibge nr_zona nr_locvot  nr_cep nm_localidade nm_locvot ds_endereco ds_bairro pred_long pred_lat
 ##      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;             &lt;dbl&gt;               &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
@@ -234,27 +234,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 6   674162  2020 SP                71072             3550308     246      1015 4754010 SÃO PAULO     EE. PROF… AVENIDA MÁ… SANTO AM…     -46.7    -23.7
 ## # ℹ 5 more variables: pred_dist &lt;dbl&gt;, tse_lat &lt;dbl&gt;, tse_long &lt;dbl&gt;, long &lt;dbl&gt;, lat &lt;dbl&gt;</code></pre>
 <p>Nosso próximo passo será conventer os dados de longitude (<em>long</em>) e latitude (<em>lat</em>) utilizando o pacote <em>sf</em> em um objeto de <em>featires espaciais</em>. Isto é importante para compatibilizar a estrutura dos dados com os pacotes e mapas com os quais estamos trabalhando. Mais especificamente, a transformação tem por objetivo utilizar o sistema de referência de coordenadas (CRS) SIRGAS 2000. Este passo é padrão para a elaboração da maioria dos mapas brasileiros.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="mapas-municipais.html#cb8-1" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> </span>
-<span id="cb8-2"><a href="mapas-municipais.html#cb8-2" tabindex="-1"></a>  lvsp2020 <span class="sc">|&gt;</span> </span>
-<span id="cb8-3"><a href="mapas-municipais.html#cb8-3" tabindex="-1"></a>  <span class="co"># Convertendo o dataframe &#39;lvsp2020&#39; em um objeto de features espaciais (&#39;sf&#39;)</span></span>
-<span id="cb8-4"><a href="mapas-municipais.html#cb8-4" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(</span>
-<span id="cb8-5"><a href="mapas-municipais.html#cb8-5" tabindex="-1"></a>    <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;long&quot;</span>, <span class="st">&quot;lat&quot;</span>), <span class="co"># Definindo as colunas &#39;long&#39; e &#39;lat&#39; como coordenadas</span></span>
-<span id="cb8-6"><a href="mapas-municipais.html#cb8-6" tabindex="-1"></a>    <span class="at">crs =</span> <span class="dv">4674</span>                  <span class="co"># Definindo o sistema de referência de coordenadas (CRS) como 4674 - SIRGAS 2000</span></span>
-<span id="cb8-7"><a href="mapas-municipais.html#cb8-7" tabindex="-1"></a>  ) </span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="mapas-municipais.html#cb18-1" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> </span>
+<span id="cb18-2"><a href="mapas-municipais.html#cb18-2" tabindex="-1"></a>  lvsp2020 <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="mapas-municipais.html#cb18-3" tabindex="-1"></a>  <span class="co"># Convertendo o dataframe &#39;lvsp2020&#39; em um objeto de features espaciais (&#39;sf&#39;)</span></span>
+<span id="cb18-4"><a href="mapas-municipais.html#cb18-4" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(</span>
+<span id="cb18-5"><a href="mapas-municipais.html#cb18-5" tabindex="-1"></a>    <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;long&quot;</span>, <span class="st">&quot;lat&quot;</span>), <span class="co"># Definindo as colunas &#39;long&#39; e &#39;lat&#39; como coordenadas</span></span>
+<span id="cb18-6"><a href="mapas-municipais.html#cb18-6" tabindex="-1"></a>    <span class="at">crs =</span> <span class="dv">4674</span>                  <span class="co"># Definindo o sistema de referência de coordenadas (CRS) como 4674 - SIRGAS 2000</span></span>
+<span id="cb18-7"><a href="mapas-municipais.html#cb18-7" tabindex="-1"></a>  ) </span></code></pre></div>
 <p>Pronto! Já temos os locais de votação e quantos votos os candidatos obtiveram em cada um deles. Temos, no entanto, um desafio. Havíamos falado que a Justiça Eleitoral se abriga por zonas eleitorais mas os limites destas zonas geralmente não são divulgados pelos TREs. O que nós faremos, então, é utilizar outra delimitação espacial como “aproximação” para apresentar a distribuição dos votos no município de São Paulo. Uma estratégia comum é separar os locais de votação por distrito (o equivalente a bairro no município de São Paulo). Na base de dados <em>mapas_distritos_sp.rds</em> temos os mapas dos 96 distritos deste município. Por isso, iremos carregá-la agora.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="mapas-municipais.html#cb9-1" tabindex="-1"></a>mapa <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/mapa_distritos_sp.rds&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="mapas-municipais.html#cb19-1" tabindex="-1"></a>mapa <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/mapa_distritos_sp.rds&quot;</span>)</span></code></pre></div>
 <p>Esta base se parece com aquelas que chamamos de <em>mapa_brasil</em> na parte anterior deste workshop. Para cada um dos distritos (coluna <em>name_district</em>), ela possui uma coluna chamada <em>geom</em> com a informação do polígono que representa o território do distrito. Veja abaixo como fica um mapa simples no qual utilizamos estes polígonos para plotar os distritos na cidade de São Paulo.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="mapas-municipais.html#cb10-1" tabindex="-1"></a><span class="co"># pre-visualização do mapa com shape dos distritos da cidade de Sao Paulo</span></span>
-<span id="cb10-2"><a href="mapas-municipais.html#cb10-2" tabindex="-1"></a><span class="co"># usand ggplot2</span></span>
-<span id="cb10-3"><a href="mapas-municipais.html#cb10-3" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span></span>
-<span id="cb10-4"><a href="mapas-municipais.html#cb10-4" tabindex="-1"></a>  <span class="co"># Adicionando camadas de features espaciais ao gráfico</span></span>
-<span id="cb10-5"><a href="mapas-municipais.html#cb10-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="mapas-municipais.html#cb20-1" tabindex="-1"></a><span class="co"># pre-visualização do mapa com shape dos distritos da cidade de Sao Paulo</span></span>
+<span id="cb20-2"><a href="mapas-municipais.html#cb20-2" tabindex="-1"></a><span class="co"># usand ggplot2</span></span>
+<span id="cb20-3"><a href="mapas-municipais.html#cb20-3" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="mapas-municipais.html#cb20-4" tabindex="-1"></a>  <span class="co"># Adicionando camadas de features espaciais ao gráfico</span></span>
+<span id="cb20-5"><a href="mapas-municipais.html#cb20-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mostra%20o%20mapa%20de%20Sa%CC%83o%20Paulo-1.png" width="672" /></p>
 <p>Agora, vamos verificar onde fica cada um dos locais de votação do município de São Paulo. No código abaixo, utilizamos os <em>ggplot</em> para plotar o mapa com os distritos. Depois, com o comando <em>geom_sf(data = lvsp2020)</em>, pedimos ao <em>ggplot</em> para inserir a localização dos locais de votação (base <em>lvsp2020</em>) no mesmo mapa. Por fim, o <em>theme_void</em> ajusta o layout do gráfico para facilitar a visualização.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="mapas-municipais.html#cb11-1" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span> </span>
-<span id="cb11-2"><a href="mapas-municipais.html#cb11-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb11-3"><a href="mapas-municipais.html#cb11-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> lvsp2020) <span class="sc">+</span> <span class="co">#adicinando camada com os pontos dos locais de votação</span></span>
-<span id="cb11-4"><a href="mapas-municipais.html#cb11-4" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="co">#ajusta o layout do gráfico deixando a tela de fundo em branco</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="mapas-municipais.html#cb21-1" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span> </span>
+<span id="cb21-2"><a href="mapas-municipais.html#cb21-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb21-3"><a href="mapas-municipais.html#cb21-3" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> lvsp2020) <span class="sc">+</span> <span class="co">#adicinando camada com os pontos dos locais de votação</span></span>
+<span id="cb21-4"><a href="mapas-municipais.html#cb21-4" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="co">#ajusta o layout do gráfico deixando a tela de fundo em branco</span></span></code></pre></div>
 <p><img src="fake-book_files/figure-html/mostra%20o%20mapa%20de%20Sa%CC%83o%20Paulo%20com%20locais%20de%20votac%CC%A7a%CC%83o-1.png" width="672" /></p>
 
 </div>

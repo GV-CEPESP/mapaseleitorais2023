@@ -6,8 +6,6 @@ a-eleição-presidencial-de-2014
 a-eleição-presidencial-de-2022
 mapas-municipais
 organização-intramunicipal
-preparando-os-dados
+importação-das-bases
 exercício-final
 extra
-texto
-importação-das-bases
