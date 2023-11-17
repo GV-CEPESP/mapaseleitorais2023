@@ -158,40 +158,35 @@ mapa_final |>
 
 ## Eduardo Paes em 2020
 
-
-
+Para o caso do Rio de Janeiro, utilizaremos alguns pacotes que não foram necessários para os exercícios anteriores. Descrevemos cada um deles brevemente no código apresentado abaixo.
 
 ```{r pacotes-paes, message = FALSE}
-library(here)
-library(dplyr)
-library(readr)
-library(stringr)
-library(electionsBR)
-library(janitor)
-library(sf)
-library(geobr)
-library(ggplot2)
-library(ggspatial)
+library(here) # Parecido com o setwd() mas com funções adicionais para referenciar arquivos
+library(dplyr) # Gramática para manipular dados
+library(readr) # Pacote para abrir bases, por ex., em CSV
+library(stringr) # Facilita a manipulação de variáveis "string"
+library(electionsBR) # Pacote com dados eleitorais brasileiros
+library(janitor) # Auxilia na limpeza dos dados
+library(sf) # Manipulação de dados espaciais
+library(geobr) # Pacote com mapas do Brasil
+library(ggplot2) # Pacote para elaboração de gráficos
+library(ggspatial) # Complementar ao ggplot2, com foco em mapas
 ```
 
+Como nos outros exercícios, vamos importar a base com (1) locais de votação do município do Rio de Janeiro em 2020, (2) os dados eleitorais do candidato a prefeitura Eduardo Paes (PSD) e (3) a localização dos setores censitários da cidade (isto é, seus bairros). 
 
 ```{r lv-paes, message = FALSE}
 # Leitura da base dos locais de votação no Rio em 2020
 lvrj <- readRDS("base/lvrj2020.rds")
-```
 
-```{r eleitorais-paes, message = FALSE}
 # Leitura da base com dados eleitorais de Eduardo Paes
 paes2020 <- readRDS("base/base2020_rj.rds")
-```
 
-```{r setores-censitarios-rio, message = FALSE}
 # Lendo o mapa de setores censitários do Rio de Janeiro
 rj_sc <- readRDS("base/mapa_setores_rj.rds")
 ```
 
-
-Unir as informacoes de bairro "corretas" ao banco de LVs
+Neste próximo bloco de código, vamos unir as informações de bairro "corretas" ao banco de dados de locais de votação. Lembre-se que, como discutimos anteriormente, as zonas eleitorais do TRE não são equivalentes à distribuição espacial dos setores censitários. Além disso, não se esqueça de ajustar o CRS para o SIRGAS 2000 (código 4674).
 
 ```{r spatial-transformation-rio, message = FALSE}
 # Transforma lvrj em um objeto espacial
@@ -200,28 +195,30 @@ lvrj_espacial <- lvrj |>
   filter(!is.na(long)) |> 
   # Objeto com crs = 4326 (WGS84)
   st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
-  # Transforma para Sirgas2000, com crs == 4674, que e o mesmo do rj_bairros
+  # Transforma para Sirgas2000, com crs == 4674, que é o mesmo do rj_bairros
   st_transform(4674)
 ```
+
+Nosso próximo passo é utilizar o comando *st_join*, como nos exemplos anteriores, para integrar os dados espaciais de *lvrj_espacial* e *rj_sc*.
 
 ```{r spacial-join-rio, message = FALSE}
 # Faz o spatial join
 lvrj_espacial <- st_join(lvrj_espacial, rj_sc)
 ```
 
+Antes de prosseguir, vamos verificar se o número de NAs (dados ausentes) é muito grande. O que encontraremos, como você perceberá, é que não existe nenhum "missing" nas 1.422 linhas da tabela para a coluna *NM_MUNICIP*.
+
 ```{r checagem-rio, message = FALSE}
-# Checa n. de NAs (0 de 1.422)
+# Checa número de NAs (0 de 1.422)
 table(is.na(lvrj_espacial$NM_MUNICIP))
 ```
 
-Agregar os votos por bairro do RJ
+Agora já podemos agregar os votos por bairro do município do Rio de Janeiro. Começamos pela remoção dos atributos espaciais do banco de locais de votação e, logo em seguida, integramos as bases voto por seção com os locais de votação atualizados.
 
 ```{r limpa-mapa-rio, message = FALSE}
 # Remove atributos espaciais do banco de LVs
 lvrj <- st_drop_geometry(lvrj_espacial) 
-```
 
-```{r integra-bases-paes, message = FALSE}
 # Unir os bancos de voto-secao com os de LVs atualizados
 paes2020_lv <- paes2020 |> 
   # Agrupa os votos do Paes por LV
@@ -239,6 +236,8 @@ paes2020_lv <- paes2020 |>
                    "ano_eleicao" = "ano")) 
 ```
 
+Isto nos permitirá agrupar os votos do candidato Eduardo Paes por bairro. Lembramos, mais uma vez, que isto é possível já que temos o endereço de cada local de votação e sua geolocalização.
+
 ```{r integra-mapas-paes, message = FALSE}
 # Agrupa os votos do Paes por bairro
 paes2020_bairro <- paes2020_lv |> 
@@ -248,33 +247,32 @@ paes2020_bairro <- paes2020_lv |>
   ungroup()
 ```
   
-
-Produzir visualizacao
+Com base nestes dados, produzimos a proporção de votos que o candidato obteve em cada bairro. Pelo comando *summary*, verificamos que a média de Paes por bairro do Rio foi de 37,25%, sendo que não obteve mais que 51,86% em nenhum bairro no primeiro turno de 2020.
 
 ```{r percentual-paes, message = FALSE}
 # Preparar o banco de dados
 paes2020_bairro <- paes2020_bairro |> 
   mutate(percentual = (qt_votos/votos_validos_bairro)*100)
-```
 
-```{r descritivo-paes, message = FALSE}
 # Algumas estatisticas descritivas do percentual
 summary(paes2020_bairro$percentual)
 ```
+
+Nosso próximo passo será utilizar os mapas do pacote *geobr* (isto é, seu arquivo shp) para gerar um mapa de bairros mais "limpo" do que o que temos e integrar seus dados ao nosso *tibble* original.
 
 ```{r shp-paes, message = FALSE}
 # Abre um shp de bairros mais "limpo"
 rj_bairros <- read_neighborhood() |> 
   filter(name_muni == "Rio De Janeiro")
-```
 
-```{r votos-para-shp-paes, message = FALSE}
 # Passa a info de votos pro shp
 rj_bairros_paes <- rj_bairros |> 
   left_join(paes2020_bairro, 
             by = c("name_neighborhood" = "NM_BAIRRO",
                    "code_neighborhood" = "CD_GEOCODB"))
 ```
+
+Por fim, utilizamos estas informações para gerar o mapa com uma escala de percentuais que varia de 10 em 10 p.p. como apresentado abaixo na sequência do comando *mutate*. Note também que as funções do *ggplot* estão comentadas para te auxiliar na customização dos mapas.
 
 ```{r visualiza-paes, message = FALSE}
 # A partir do objeto espacial

@@ -302,125 +302,137 @@ st_crs(x) == st_crs(y) is not TRUE</p>
 </div>
 <div id="eduardo-paes-em-2020" class="section level2 hasAnchor" number="4.2">
 <h2><span class="header-section-number">4.2</span> Eduardo Paes em 2020<a href="atividades-extras.html#eduardo-paes-em-2020" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="atividades-extras.html#cb54-1" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb54-2"><a href="atividades-extras.html#cb54-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb54-3"><a href="atividades-extras.html#cb54-3" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb54-4"><a href="atividades-extras.html#cb54-4" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb54-5"><a href="atividades-extras.html#cb54-5" tabindex="-1"></a><span class="fu">library</span>(electionsBR)</span>
-<span id="cb54-6"><a href="atividades-extras.html#cb54-6" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb54-7"><a href="atividades-extras.html#cb54-7" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb54-8"><a href="atividades-extras.html#cb54-8" tabindex="-1"></a><span class="fu">library</span>(geobr)</span>
-<span id="cb54-9"><a href="atividades-extras.html#cb54-9" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb54-10"><a href="atividades-extras.html#cb54-10" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span></code></pre></div>
+<p>Para o caso do Rio de Janeiro, utilizaremos alguns pacotes que não foram necessários para os exercícios anteriores. Descrevemos cada um deles brevemente no código apresentado abaixo.</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="atividades-extras.html#cb54-1" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co"># Parecido com o setwd() mas com funções adicionais para referenciar arquivos</span></span>
+<span id="cb54-2"><a href="atividades-extras.html#cb54-2" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># Gramática para manipular dados</span></span>
+<span id="cb54-3"><a href="atividades-extras.html#cb54-3" tabindex="-1"></a><span class="fu">library</span>(readr) <span class="co"># Pacote para abrir bases, por ex., em CSV</span></span>
+<span id="cb54-4"><a href="atividades-extras.html#cb54-4" tabindex="-1"></a><span class="fu">library</span>(stringr) <span class="co"># Facilita a manipulação de variáveis &quot;string&quot;</span></span>
+<span id="cb54-5"><a href="atividades-extras.html#cb54-5" tabindex="-1"></a><span class="fu">library</span>(electionsBR) <span class="co"># Pacote com dados eleitorais brasileiros</span></span>
+<span id="cb54-6"><a href="atividades-extras.html#cb54-6" tabindex="-1"></a><span class="fu">library</span>(janitor) <span class="co"># Auxilia na limpeza dos dados</span></span>
+<span id="cb54-7"><a href="atividades-extras.html#cb54-7" tabindex="-1"></a><span class="fu">library</span>(sf) <span class="co"># Manipulação de dados espaciais</span></span>
+<span id="cb54-8"><a href="atividades-extras.html#cb54-8" tabindex="-1"></a><span class="fu">library</span>(geobr) <span class="co"># Pacote com mapas do Brasil</span></span>
+<span id="cb54-9"><a href="atividades-extras.html#cb54-9" tabindex="-1"></a><span class="fu">library</span>(ggplot2) <span class="co"># Pacote para elaboração de gráficos</span></span>
+<span id="cb54-10"><a href="atividades-extras.html#cb54-10" tabindex="-1"></a><span class="fu">library</span>(ggspatial) <span class="co"># Complementar ao ggplot2, com foco em mapas</span></span></code></pre></div>
+<p>Como nos outros exercícios, vamos importar a base com (1) locais de votação do município do Rio de Janeiro em 2020, (2) os dados eleitorais do candidato a prefeitura Eduardo Paes (PSD) e (3) a localização dos setores censitários da cidade (isto é, seus bairros).</p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="atividades-extras.html#cb55-1" tabindex="-1"></a><span class="co"># Leitura da base dos locais de votação no Rio em 2020</span></span>
-<span id="cb55-2"><a href="atividades-extras.html#cb55-2" tabindex="-1"></a>lvrj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/lvrj2020.rds&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="atividades-extras.html#cb56-1" tabindex="-1"></a><span class="co"># Leitura da base com dados eleitorais de Eduardo Paes</span></span>
-<span id="cb56-2"><a href="atividades-extras.html#cb56-2" tabindex="-1"></a>paes2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2020_rj.rds&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="atividades-extras.html#cb57-1" tabindex="-1"></a><span class="co"># Lendo o mapa de setores censitários do Rio de Janeiro</span></span>
-<span id="cb57-2"><a href="atividades-extras.html#cb57-2" tabindex="-1"></a>rj_sc <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/mapa_setores_rj.rds&quot;</span>)</span></code></pre></div>
-<p>Unir as informacoes de bairro “corretas” ao banco de LVs</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="atividades-extras.html#cb58-1" tabindex="-1"></a><span class="co"># Transforma lvrj em um objeto espacial</span></span>
-<span id="cb58-2"><a href="atividades-extras.html#cb58-2" tabindex="-1"></a>lvrj_espacial <span class="ot">&lt;-</span> lvrj <span class="sc">|&gt;</span> </span>
-<span id="cb58-3"><a href="atividades-extras.html#cb58-3" tabindex="-1"></a>  <span class="co"># Remove os NA, se houver (importante checar quantos NA, se for o caso)</span></span>
-<span id="cb58-4"><a href="atividades-extras.html#cb58-4" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(long)) <span class="sc">|&gt;</span> </span>
-<span id="cb58-5"><a href="atividades-extras.html#cb58-5" tabindex="-1"></a>  <span class="co"># Objeto com crs = 4326 (WGS84)</span></span>
-<span id="cb58-6"><a href="atividades-extras.html#cb58-6" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;long&quot;</span>, <span class="st">&quot;lat&quot;</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb58-7"><a href="atividades-extras.html#cb58-7" tabindex="-1"></a>  <span class="co"># Transforma para Sirgas2000, com crs == 4674, que e o mesmo do rj_bairros</span></span>
-<span id="cb58-8"><a href="atividades-extras.html#cb58-8" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4674</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="atividades-extras.html#cb59-1" tabindex="-1"></a><span class="co"># Faz o spatial join</span></span>
-<span id="cb59-2"><a href="atividades-extras.html#cb59-2" tabindex="-1"></a>lvrj_espacial <span class="ot">&lt;-</span> <span class="fu">st_join</span>(lvrj_espacial, rj_sc)</span></code></pre></div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="atividades-extras.html#cb60-1" tabindex="-1"></a><span class="co"># Checa n. de NAs (0 de 1.422)</span></span>
-<span id="cb60-2"><a href="atividades-extras.html#cb60-2" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">is.na</span>(lvrj_espacial<span class="sc">$</span>NM_MUNICIP))</span></code></pre></div>
+<span id="cb55-2"><a href="atividades-extras.html#cb55-2" tabindex="-1"></a>lvrj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/lvrj2020.rds&quot;</span>)</span>
+<span id="cb55-3"><a href="atividades-extras.html#cb55-3" tabindex="-1"></a></span>
+<span id="cb55-4"><a href="atividades-extras.html#cb55-4" tabindex="-1"></a><span class="co"># Leitura da base com dados eleitorais de Eduardo Paes</span></span>
+<span id="cb55-5"><a href="atividades-extras.html#cb55-5" tabindex="-1"></a>paes2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/base2020_rj.rds&quot;</span>)</span>
+<span id="cb55-6"><a href="atividades-extras.html#cb55-6" tabindex="-1"></a></span>
+<span id="cb55-7"><a href="atividades-extras.html#cb55-7" tabindex="-1"></a><span class="co"># Lendo o mapa de setores censitários do Rio de Janeiro</span></span>
+<span id="cb55-8"><a href="atividades-extras.html#cb55-8" tabindex="-1"></a>rj_sc <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/mapa_setores_rj.rds&quot;</span>)</span></code></pre></div>
+<p>Neste próximo bloco de código, vamos unir as informações de bairro “corretas” ao banco de dados de locais de votação. Lembre-se que, como discutimos anteriormente, as zonas eleitorais do TRE não são equivalentes à distribuição espacial dos setores censitários. Além disso, não se esqueça de ajustar o CRS para o SIRGAS 2000 (código 4674).</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="atividades-extras.html#cb56-1" tabindex="-1"></a><span class="co"># Transforma lvrj em um objeto espacial</span></span>
+<span id="cb56-2"><a href="atividades-extras.html#cb56-2" tabindex="-1"></a>lvrj_espacial <span class="ot">&lt;-</span> lvrj <span class="sc">|&gt;</span> </span>
+<span id="cb56-3"><a href="atividades-extras.html#cb56-3" tabindex="-1"></a>  <span class="co"># Remove os NA, se houver (importante checar quantos NA, se for o caso)</span></span>
+<span id="cb56-4"><a href="atividades-extras.html#cb56-4" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(long)) <span class="sc">|&gt;</span> </span>
+<span id="cb56-5"><a href="atividades-extras.html#cb56-5" tabindex="-1"></a>  <span class="co"># Objeto com crs = 4326 (WGS84)</span></span>
+<span id="cb56-6"><a href="atividades-extras.html#cb56-6" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;long&quot;</span>, <span class="st">&quot;lat&quot;</span>), <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb56-7"><a href="atividades-extras.html#cb56-7" tabindex="-1"></a>  <span class="co"># Transforma para Sirgas2000, com crs == 4674, que é o mesmo do rj_bairros</span></span>
+<span id="cb56-8"><a href="atividades-extras.html#cb56-8" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4674</span>)</span></code></pre></div>
+<p>Nosso próximo passo é utilizar o comando <em>st_join</em>, como nos exemplos anteriores, para integrar os dados espaciais de <em>lvrj_espacial</em> e <em>rj_sc</em>.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="atividades-extras.html#cb57-1" tabindex="-1"></a><span class="co"># Faz o spatial join</span></span>
+<span id="cb57-2"><a href="atividades-extras.html#cb57-2" tabindex="-1"></a>lvrj_espacial <span class="ot">&lt;-</span> <span class="fu">st_join</span>(lvrj_espacial, rj_sc)</span></code></pre></div>
+<p>Antes de prosseguir, vamos verificar se o número de NAs (dados ausentes) é muito grande. O que encontraremos, como você perceberá, é que não existe nenhum “missing” nas 1.422 linhas da tabela para a coluna <em>NM_MUNICIP</em>.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="atividades-extras.html#cb58-1" tabindex="-1"></a><span class="co"># Checa número de NAs (0 de 1.422)</span></span>
+<span id="cb58-2"><a href="atividades-extras.html#cb58-2" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">is.na</span>(lvrj_espacial<span class="sc">$</span>NM_MUNICIP))</span></code></pre></div>
 <pre><code>## 
 ## FALSE 
 ##  1422</code></pre>
-<p>Agregar os votos por bairro do RJ</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="atividades-extras.html#cb62-1" tabindex="-1"></a><span class="co"># Remove atributos espaciais do banco de LVs</span></span>
-<span id="cb62-2"><a href="atividades-extras.html#cb62-2" tabindex="-1"></a>lvrj <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(lvrj_espacial) </span></code></pre></div>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="atividades-extras.html#cb63-1" tabindex="-1"></a><span class="co"># Unir os bancos de voto-secao com os de LVs atualizados</span></span>
-<span id="cb63-2"><a href="atividades-extras.html#cb63-2" tabindex="-1"></a>paes2020_lv <span class="ot">&lt;-</span> paes2020 <span class="sc">|&gt;</span> </span>
-<span id="cb63-3"><a href="atividades-extras.html#cb63-3" tabindex="-1"></a>  <span class="co"># Agrupa os votos do Paes por LV</span></span>
-<span id="cb63-4"><a href="atividades-extras.html#cb63-4" tabindex="-1"></a>  <span class="fu">group_by</span>(dt_geracao, ano_eleicao, nr_turno, sg_uf, </span>
-<span id="cb63-5"><a href="atividades-extras.html#cb63-5" tabindex="-1"></a>           nm_municipio, cd_municipio, nr_zona, nr_local_votacao, </span>
-<span id="cb63-6"><a href="atividades-extras.html#cb63-6" tabindex="-1"></a>           ds_cargo, nm_votavel) <span class="sc">|&gt;</span> </span>
-<span id="cb63-7"><a href="atividades-extras.html#cb63-7" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">qt_votos =</span> <span class="fu">sum</span>(qt_votos),</span>
-<span id="cb63-8"><a href="atividades-extras.html#cb63-8" tabindex="-1"></a>            <span class="at">votos_validos_lv =</span> <span class="fu">sum</span>(votos_validos_secao)) <span class="sc">|&gt;</span> </span>
-<span id="cb63-9"><a href="atividades-extras.html#cb63-9" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb63-10"><a href="atividades-extras.html#cb63-10" tabindex="-1"></a>  <span class="co"># Junta com o banco de LV</span></span>
-<span id="cb63-11"><a href="atividades-extras.html#cb63-11" tabindex="-1"></a>  <span class="fu">left_join</span>(lvrj, </span>
-<span id="cb63-12"><a href="atividades-extras.html#cb63-12" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;cd_municipio&quot;</span> <span class="ot">=</span> <span class="st">&quot;cd_localidade_tse&quot;</span>, </span>
-<span id="cb63-13"><a href="atividades-extras.html#cb63-13" tabindex="-1"></a>                   <span class="st">&quot;nr_zona&quot;</span>, </span>
-<span id="cb63-14"><a href="atividades-extras.html#cb63-14" tabindex="-1"></a>                   <span class="st">&quot;nr_local_votacao&quot;</span> <span class="ot">=</span> <span class="st">&quot;nr_locvot&quot;</span>, </span>
-<span id="cb63-15"><a href="atividades-extras.html#cb63-15" tabindex="-1"></a>                   <span class="st">&quot;ano_eleicao&quot;</span> <span class="ot">=</span> <span class="st">&quot;ano&quot;</span>)) </span></code></pre></div>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="atividades-extras.html#cb64-1" tabindex="-1"></a><span class="co"># Agrupa os votos do Paes por bairro</span></span>
-<span id="cb64-2"><a href="atividades-extras.html#cb64-2" tabindex="-1"></a>paes2020_bairro <span class="ot">&lt;-</span> paes2020_lv <span class="sc">|&gt;</span> </span>
-<span id="cb64-3"><a href="atividades-extras.html#cb64-3" tabindex="-1"></a>  <span class="fu">group_by</span>(NM_BAIRRO, CD_GEOCODB) <span class="sc">|&gt;</span> </span>
-<span id="cb64-4"><a href="atividades-extras.html#cb64-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">qt_votos =</span> <span class="fu">sum</span>(qt_votos),</span>
-<span id="cb64-5"><a href="atividades-extras.html#cb64-5" tabindex="-1"></a>            <span class="at">votos_validos_bairro =</span> <span class="fu">sum</span>(votos_validos_lv)) <span class="sc">|&gt;</span> </span>
-<span id="cb64-6"><a href="atividades-extras.html#cb64-6" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
-<p>Produzir visualizacao</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="atividades-extras.html#cb65-1" tabindex="-1"></a><span class="co"># Preparar o banco de dados</span></span>
-<span id="cb65-2"><a href="atividades-extras.html#cb65-2" tabindex="-1"></a>paes2020_bairro <span class="ot">&lt;-</span> paes2020_bairro <span class="sc">|&gt;</span> </span>
-<span id="cb65-3"><a href="atividades-extras.html#cb65-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percentual =</span> (qt_votos<span class="sc">/</span>votos_validos_bairro)<span class="sc">*</span><span class="dv">100</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="atividades-extras.html#cb66-1" tabindex="-1"></a><span class="co"># Algumas estatisticas descritivas do percentual</span></span>
-<span id="cb66-2"><a href="atividades-extras.html#cb66-2" tabindex="-1"></a><span class="fu">summary</span>(paes2020_bairro<span class="sc">$</span>percentual)</span></code></pre></div>
+<p>Agora já podemos agregar os votos por bairro do município do Rio de Janeiro. Começamos pela remoção dos atributos espaciais do banco de locais de votação e, logo em seguida, integramos as bases voto por seção com os locais de votação atualizados.</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="atividades-extras.html#cb60-1" tabindex="-1"></a><span class="co"># Remove atributos espaciais do banco de LVs</span></span>
+<span id="cb60-2"><a href="atividades-extras.html#cb60-2" tabindex="-1"></a>lvrj <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(lvrj_espacial) </span>
+<span id="cb60-3"><a href="atividades-extras.html#cb60-3" tabindex="-1"></a></span>
+<span id="cb60-4"><a href="atividades-extras.html#cb60-4" tabindex="-1"></a><span class="co"># Unir os bancos de voto-secao com os de LVs atualizados</span></span>
+<span id="cb60-5"><a href="atividades-extras.html#cb60-5" tabindex="-1"></a>paes2020_lv <span class="ot">&lt;-</span> paes2020 <span class="sc">|&gt;</span> </span>
+<span id="cb60-6"><a href="atividades-extras.html#cb60-6" tabindex="-1"></a>  <span class="co"># Agrupa os votos do Paes por LV</span></span>
+<span id="cb60-7"><a href="atividades-extras.html#cb60-7" tabindex="-1"></a>  <span class="fu">group_by</span>(dt_geracao, ano_eleicao, nr_turno, sg_uf, </span>
+<span id="cb60-8"><a href="atividades-extras.html#cb60-8" tabindex="-1"></a>           nm_municipio, cd_municipio, nr_zona, nr_local_votacao, </span>
+<span id="cb60-9"><a href="atividades-extras.html#cb60-9" tabindex="-1"></a>           ds_cargo, nm_votavel) <span class="sc">|&gt;</span> </span>
+<span id="cb60-10"><a href="atividades-extras.html#cb60-10" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">qt_votos =</span> <span class="fu">sum</span>(qt_votos),</span>
+<span id="cb60-11"><a href="atividades-extras.html#cb60-11" tabindex="-1"></a>            <span class="at">votos_validos_lv =</span> <span class="fu">sum</span>(votos_validos_secao)) <span class="sc">|&gt;</span> </span>
+<span id="cb60-12"><a href="atividades-extras.html#cb60-12" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb60-13"><a href="atividades-extras.html#cb60-13" tabindex="-1"></a>  <span class="co"># Junta com o banco de LV</span></span>
+<span id="cb60-14"><a href="atividades-extras.html#cb60-14" tabindex="-1"></a>  <span class="fu">left_join</span>(lvrj, </span>
+<span id="cb60-15"><a href="atividades-extras.html#cb60-15" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;cd_municipio&quot;</span> <span class="ot">=</span> <span class="st">&quot;cd_localidade_tse&quot;</span>, </span>
+<span id="cb60-16"><a href="atividades-extras.html#cb60-16" tabindex="-1"></a>                   <span class="st">&quot;nr_zona&quot;</span>, </span>
+<span id="cb60-17"><a href="atividades-extras.html#cb60-17" tabindex="-1"></a>                   <span class="st">&quot;nr_local_votacao&quot;</span> <span class="ot">=</span> <span class="st">&quot;nr_locvot&quot;</span>, </span>
+<span id="cb60-18"><a href="atividades-extras.html#cb60-18" tabindex="-1"></a>                   <span class="st">&quot;ano_eleicao&quot;</span> <span class="ot">=</span> <span class="st">&quot;ano&quot;</span>)) </span></code></pre></div>
+<p>Isto nos permitirá agrupar os votos do candidato Eduardo Paes por bairro. Lembramos, mais uma vez, que isto é possível já que temos o endereço de cada local de votação e sua geolocalização.</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="atividades-extras.html#cb61-1" tabindex="-1"></a><span class="co"># Agrupa os votos do Paes por bairro</span></span>
+<span id="cb61-2"><a href="atividades-extras.html#cb61-2" tabindex="-1"></a>paes2020_bairro <span class="ot">&lt;-</span> paes2020_lv <span class="sc">|&gt;</span> </span>
+<span id="cb61-3"><a href="atividades-extras.html#cb61-3" tabindex="-1"></a>  <span class="fu">group_by</span>(NM_BAIRRO, CD_GEOCODB) <span class="sc">|&gt;</span> </span>
+<span id="cb61-4"><a href="atividades-extras.html#cb61-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">qt_votos =</span> <span class="fu">sum</span>(qt_votos),</span>
+<span id="cb61-5"><a href="atividades-extras.html#cb61-5" tabindex="-1"></a>            <span class="at">votos_validos_bairro =</span> <span class="fu">sum</span>(votos_validos_lv)) <span class="sc">|&gt;</span> </span>
+<span id="cb61-6"><a href="atividades-extras.html#cb61-6" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div>
+<p>Com base nestes dados, produzimos a proporção de votos que o candidato obteve em cada bairro. Pelo comando <em>summary</em>, verificamos que a média de Paes por bairro do Rio foi de 37,25%, sendo que não obteve mais que 51,86% em nenhum bairro no primeiro turno de 2020.</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="atividades-extras.html#cb62-1" tabindex="-1"></a><span class="co"># Preparar o banco de dados</span></span>
+<span id="cb62-2"><a href="atividades-extras.html#cb62-2" tabindex="-1"></a>paes2020_bairro <span class="ot">&lt;-</span> paes2020_bairro <span class="sc">|&gt;</span> </span>
+<span id="cb62-3"><a href="atividades-extras.html#cb62-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">percentual =</span> (qt_votos<span class="sc">/</span>votos_validos_bairro)<span class="sc">*</span><span class="dv">100</span>)</span>
+<span id="cb62-4"><a href="atividades-extras.html#cb62-4" tabindex="-1"></a></span>
+<span id="cb62-5"><a href="atividades-extras.html#cb62-5" tabindex="-1"></a><span class="co"># Algumas estatisticas descritivas do percentual</span></span>
+<span id="cb62-6"><a href="atividades-extras.html#cb62-6" tabindex="-1"></a><span class="fu">summary</span>(paes2020_bairro<span class="sc">$</span>percentual)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   21.40   33.47   37.40   37.25   40.11   51.86</code></pre>
-<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="atividades-extras.html#cb68-1" tabindex="-1"></a><span class="co"># Abre um shp de bairros mais &quot;limpo&quot;</span></span>
-<span id="cb68-2"><a href="atividades-extras.html#cb68-2" tabindex="-1"></a>rj_bairros <span class="ot">&lt;-</span> <span class="fu">read_neighborhood</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb68-3"><a href="atividades-extras.html#cb68-3" tabindex="-1"></a>  <span class="fu">filter</span>(name_muni <span class="sc">==</span> <span class="st">&quot;Rio De Janeiro&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="atividades-extras.html#cb69-1" tabindex="-1"></a><span class="co"># Passa a info de votos pro shp</span></span>
-<span id="cb69-2"><a href="atividades-extras.html#cb69-2" tabindex="-1"></a>rj_bairros_paes <span class="ot">&lt;-</span> rj_bairros <span class="sc">|&gt;</span> </span>
-<span id="cb69-3"><a href="atividades-extras.html#cb69-3" tabindex="-1"></a>  <span class="fu">left_join</span>(paes2020_bairro, </span>
-<span id="cb69-4"><a href="atividades-extras.html#cb69-4" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;NM_BAIRRO&quot;</span>,</span>
-<span id="cb69-5"><a href="atividades-extras.html#cb69-5" tabindex="-1"></a>                   <span class="st">&quot;code_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;CD_GEOCODB&quot;</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="atividades-extras.html#cb70-1" tabindex="-1"></a><span class="co"># A partir do objeto espacial</span></span>
-<span id="cb70-2"><a href="atividades-extras.html#cb70-2" tabindex="-1"></a>rj_bairros_paes  <span class="sc">|&gt;</span> </span>
-<span id="cb70-3"><a href="atividades-extras.html#cb70-3" tabindex="-1"></a>  <span class="co"># Cria uma variavel categoria e preenche os niveis, que serao a legenda</span></span>
-<span id="cb70-4"><a href="atividades-extras.html#cb70-4" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb70-5"><a href="atividades-extras.html#cb70-5" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">case_when</span>(</span>
-<span id="cb70-6"><a href="atividades-extras.html#cb70-6" tabindex="-1"></a>      <span class="fu">is.na</span>(percentual) <span class="sc">~</span> <span class="st">&quot;Sem LV&quot;</span>,</span>
-<span id="cb70-7"><a href="atividades-extras.html#cb70-7" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">20</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">30</span> <span class="sc">~</span> <span class="st">&quot;20-30%&quot;</span>,</span>
-<span id="cb70-8"><a href="atividades-extras.html#cb70-8" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">30</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">40</span> <span class="sc">~</span> <span class="st">&quot;30-40%&quot;</span>,</span>
-<span id="cb70-9"><a href="atividades-extras.html#cb70-9" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">40</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;40-50%&quot;</span>,</span>
-<span id="cb70-10"><a href="atividades-extras.html#cb70-10" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;&gt;50%&quot;</span>),</span>
-<span id="cb70-11"><a href="atividades-extras.html#cb70-11" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">factor</span>(</span>
-<span id="cb70-12"><a href="atividades-extras.html#cb70-12" tabindex="-1"></a>      categoria,</span>
-<span id="cb70-13"><a href="atividades-extras.html#cb70-13" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Sem LV&quot;</span>, <span class="st">&quot;20-30%&quot;</span>, <span class="st">&quot;30-40%&quot;</span>, <span class="st">&quot;40-50%&quot;</span>, <span class="st">&quot;&gt;50%&quot;</span>))) <span class="sc">|&gt;</span> </span>
-<span id="cb70-14"><a href="atividades-extras.html#cb70-14" tabindex="-1"></a>  <span class="co"># Inicia o ggplot</span></span>
-<span id="cb70-15"><a href="atividades-extras.html#cb70-15" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb70-16"><a href="atividades-extras.html#cb70-16" tabindex="-1"></a>  <span class="co"># Usa uma camada de sf</span></span>
-<span id="cb70-17"><a href="atividades-extras.html#cb70-17" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes_string</span>(<span class="at">fill =</span> <span class="st">&quot;categoria&quot;</span>), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb70-18"><a href="atividades-extras.html#cb70-18" tabindex="-1"></a>  <span class="co"># Retira o datum</span></span>
-<span id="cb70-19"><a href="atividades-extras.html#cb70-19" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb70-20"><a href="atividades-extras.html#cb70-20" tabindex="-1"></a>  <span class="co"># Coloca o fill na paleta de verdes</span></span>
-<span id="cb70-21"><a href="atividades-extras.html#cb70-21" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>) <span class="sc">+</span></span>
-<span id="cb70-22"><a href="atividades-extras.html#cb70-22" tabindex="-1"></a>  <span class="co"># Adicionar titulo, subtitulo e legenda</span></span>
-<span id="cb70-23"><a href="atividades-extras.html#cb70-23" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb70-24"><a href="atividades-extras.html#cb70-24" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Votação de Eduardo Paes (2020, 1º turno)&quot;</span>,</span>
-<span id="cb70-25"><a href="atividades-extras.html#cb70-25" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Bairros do município do RJ&quot;</span>,</span>
-<span id="cb70-26"><a href="atividades-extras.html#cb70-26" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Fonte: Elaborado por Gelape (2023), a partir de</span><span class="sc">\n</span><span class="st">dados de Daniel Hidalgo, TSE, IBGE.&quot;</span>) <span class="sc">+</span></span>
-<span id="cb70-27"><a href="atividades-extras.html#cb70-27" tabindex="-1"></a>  <span class="co"># Adiciona escala</span></span>
-<span id="cb70-28"><a href="atividades-extras.html#cb70-28" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_scale</span>(</span>
-<span id="cb70-29"><a href="atividades-extras.html#cb70-29" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">width_hint =</span> <span class="fl">0.4</span>, <span class="at">line_width =</span> <span class="fl">0.5</span>, </span>
-<span id="cb70-30"><a href="atividades-extras.html#cb70-30" tabindex="-1"></a>    <span class="at">height =</span> <span class="fu">unit</span>(<span class="fl">0.1</span>,<span class="st">&quot;cm&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb70-31"><a href="atividades-extras.html#cb70-31" tabindex="-1"></a>  <span class="co"># Coloca titulo na legenda</span></span>
-<span id="cb70-32"><a href="atividades-extras.html#cb70-32" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">&quot;Votos válidos&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb70-33"><a href="atividades-extras.html#cb70-33" tabindex="-1"></a>  <span class="co"># Ajusta elementos do tema do ggplot</span></span>
-<span id="cb70-34"><a href="atividades-extras.html#cb70-34" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb70-35"><a href="atividades-extras.html#cb70-35" tabindex="-1"></a>    <span class="co"># Posicao e direcao da legenda</span></span>
-<span id="cb70-36"><a href="atividades-extras.html#cb70-36" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb70-37"><a href="atividades-extras.html#cb70-37" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
-<span id="cb70-38"><a href="atividades-extras.html#cb70-38" tabindex="-1"></a>    <span class="co"># Centralizacao de alguns elementos textuais</span></span>
-<span id="cb70-39"><a href="atividades-extras.html#cb70-39" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
-<span id="cb70-40"><a href="atividades-extras.html#cb70-40" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
-<span id="cb70-41"><a href="atividades-extras.html#cb70-41" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb70-42"><a href="atividades-extras.html#cb70-42" tabindex="-1"></a>  <span class="co"># Adiciona rosa-dos-ventos</span></span>
-<span id="cb70-43"><a href="atividades-extras.html#cb70-43" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_north_arrow</span>(</span>
-<span id="cb70-44"><a href="atividades-extras.html#cb70-44" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">which_north =</span> <span class="st">&quot;true&quot;</span>,</span>
-<span id="cb70-45"><a href="atividades-extras.html#cb70-45" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">north_arrow_fancy_orienteering</span>(),</span>
-<span id="cb70-46"><a href="atividades-extras.html#cb70-46" tabindex="-1"></a>    <span class="co"># Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)</span></span>
-<span id="cb70-47"><a href="atividades-extras.html#cb70-47" tabindex="-1"></a>    <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="fl">17.5</span>, <span class="st">&quot;cm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="fl">8.5</span>, <span class="st">&quot;cm&quot;</span>)) </span></code></pre></div>
+<p>Nosso próximo passo será utilizar os mapas do pacote <em>geobr</em> (isto é, seu arquivo shp) para gerar um mapa de bairros mais “limpo” do que o que temos e integrar seus dados ao nosso <em>tibble</em> original.</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="atividades-extras.html#cb64-1" tabindex="-1"></a><span class="co"># Abre um shp de bairros mais &quot;limpo&quot;</span></span>
+<span id="cb64-2"><a href="atividades-extras.html#cb64-2" tabindex="-1"></a>rj_bairros <span class="ot">&lt;-</span> <span class="fu">read_neighborhood</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb64-3"><a href="atividades-extras.html#cb64-3" tabindex="-1"></a>  <span class="fu">filter</span>(name_muni <span class="sc">==</span> <span class="st">&quot;Rio De Janeiro&quot;</span>)</span>
+<span id="cb64-4"><a href="atividades-extras.html#cb64-4" tabindex="-1"></a></span>
+<span id="cb64-5"><a href="atividades-extras.html#cb64-5" tabindex="-1"></a><span class="co"># Passa a info de votos pro shp</span></span>
+<span id="cb64-6"><a href="atividades-extras.html#cb64-6" tabindex="-1"></a>rj_bairros_paes <span class="ot">&lt;-</span> rj_bairros <span class="sc">|&gt;</span> </span>
+<span id="cb64-7"><a href="atividades-extras.html#cb64-7" tabindex="-1"></a>  <span class="fu">left_join</span>(paes2020_bairro, </span>
+<span id="cb64-8"><a href="atividades-extras.html#cb64-8" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;NM_BAIRRO&quot;</span>,</span>
+<span id="cb64-9"><a href="atividades-extras.html#cb64-9" tabindex="-1"></a>                   <span class="st">&quot;code_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;CD_GEOCODB&quot;</span>))</span></code></pre></div>
+<p>Por fim, utilizamos estas informações para gerar o mapa com uma escala de percentuais que varia de 10 em 10 p.p. como apresentado abaixo na sequência do comando <em>mutate</em>. Note também que as funções do <em>ggplot</em> estão comentadas para te auxiliar na customização dos mapas.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="atividades-extras.html#cb65-1" tabindex="-1"></a><span class="co"># A partir do objeto espacial</span></span>
+<span id="cb65-2"><a href="atividades-extras.html#cb65-2" tabindex="-1"></a>rj_bairros_paes  <span class="sc">|&gt;</span> </span>
+<span id="cb65-3"><a href="atividades-extras.html#cb65-3" tabindex="-1"></a>  <span class="co"># Cria uma variavel categoria e preenche os niveis, que serao a legenda</span></span>
+<span id="cb65-4"><a href="atividades-extras.html#cb65-4" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb65-5"><a href="atividades-extras.html#cb65-5" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">case_when</span>(</span>
+<span id="cb65-6"><a href="atividades-extras.html#cb65-6" tabindex="-1"></a>      <span class="fu">is.na</span>(percentual) <span class="sc">~</span> <span class="st">&quot;Sem LV&quot;</span>,</span>
+<span id="cb65-7"><a href="atividades-extras.html#cb65-7" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">20</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">30</span> <span class="sc">~</span> <span class="st">&quot;20-30%&quot;</span>,</span>
+<span id="cb65-8"><a href="atividades-extras.html#cb65-8" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">30</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">40</span> <span class="sc">~</span> <span class="st">&quot;30-40%&quot;</span>,</span>
+<span id="cb65-9"><a href="atividades-extras.html#cb65-9" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">40</span> <span class="sc">&amp;</span> percentual <span class="sc">&lt;=</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;40-50%&quot;</span>,</span>
+<span id="cb65-10"><a href="atividades-extras.html#cb65-10" tabindex="-1"></a>      percentual <span class="sc">&gt;</span> <span class="dv">50</span> <span class="sc">~</span> <span class="st">&quot;&gt;50%&quot;</span>),</span>
+<span id="cb65-11"><a href="atividades-extras.html#cb65-11" tabindex="-1"></a>    <span class="at">categoria =</span> <span class="fu">factor</span>(</span>
+<span id="cb65-12"><a href="atividades-extras.html#cb65-12" tabindex="-1"></a>      categoria,</span>
+<span id="cb65-13"><a href="atividades-extras.html#cb65-13" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Sem LV&quot;</span>, <span class="st">&quot;20-30%&quot;</span>, <span class="st">&quot;30-40%&quot;</span>, <span class="st">&quot;40-50%&quot;</span>, <span class="st">&quot;&gt;50%&quot;</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb65-14"><a href="atividades-extras.html#cb65-14" tabindex="-1"></a>  <span class="co"># Inicia o ggplot</span></span>
+<span id="cb65-15"><a href="atividades-extras.html#cb65-15" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb65-16"><a href="atividades-extras.html#cb65-16" tabindex="-1"></a>  <span class="co"># Usa uma camada de sf</span></span>
+<span id="cb65-17"><a href="atividades-extras.html#cb65-17" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes_string</span>(<span class="at">fill =</span> <span class="st">&quot;categoria&quot;</span>), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb65-18"><a href="atividades-extras.html#cb65-18" tabindex="-1"></a>  <span class="co"># Retira o datum</span></span>
+<span id="cb65-19"><a href="atividades-extras.html#cb65-19" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb65-20"><a href="atividades-extras.html#cb65-20" tabindex="-1"></a>  <span class="co"># Coloca o fill na paleta de verdes</span></span>
+<span id="cb65-21"><a href="atividades-extras.html#cb65-21" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>) <span class="sc">+</span></span>
+<span id="cb65-22"><a href="atividades-extras.html#cb65-22" tabindex="-1"></a>  <span class="co"># Adicionar titulo, subtitulo e legenda</span></span>
+<span id="cb65-23"><a href="atividades-extras.html#cb65-23" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb65-24"><a href="atividades-extras.html#cb65-24" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Votação de Eduardo Paes (2020, 1º turno)&quot;</span>,</span>
+<span id="cb65-25"><a href="atividades-extras.html#cb65-25" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">&quot;Bairros do município do RJ&quot;</span>,</span>
+<span id="cb65-26"><a href="atividades-extras.html#cb65-26" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Fonte: Elaborado por Gelape (2023), a partir de</span><span class="sc">\n</span><span class="st">dados de Daniel Hidalgo, TSE, IBGE.&quot;</span>) <span class="sc">+</span></span>
+<span id="cb65-27"><a href="atividades-extras.html#cb65-27" tabindex="-1"></a>  <span class="co"># Adiciona escala</span></span>
+<span id="cb65-28"><a href="atividades-extras.html#cb65-28" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_scale</span>(</span>
+<span id="cb65-29"><a href="atividades-extras.html#cb65-29" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">width_hint =</span> <span class="fl">0.4</span>, <span class="at">line_width =</span> <span class="fl">0.5</span>, </span>
+<span id="cb65-30"><a href="atividades-extras.html#cb65-30" tabindex="-1"></a>    <span class="at">height =</span> <span class="fu">unit</span>(<span class="fl">0.1</span>,<span class="st">&quot;cm&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb65-31"><a href="atividades-extras.html#cb65-31" tabindex="-1"></a>  <span class="co"># Coloca titulo na legenda</span></span>
+<span id="cb65-32"><a href="atividades-extras.html#cb65-32" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">&quot;Votos válidos&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb65-33"><a href="atividades-extras.html#cb65-33" tabindex="-1"></a>  <span class="co"># Ajusta elementos do tema do ggplot</span></span>
+<span id="cb65-34"><a href="atividades-extras.html#cb65-34" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb65-35"><a href="atividades-extras.html#cb65-35" tabindex="-1"></a>    <span class="co"># Posicao e direcao da legenda</span></span>
+<span id="cb65-36"><a href="atividades-extras.html#cb65-36" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb65-37"><a href="atividades-extras.html#cb65-37" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">&quot;horizontal&quot;</span>,</span>
+<span id="cb65-38"><a href="atividades-extras.html#cb65-38" tabindex="-1"></a>    <span class="co"># Centralizacao de alguns elementos textuais</span></span>
+<span id="cb65-39"><a href="atividades-extras.html#cb65-39" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb65-40"><a href="atividades-extras.html#cb65-40" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb65-41"><a href="atividades-extras.html#cb65-41" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb65-42"><a href="atividades-extras.html#cb65-42" tabindex="-1"></a>  <span class="co"># Adiciona rosa-dos-ventos</span></span>
+<span id="cb65-43"><a href="atividades-extras.html#cb65-43" tabindex="-1"></a>  ggspatial<span class="sc">::</span><span class="fu">annotation_north_arrow</span>(</span>
+<span id="cb65-44"><a href="atividades-extras.html#cb65-44" tabindex="-1"></a>    <span class="at">location =</span> <span class="st">&quot;br&quot;</span>, <span class="at">which_north =</span> <span class="st">&quot;true&quot;</span>,</span>
+<span id="cb65-45"><a href="atividades-extras.html#cb65-45" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">north_arrow_fancy_orienteering</span>(),</span>
+<span id="cb65-46"><a href="atividades-extras.html#cb65-46" tabindex="-1"></a>    <span class="co"># Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)</span></span>
+<span id="cb65-47"><a href="atividades-extras.html#cb65-47" tabindex="-1"></a>    <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="fl">17.5</span>, <span class="st">&quot;cm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="fl">8.5</span>, <span class="st">&quot;cm&quot;</span>)) </span></code></pre></div>
 <p><img src="fake-book_files/figure-html/visualiza-paes-1.png" width="672" /></p>
 
 </div>
