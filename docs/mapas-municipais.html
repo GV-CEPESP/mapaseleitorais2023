@@ -250,7 +250,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb20-3"><a href="mapas-municipais.html#cb20-3" tabindex="-1"></a><span class="fu">ggplot</span>(mapa) <span class="sc">+</span></span>
 <span id="cb20-4"><a href="mapas-municipais.html#cb20-4" tabindex="-1"></a>  <span class="co"># Adicionando camadas de features espaciais ao gráfico</span></span>
 <span id="cb20-5"><a href="mapas-municipais.html#cb20-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>()</span></code></pre></div>
-<p><img src="fake-book_files/figure-html/mostra%20o%20mapa%20de%20Sa%CC%83o%20Paulo-1.png" width="672" /></p>
+<p><img src="fake-book_files/figure-html/mapa-sp-1.png" width="672" /></p>
 <p>Agora, vamos verificar onde fica cada um dos locais de votação do município de São Paulo. No código abaixo, utilizamos os <em>ggplot</em> para plotar o mapa com os distritos. Depois, com o comando <em>geom_sf(data = lvsp2020)</em>, pedimos ao <em>ggplot</em> para inserir a localização dos locais de votação (base <em>lvsp2020</em>) no mesmo mapa. Por fim, o <em>theme_void</em> ajusta o layout do gráfico para facilitar a visualização.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="mapas-municipais.html#cb21-1" tabindex="-1"></a>mapa <span class="sc">%&gt;%</span> </span>
 <span id="cb21-2"><a href="mapas-municipais.html#cb21-2" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="do">## Gera o gráfico</span></span>

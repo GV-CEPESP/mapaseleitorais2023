@@ -78,7 +78,7 @@ mapa <- readRDS("base/mapa_distritos_sp.rds")
 
 Esta base se parece com aquelas que chamamos de *mapa_brasil* na parte anterior deste workshop. Para cada um dos distritos (coluna *name_district*), ela possui uma coluna chamada *geom* com a informação do polígono que representa o território do distrito. Veja abaixo como fica um mapa simples no qual utilizamos estes polígonos para plotar os distritos na cidade de São Paulo.
 
-```{r mostra o mapa de São Paulo}
+```{r mapa-sp, warning = FALSE}
 # pre-visualização do mapa com shape dos distritos da cidade de Sao Paulo
 # usand ggplot2
 ggplot(mapa) +
