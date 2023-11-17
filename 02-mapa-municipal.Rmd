@@ -12,7 +12,7 @@ Bastaria então unir o banco de resultados por seção eleitoral com esse de loc
 
 Assim, para produzirmos mapas com votações de candidatos dentro de um município, precisamos encontrar a localização dos locais de votação no espaço. Neste exercício, utilizamos um banco de dados disponibilizado pelo prof. Daniel Hidalgo (do Massachusetts Institute of Technology, MIT) que cataloga a latitude e longitude para todos os locais de votação brasileiros entre 2006 e 2020. Esse foi um esforço de pesquisa que cruzou diferentes fontes de dados para determinar as coordenadas geográficas e que contou com a participação do FGV-CEPESP (para mais informações, deem uma olhada no <a href="https://github.com/fdhidalgo/geocode_br_polling_stations" target="blank">repositório do GitHub</a> -- e na <a href="https://raw.githack.com/fdhidalgo/geocode_br_polling_stations/master/doc/geocoding_procedure.html" target="blank">documentação da metodologia deste processo</a>). Com a latitude e longitude, podemos cruzar essa informação espacial com outra(s) informações espaciais, como um mapa de bairros de um município, para passar aos nossos pontos (isto é, os locais de votação) tais informações. 
 
-## Preparando os Dados
+## Importação das Bases
 
 Neste exercício, prepararemos um mapa da cidade de São Paulo contendo os dados de votação por seção eleitoral do candidato a prefeito Guilherme Boulos (PSOL) em 2020.
 
@@ -29,8 +29,15 @@ library(cartography)
 
 Agora que já temos os pacotes carregados, vamos baixar os bancos de dados (todos preparados em formato *RDS*). Em primeiro lugar, baixamos a base de dados contendo dados de votacao por secao eleitoral do candidato a prefeito Guilherme Boulos (PSOL), e dos candidatos a vereador Milton Leite (DEM), Fernando Holiday (PATRIOTA) e Eduardo Suplicy (PT). Ela está salva como *base2020.rds*.
 
+Para facilitar nossa análise, aproveitamos o mesmo bloco de código para encurtar os nomes de cada um destes candidatos. Para tal, utilizamos as funções *mutate* e *case_when* do pacote *dplyr*.
+
 ```{r carrega bd de votação por seção eleitoral, message = FALSE}
-candsp2020 <- readRDS("base/base2020.rds")
+candsp2020 <- readRDS("base/base2020.rds") |> 
+  mutate(nm_votavel = case_when(
+    nm_votavel == "MILTON LEITE DA SILVA" ~ "Milton Leite",
+    nm_votavel == "GUILHERME CASTRO BOULOS" ~ "Boulos",
+    nm_votavel == "EDUARDO MATARAZZO SUPLICY" ~ "Suplicy",
+    nm_votavel == "FERNANDO HOLIDAY SILVA BISPO" ~ "Holiday"))
 ```
 
 Para se ter ideia de seu conteúdo, apresentamos sua *head* abaixo. São 28 colunas (variáveis) e 80.984 linhas (observações) contendo o número de votos que cada um dos três candidatos obteve na eleição de 2020, sendo Boulos para prefeito e os demais para vereador.
