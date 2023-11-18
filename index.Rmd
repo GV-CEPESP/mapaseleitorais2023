@@ -14,13 +14,22 @@ url: https://gv-cepesp.github.io/mapaseleitorais2023/
 
 # Sobre o Workshop
 
-Em 2018, PT e PSL protagonizaram a disputa pela presidência. No Capão Redondo, a disputa para deputado reproduziu essa tendência. Porém, em Pinheiros, os mais votados saíram desse padrão: foram PSOL e Novo. Mapas eleitorais permitem investigar esse fenômeno.
+Em 2018, PT e PSL protagonizaram a disputa pela presidência. Como mostrou uma [reportagem do site Pindograma](https://pindograma.com.br/2020/09/18/polarizacoes.html), no Capão Redondo, a disputa para deputado reproduziu essa tendência. Porém, em Pinheiros, os mais votados saíram desse padrão: foram PSOL e Novo. Mapas eleitorais permitem investigar esse fenômeno.
 
 O objetivo desse workshop é ensinar os participantes a trabalhar com dados espaciais no R a partir de informações eleitorais. Nele, vamos apresentar algumas características e cuidados especiais com esse tipo de dados, como associar os resultados eleitorais ao espaço (inclusive intramunicipais), e a produzir mapas.
 
+## Informações básicas
+
+*Dia*: 19 de novembro de 2023
+*Horário*: 11h15
+
+Esse workshop é parte da programação do [Coda.Br 2023](https://escoladedados.org/coda/coda2023/).
+
+Todas as bases de dados necessárias para as atividades estão disponíveis [neste link](https://github.com/GV-CEPESP/mapaseleitorais2023/tree/main/base).
+
 ## Pré-Requisitos
 
-R, RStudio, pacotes (tidyverse e sf)
+R, RStudio, pacotes (`tidyverse` e `sf`).
 
 ## Autores
 
