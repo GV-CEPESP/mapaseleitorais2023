@@ -8,7 +8,7 @@ mapas-municipais
 organização-intramunicipal
 importação-das-bases
 preparação-do-banco-de-dados
-mapa-coroplético
+visualização-do-mapa
 atividades-extras
 marta-suplicy-em-2000
 eduardo-paes-em-2020
@@ -23,4 +23,4 @@ rio-de-janeiro-em-2020-1
 divisões-administrativas
 distritos-de-são-paulo
 rio-de-janeiro
-sessões-eleitorais
+informações-da-sessão
