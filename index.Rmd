@@ -20,8 +20,8 @@ O objetivo desse workshop é ensinar os participantes a trabalhar com dados espa
 
 ## Informações básicas
 
-*Dia*: 19 de novembro de 2023
-*Horário*: 11h15
+* **Dia**: 19 de novembro de 2023
+* **Horário**: 11h15
 
 Esse workshop é parte da programação do [Coda.Br 2023](https://escoladedados.org/coda/coda2023/).
 
