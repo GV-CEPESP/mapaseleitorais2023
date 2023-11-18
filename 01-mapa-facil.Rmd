@@ -2,9 +2,9 @@
 
 ## A Eleição Presidencial de 2014
 
-Em 2014, a então presidente Dilma Rousseff (PT) enfrentou o tucano Aécio Neves no segundo turno da eleição presidencial. Para visualizar o resultado desta disputa, elaboraremos um "mapa fácil" que colore os estados brasileiros de acordo com seu candidato mais votado.
+Em 2014, a então presidente Dilma Rousseff (PT) enfrentou o tucano Aécio Neves no segundo turno da eleição presidencial. Para visualizar o resultado desta disputa, elaboraremos um "mapa fácil" que colore os estados brasileiros de acordo com seu candidato mais votado naquela eleição.
 
-Para tal, utilizaremos apenas quatro pacotes. O primeiro deles, *dplyr*, nos ajuda a preparar a tabela com os dados eleitorais e realizar manipulações a fim de prepará-lo para nossas análises. Com função semelhante, o *sf* nos auxiliar a manipular dados espaciais--essencial para a maior parte das análise que utilizam mapas. O *ggplot2*, pacote frequentemente utilizado para visualização de dados, nos ajudará a "plotar" as informações nos mapas. Por fim, o pacote *geobr* foi desenvolvido para gerar "shape files" (arquivos com dados espaciais), os quais utilizaremos como parâmetros para nossos mapas.
+Para tanto, utilizaremos apenas quatro pacotes. O primeiro deles, `dplyr`, nos ajuda a preparar a tabela com os dados eleitorais e realizar manipulações a fim de prepará-lo para nossas análises. Com função semelhante, o `sf` no auxilia a manipular dados espaciais -- essencial para a maior parte das análise que utilizam mapas. O `ggplot2`, pacote frequentemente utilizado para visualização de dados, nos ajudará a "plotar" as informações nos mapas. Por fim, o pacote `geobr` foi desenvolvido para obter facilmente "shapefiles" (arquivos com dados espaciais) brasileiros, os quais utilizaremos para produzir nossos mapas.
 
 ```{r carregando os pacotes, message = FALSE}
 ## Carregando os pacotes relevantes
@@ -14,25 +14,24 @@ library(ggplot2) ## Elaboração de gráficos
 library(geobr) ## Mapas brasileiros
 ```
 
-Nosso próximo passo é gerar uma tabela (*tibble*) com os dados que queremos plotar no mapa. Ou seja, uma coluna para os estados brasileiros e outra indicando o candidato vencedor. É importante notar que o nome da variável "estados" (a primeira linha da coluna) precisa estar alinhada com a nomenclatura utilizada no pacote *geobr*. Por tal motivo, utilizaremos o termo *abbrev_state* (referindo-se a abreviação dos nomes dos estados).
+Nosso próximo passo é gerar uma tabela (*tibble*) com os dados que queremos plotar no mapa. Ou seja, uma coluna para os estados brasileiros e outra indicando o candidato vencedor. É importante notar que o nome da variável "estados" (a primeira linha da coluna) precisa estar alinhada com a nomenclatura utilizada no pacote `geobr`. Por esse motivo, utilizaremos o termo *abbrev_state* (referindo-se a abreviação dos nomes dos estados).
 
-No bloco abaixo, apresentamos uma forma simples para gerar esta tabela. No entanto, também é possível produzí-la no MS Excel (ou seu software de preferência) e importá-la para o R.
+No bloco abaixo, mostramos uma forma simples de gerar esta tabela. No entanto, também é possível produzi-la no MS Excel (ou seu software de preferência) e importá-la para o R.
 
 ```{r gerando a tabela para 2014, message = FALSE}
-ganhadores_2014 <- tibble(abbrev_state = 
-                            c("RS", "SC", "PR",
-                              "SP", "MG", "RJ", "ES",
-                              "MS", "MT", "GO", "DF", "TO",
-                              "RO", "AC", "AM", "PA", "AP", "RR",
-                              "MA", "PI", "CE", "RN", "PB", 
-                              "PE", "AL", "SE", "BA"),
-                          ganhador =
-                            c("Aécio", "Aécio", "Aécio",
-                              "Aécio", "Dilma", "Dilma", "Aécio",
-                              "Aécio", "Aécio", "Aécio","Aécio", "Dilma",
-                              "Aécio", "Aécio", "Dilma", "Dilma", "Dilma", "Aécio",
-                              "Dilma", "Dilma", "Dilma", "Dilma", "Dilma", 
-                              "Dilma", "Dilma", "Dilma", "Dilma"))
+ganhadores_2014 <- tibble(
+  abbrev_state = c("RS", "SC", "PR",
+                   "SP", "MG", "RJ", "ES",
+                   "MS", "MT", "GO", "DF", "TO",
+                   "RO", "AC", "AM", "PA", "AP", "RR",
+                   "MA", "PI", "CE", "RN", "PB", 
+                   "PE", "AL", "SE", "BA"),
+  ganhador = c("Aécio", "Aécio", "Aécio",
+               "Aécio", "Dilma", "Dilma", "Aécio",
+               "Aécio", "Aécio", "Aécio","Aécio", "Dilma",
+               "Aécio", "Aécio", "Dilma", "Dilma", "Dilma", "Aécio",
+               "Dilma", "Dilma", "Dilma", "Dilma", "Dilma", 
+               "Dilma", "Dilma", "Dilma", "Dilma"))
 ```
 
 A tabela (*tibble*) construída será como esta que apresentamos abaixo.
@@ -41,7 +40,7 @@ A tabela (*tibble*) construída será como esta que apresentamos abaixo.
 data.frame(ganhadores_2014)
 ```
 
-Nosso próximo passo é baixar os dados cartográficos do pacote *geobr*. Basicamente, queremos baixar uma tabela que contenha os estados brasileiros e informações geográficas (e geométricas!) nos informando como eles devem ser "desenhados".
+Nosso próximo passo é baixar os dados espaciais via pacote `geobr`. Basicamente, queremos baixar uma tabela que contenha os estados brasileiros e informações geográficas (e geométricas!) nos informando como eles devem ser "desenhados".
 
 ```{r baixando dados cartográficos, message = FALSE}
 mapa_brasil <- read_state(code_state="all",
@@ -49,41 +48,39 @@ mapa_brasil <- read_state(code_state="all",
                           showProgress = FALSE)
 ```
 
-Agora temos dois *tibbles* complementares. O *ganhadores_2014* inclui qual candidato ganhou o segundo turno da eleição presidencial de 2014 em cada estado brasileiro. O *mapa_brasil* contém informação cartográfica sobre cada um dos estados brasileiros. Como os estados são identificados a partir da coluna *abbrev_state* em ambos os bancos de dados, agora podemos utilizar o comando *left_join* para integrá-los.
+Agora temos dois objetos complementares. O *ganhadores_2014* inclui qual candidato ganhou o segundo turno da eleição presidencial de 2014 em cada estado brasileiro. O *mapa_brasil* contém informação cartográfica sobre cada um dos estados brasileiros. Como os estados são identificados a partir da coluna *abbrev_state* em ambos os bancos de dados, agora podemos utilizar o comando *left_join* para integrá-los.
 
 ```{r integrando os dados cartográficos à tibble com ganhadores, warning = FALSE}
 ganhadores_2014 <- left_join(mapa_brasil, ganhadores_2014, by = "abbrev_state")
 ```
 
-Isto gera uma tabela na qual estão presentes os estados, seu devidos ganhadores e os dados cartográficos. A partir destas informações, podemos usar o comando *ggplot* para elaborar o mapa brasileiro colorido com base nos ganhadores. Note que utilizamos a função mais básica possível a fim de gerar este mapa. Ao longo deste workshop, aprenderemos como mudar sua aparência.
+Isto gera uma tabela na qual estão presentes os estados, seu devidos ganhadores e os dados espaciais. A partir destas informações, podemos usar o comando *ggplot* para elaborar o mapa brasileiro colorido com base nos ganhadores. Note que utilizamos a função mais básica possível para gerar este mapa. Ao longo deste workshop, aprenderemos como mudar sua aparência.
 
 ```{r mapa de 2014, warning = FALSE}
 ganhadores_2014  %>%
   ggplot() + ## Gera o gráfico
-  geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
+  geom_sf(aes(fill = ganhador)) ## Identifica a coluna "ganhador" como fonte para colorir os estados
 ```
-
 
 ## A Eleição Presidencial de 2022
 
 Os mapas nos ajudam a contar uma história. Agora que geramos o mapa eleitoral da eleição presidencial de 2014, faremos o mesmo procedimento para compará-lo com o que ocorreu em 2022 quando Jair Bolsonaro (PL) foi derrotado pelo petista Lula da Silva. Mais uma vez, nosso trabalho começa a partir da criação de um *tibble* com os vencedores do segundo turno em cada estado brasileiro. Lembre-se que os estados devem ser identificados como *abbrev_state*.
 
 ```{r tabela de ganhadores em 2022, message = FALSE}
-ganhadores_2022 <- tibble(abbrev_state = 
-                                    c("RS", "SC", "PR",
-                                      "SP", "MG", "RJ", "ES",
-                                      "MS", "MT", "GO", "DF", "TO",
-                                      "RO", "AC", "AM", "PA", "AP", "RR",
-                                      "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA"),
-                                  ganhador =
-                                    c("Bolsonaro", "Bolsonaro", "Bolsonaro",
-                                      "Bolsonaro", "Lula", "Bolsonaro", "Bolsonaro",
-                                      "Bolsonaro", "Bolsonaro", "Bolsonaro","Bolsonaro", "Lula",
-                                      "Bolsonaro", "Bolsonaro", "Lula", "Lula", "Bolsonaro", "Bolsonaro",
-                                      "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula"))
+ganhadores_2022 <- tibble(
+  abbrev_state = c("RS", "SC", "PR",
+                   "SP", "MG", "RJ", "ES",
+                   "MS", "MT", "GO", "DF", "TO",
+                   "RO", "AC", "AM", "PA", "AP", "RR",
+                   "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA"),
+  ganhador = c("Bolsonaro", "Bolsonaro", "Bolsonaro",
+               "Bolsonaro", "Lula", "Bolsonaro", "Bolsonaro",
+               "Bolsonaro", "Bolsonaro", "Bolsonaro","Bolsonaro", "Lula",
+               "Bolsonaro", "Bolsonaro", "Lula", "Lula", "Bolsonaro", "Bolsonaro",
+               "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula", "Lula"))
 ```
 
-Como já haviámos baixado o dados cartográficos, não é necessário repetir o processo. Podemos ir diretamente para a etapa de integrá-los ao banco de dados eleitoral de 2022. 
+Como já haviámos baixado o dados espaciais, não é necessário repetir o processo. Podemos ir diretamente para a etapa de integrá-los ao banco de dados eleitoral de 2022. 
 
 ```{r integrando os dados cartográficos à tibble com ganhadores de 2022, warning = FALSE}
 ganhadores_2022 <- left_join(mapa_brasil, ganhadores_2022, by = "abbrev_state")
@@ -94,9 +91,9 @@ Por fim, utilizamos o mesmo código da etapa anterior para gerar o mapa de 2022.
 ```{r mapa de 2022, warning = FALSE}
 ganhadores_2022  %>%
   ggplot() + ## Gera o gráfico
-  geom_sf(aes_string(fill = "ganhador")) ## Identifica a coluna "ganhador" como fonte para colorir os estados
+  geom_sf(aes(fill = ganhador)) ## Identifica a coluna "ganhador" como fonte para colorir os estados
 ```
 
-Pronto! Temos nossa primeira história a ser contada. Ainda que existam diferenças, os mapas são muito parecidos. Ou seja, a distribuição geográfica da campanha vitoriosa de Dilma Rousseff em 2014 é muito parecida com aquela realizada por Lula da Silva em 2022. Os mapas demonstram isto claramente!
+Pronto! Temos nossa primeira história a ser contada. Ainda que existam diferenças, os mapas são muito parecidos. Ou seja, a distribuição geográfica dos votos da campanha vitoriosa de Dilma Rousseff em 2014 é muito parecida com aquela realizada por Lula da Silva em 2022. Os mapas mostram isto claramente!
 
 Agora, se tiver tempo, sugerimos que você faça os mapas para outras eleições presidenciais. Por exemplo, o que aconteceu em 1994 e 2002?

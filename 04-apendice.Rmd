@@ -1,6 +1,6 @@
 # Apêndice
 
-Nesta parte, apresentamos o script utilizado na montagem das bases de dados dos candidatos.
+Nesta parte, apresentamos o script utilizado para montar todas as bases de dados, espaciais ou não espaciais, utilizadas nesse workshop: resultados por seção eleitoral, coordenadas geográficas dos locais de votação e divisões administrativas de municípios brasileiros.
 
 ```{r pacotes-finais, message = FALSE, eval = F}
 library(here)
@@ -21,20 +21,22 @@ if(!dir.exists("base/")) dir.create("base/")
 
 ### São Paulo em 2020
 
-Votação por seção eleitoral dos candidatos Guilherme Boulos, Eduardo Suplicy, Fernando Holiday e Milton Leite na cidade de São Paulo em 2020. Fonte: TSE.
+Votação por seção eleitoral dos candidatos Guilherme Boulos, Eduardo Suplicy, Fernando Holiday e Milton Leite na cidade de São Paulo em 2020. 
+
+Fonte: TSE, via [`electionsBR`](https://github.com/silvadenisson/electionsBR).
 
 ```{r electionsBR-sp-2020, message = FALSE, eval = F}
-# Essa funcao esta somente na versao em dev do electionsBR
+# Essa função está somente na versão em dev do electionsBR
 # https://github.com/silvadenisson/electionsBR
 base2020 <- electionsBR::elections_tse(2020, "vote_section", "SP")
 
 # Prepara banco incluindo agregado de votos por secao
 base2020 <- base2020 |> 
-  # Filtra pelo municipio de SP, 1o turno e elimina brancos/nulos
+  # Filtra pelo município de SP, 1o turno e elimina brancos/nulos
   filter(NM_MUNICIPIO == "SÃO PAULO",
          NR_TURNO == 1,
          !NR_VOTAVEL %in% c(95, 96)) |> 
-  # Calcula o total de votos validos por cargo/secao
+  # Calcula o total de votos válidos por cargo/seção
   group_by(DS_CARGO,
            NR_ZONA, NR_SECAO) |> 
   mutate(votos_validos_secao = sum(QT_VOTOS)) |> 
@@ -44,11 +46,11 @@ base2020 <- base2020 |>
                            "EDUARDO MATARAZZO SUPLICY",
                            "FERNANDO HOLIDAY SILVA BISPO",
                            "MILTON LEITE DA SILVA")) |> 
-  # Seleciona variaveis de interesse
+  # Seleciona variáveis de interesse
   select(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, 
          NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,
          DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) |> 
-  # Limpa os nomes de variaveis
+  # Limpa os nomes de variáveis
   clean_names()
 
 # Exporta o banco
@@ -59,28 +61,30 @@ saveRDS(base2020, "base/base2020_sp.rds")
 
 Votação por seção eleitoral do candidato Eduardo Paes na cidade do Rio de Janeiro em 2020.
 
+Fonte: TSE, via [`electionsBR`](https://github.com/silvadenisson/electionsBR).
+
 ```{r dados-voto, message = FALSE, eval = F}
-# Baixa os dados de voto-secao
+# Baixa os dados de voto-seção
 base2020 <- elections_tse(2020, "vote_section", "RJ")
 
-# Prepara banco incluindo agregado de votos por secao
+# Prepara banco incluindo agregado de votos por seção
 paes2020 <- base2020 |> 
   # Filtra pelo municipio do RJ, 1o turno e elimina brancos/nulos
   filter(NM_MUNICIPIO == "RIO DE JANEIRO",
          NR_TURNO == 1,
          !NR_VOTAVEL %in% c(95, 96)) |> 
-  # Calcula o total de votos validos por cargo/secao
+  # Calcula o total de votos válidos por cargo/seção
   group_by(DS_CARGO,
            NR_ZONA, NR_SECAO) |> 
   mutate(votos_validos_secao = sum(QT_VOTOS)) |> 
   ungroup() |> 
   # Filtra pelo Eduardo Paes
   filter(NR_VOTAVEL == 25 & DS_CARGO == "Prefeito") |> 
-  # Seleciona variaveis de interesse
+  # Seleciona variáveis de interesse
   select(DT_GERACAO, ANO_ELEICAO, NR_TURNO, SG_UF, 
          NM_MUNICIPIO, CD_MUNICIPIO, NR_ZONA, NR_SECAO, NR_LOCAL_VOTACAO,
          DS_CARGO, NM_VOTAVEL, QT_VOTOS, votos_validos_secao) |> 
-  # Limpa os nomes de variaveis
+  # Limpa os nomes de variáveis
   clean_names()
 
 # Exporta resultado
@@ -89,9 +93,14 @@ saveRDS(paes2020, "base/base2020_rj.rds")
 
 ### São Paulo em 2000
 
-Shapefile com os pontos dos locais de votação e resultados da eleição municipal de 2000. Fonte: CEM (Centro de Estudos da Métropole, USP).
+Shapefile com os pontos dos locais de votação e resultados da eleição municipal de 2000. Fonte: [CEM (Centro de Estudos da Métropole, USP)](https://centrodametropole.fflch.usp.br/pt-br/download-de-dados?busca_geral=resultados+eleitorais&items_per_page=20).
 
 ```{r dir-temp, message = FALSE, eval = F}
+# Baixa o arquivo
+download.file(
+  "https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg",
+  destfile = "base/EL2000_LV_RMSP_CEM_V2.zip")
+
 # Cria um diretorio temporario no computador
 dirtemp <- tempdir() 
 # Descompacta do arquivo contendo o shp na pasta temporária
@@ -101,7 +110,8 @@ zipfile <- unzip("base/EL2000_LV_RMSP_CEM_V2.zip", exdir = dirtemp)
 lv2000 <- st_read(
   zipfile[3], 
   # Usamos o ENCODING=WINDOWS-1252 para ajustar os caracteres com acento 
-  options = "ENCODING=WINDOWS-1252") |>
+  options = "ENCODING=WINDOWS-1252",
+  crs = 4674) |>
   # Filtra pontos da cidade de São Paulo. O mapa contém dados de toda a RMSP
   filter(MUN_NOME == "SAO PAULO") 
 
@@ -109,10 +119,9 @@ lv2000 <- st_read(
 saveRDS(lv2000, "base/base2000_sp.rds")
 ```
 
-
 ## Locais de Votação
 
-Os dados abaixo foram obtidos do Github do Prof. Daniel Hidalgo (MIT). Seu repositório disponibiliza locais de votação entre 2006 e 2020 para todo o Brasil.
+Os dados abaixo foram obtidos de um repositório do GitHub do Prof. Daniel Hidalgo (MIT). Este [repositório](https://github.com/fdhidalgo/geocode_br_polling_stations) disponibiliza os locais de votação com latitude e longitude entre 2006 e 2020 para todo o Brasil.
 
 ```{r download-br-hidalgo, message = FALSE, eval = F}
 #Baixa o arquivo produzido por Danny Hidalgo com todos os LV entre 2006-2020
@@ -165,6 +174,8 @@ saveRDS(baselv2020_rj, "base/lvrj2020.rds")
 
 ### Distritos de São Paulo
 
+O shapefile com os polígonos referentes aos distritos do município de São Paulo foram obtidos pelo pacote [`geobr`](https://github.com/ipeaGIT/geobr/), que extrai esses dados do IBGE.
+
 ```{r distritos-sp, message = FALSE, eval = F}
 # Mapa de polígonos dos distritos de São Paulo. Fonte: IBGE via geobr
 mapa_bairros <- read_neighborhood(2010)
@@ -176,9 +187,10 @@ saveRDS(sp_distritos, "base/mapa_distritos_sp.rds")
 
 ### Rio de Janeiro
 
+Para o caso do Rio de Janeiro, optamos por utilizar um shapefile com os setores censitários do município no ano de 2010 (que contém as informações dos bairros e subdistritos). A fonte dos dados também é o IBGE, e ele pode ser obtido na [página de malha de setores censitários de 2010](https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/26565-malhas-de-setores-censitarios-divisoes-intramunicipais.html?edicao=26589&t=downloads).
+
 ```{r distritos-rj, message = FALSE, eval = F}
 # Mapa de polígonos dos setores censitários do Rio de Janeiro.
-# Fonte: IBGE (https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/26565-malhas-de-setores-censitarios-divisoes-intramunicipais.html?edicao=26589&t=downloads)
 rj_sc <- st_read("base/rj_setores_censitarios/33SEE250GC_SIR.shp",
                  options = "ENCODING=WINDOWS-1252") |> 
   filter(CD_GEOCODM == "3304557")
@@ -187,10 +199,11 @@ rj_sc <- st_read("base/rj_setores_censitarios/33SEE250GC_SIR.shp",
 saveRDS(rj_sc, "base/mapa_setores_rj.rds")
 ```
 
-## Sessões Eleitorais
+## Informações da sessão
+
+Por fim, abaixo apresentamos as informações da sessão onde os dados foram compilados pela última vez, para que os usuários possam verificar se algum erro decorre de diferentes versões de pacotes.
 
 ```{r sessoes, message = FALSE, eval = F}
-# Informacoes da sessao utilizada na producao final dos bancos
 sessionInfo()
 
 # R version 4.2.2 (2022-10-31)
@@ -207,8 +220,8 @@ sessionInfo()
 #   [1] readr_2.1.4       geobr_1.7.0       sf_1.0-13         electionsBR_0.3.3 janitor_2.2.0     dplyr_1.1.2       here_1.0.1       
 # 
 # loaded via a namespace (and not attached):
-#   [1] Rcpp_1.0.10        pillar_1.9.0       compiler_4.2.2     class_7.3-20       tools_4.2.2        bit_4.0.5         
-# [7] lubridate_1.9.2    lifecycle_1.0.3    tibble_3.2.1       timechange_0.2.0   pkgconfig_2.0.3    rlang_1.1.1       
+# [1] Rcpp_1.0.10         pillar_1.9.0       compiler_4.2.2     class_7.3-20       tools_4.2.2        bit_4.0.5         
+# [7] lubridate_1.9.2     lifecycle_1.0.3    tibble_3.2.1       timechange_0.2.0   pkgconfig_2.0.3    rlang_1.1.1       
 # [13] DBI_1.1.3          cli_3.6.1          rstudioapi_0.14    parallel_4.2.2     curl_5.0.0         e1071_1.7-13      
 # [19] withr_2.5.0        stringr_1.5.0      httr_1.4.5         hms_1.1.3          generics_0.1.3     vctrs_0.6.2       
 # [25] bit64_4.0.5        classInt_0.4-9     rprojroot_2.0.3    grid_4.2.2         tidyselect_1.2.0   snakecase_0.11.0  

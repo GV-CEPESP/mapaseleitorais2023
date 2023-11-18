@@ -2,7 +2,7 @@
 
 ## Marta Suplicy em 2000
 
-Nosso primeiro passo é sempre carregar os pacotes que são relevantes para o nosso trabalho. A única novidade em relação aos exercícios anteriores é o pacote *RColorBrewer*. Já que queremos plotar mapas bonitos, ele nos auxília apresentando uma série de paletas de cores adicionais.
+Nosso primeiro passo é sempre carregar os pacotes que são relevantes para o nosso trabalho. A única novidade em relação aos exercícios anteriores é o pacote `RColorBrewer`. Já que queremos plotar mapas bonitos, ele nos auxília com uma série de paletas de cores adicionais.
 
 ```{r pacotes, message = FALSE}
 library(dplyr)
@@ -23,7 +23,13 @@ lv2000 <- readRDS("base/base2000_sp.rds")
 mapa <- readRDS("base/mapa_distritos_sp.rds")
 ```
 
-Agora identificaremos o total de votos por local de votação. Note que a base *lv2000* do CEM/USP já contém os dados de votação dos candidatos a prefeito. Nela, as colunas com os dados de votação seguem o seguinte padrão: PF00_111. Neste código, PF indica votação para prefeito; o primeiro dígito depois de "_" indica o turno; os dois números seguintes indicam o número do prefeito. A coluna com a votação da Marta Suplicy no primeiro turno, portanto, é PF00_113. Para mais informações, consulte a <a href="https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg" target="blank">documentação em PDF</a> preparada pelos pesquisadores do CEM/USP.
+Agora identificaremos o total de votos por local de votação. Note que a base *lv2000* do CEM/USP já contém os dados de votação dos candidatos a prefeito. Nela, as colunas com os dados de votação seguem o seguinte padrão: PF00_111. Neste padrão:
+
+* PF indica votação para prefeito; 
+* o primeiro dígito depois de "_" indica o turno; 
+* os dois números seguintes indicam o número do prefeito. 
+
+A coluna com a votação da Marta Suplicy no primeiro turno, portanto, é PF00_113. Para mais informações, consulte a [documentação](https://centrodametropole.fflch.usp.br/pt-br/file/18772/download?token=t4vNFXTg) preparada pelos pesquisadores do CEM/USP.
 
 ```{r votos-por-LV, message = FALSE}
 # Obtenção do total de votos validos para prefeito por local de votação
@@ -55,27 +61,7 @@ lv2000_2 <- lv2000 |>
   select(ID, PF00_113, voto_total)  
 ```
 
-Agora integraremos a base de LV (ponto) com seus respecitvos distritos (poligonos). Para tal, utilizamos o comando de spacial join (*st_join*). Retire o "#" do comando abaixo e verifique o resultado.
-
-```{r spatial-join-marta, message = FALSE}
-#mapa_unificado <- st_join(lv2000_2, mapa) 
-```
-
-Oops. DEU ERRO! Você deve ter visto uma mensagem em vermelho como a seguir:
-
-> Error in st_geos_binop("intersects", x, y, sparse = sparse, prepared = prepared,  : 
->  st_crs(x) == st_crs(y) is not TRUE
-
-O que aconteceu? Investigue a razão! O código abaixo dá uma pista.
-
-```{r crs-marta, message = FALSE}
-# Transforma o crs para 4674
-lv2000_2 <- st_transform(lv2000_2, crs = 4674) 
-```
-
-O que mudamos aqui? O sistema de referencia de coordenadas! Lembra que no último exercício vimos que existe um formato usualmente adotado nos mapas brasileiros? Ele é o SIRGAS 2000 e é indicado pelo número 4674. Agora que utilizamos o comando *st_transform* e indicamos o código correto, os dois objetos espaciais estao sob o mesmo CRS. 
-
-Agora que está tudo certo, podemos usar o *st_join* para que os pontos sejam associados espacialmente com os polígonos.
+Agora integraremos a base de LV (ponto) com seus respectivos distritos (polígonos). Para tanto, utilizamos o comando de spatial join (*st_join*). 
 
 ```{r integra-bases, message = FALSE}
 mapa_unificado <- st_join(mapa, lv2000_2) 
@@ -85,7 +71,7 @@ Por que *mapa_unificado* agora tem 1.135 linhas e não 1.134? Dica: investigue o
 
 Nosso próximo passo será agrupar as votações da candidata por distrito e, como fizemos anteriormente, calcular a proporção de votos para cada uma destas localidades.
 
-```{r porcetagem-votos-marta, message = FALSE}
+```{r porcentagem-votos-marta, message = FALSE}
 # Usa o tibble 'mapa_unificado'
 mapa_final <- mapa_unificado |>  
   # Calcula a soma total dos votos para 'Marta' e no total em cada distrito
@@ -122,7 +108,7 @@ cores <- c(cores, "#999999")
 mapa_final |>
   ggplot() + 
   # Usa uma camada de sf
-  geom_sf(aes_string(fill = "voto_cat"), color = "black", size = 0.1) +
+  geom_sf(aes(fill = voto_cat), color = "black", size = 0.1) +
   # Retira o datum
   theme_void() +
   # Coloca o fill na paleta de verdes
@@ -152,9 +138,8 @@ mapa_final |>
     location = "br", which_north = "true",
     style = north_arrow_fancy_orienteering(),
     # Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
-    pad_x = unit(17.5, "cm"), pad_y = unit(8.5, "cm")) 
+    pad_x = unit(0.5, "cm"), pad_y = unit(1, "cm")) 
 ```
-
 
 ## Eduardo Paes em 2020
 
@@ -165,7 +150,6 @@ library(here) # Parecido com o setwd() mas com funções adicionais para referen
 library(dplyr) # Gramática para manipular dados
 library(readr) # Pacote para abrir bases, por ex., em CSV
 library(stringr) # Facilita a manipulação de variáveis "string"
-library(electionsBR) # Pacote com dados eleitorais brasileiros
 library(janitor) # Auxilia na limpeza dos dados
 library(sf) # Manipulação de dados espaciais
 library(geobr) # Pacote com mapas do Brasil
@@ -173,7 +157,7 @@ library(ggplot2) # Pacote para elaboração de gráficos
 library(ggspatial) # Complementar ao ggplot2, com foco em mapas
 ```
 
-Como nos outros exercícios, vamos importar a base com (1) locais de votação do município do Rio de Janeiro em 2020, (2) os dados eleitorais do candidato a prefeitura Eduardo Paes (PSD) e (3) a localização dos setores censitários da cidade (isto é, seus bairros). 
+Como nos outros exercícios, vamos importar a base com (1) locais de votação do município do Rio de Janeiro em 2020, (2) os dados eleitorais do candidato a prefeitura Eduardo Paes (PSD) e (3) a localização dos setores censitários da cidade (para extrair a informação dos seus bairros, posteriormente). 
 
 ```{r lv-paes, message = FALSE}
 # Leitura da base dos locais de votação no Rio em 2020
@@ -186,17 +170,15 @@ paes2020 <- readRDS("base/base2020_rj.rds")
 rj_sc <- readRDS("base/mapa_setores_rj.rds")
 ```
 
-Neste próximo bloco de código, vamos unir as informações de bairro "corretas" ao banco de dados de locais de votação. Lembre-se que, como discutimos anteriormente, as zonas eleitorais do TRE não são equivalentes à distribuição espacial dos setores censitários. Além disso, não se esqueça de ajustar o CRS para o SIRGAS 2000 (código 4674).
+Neste próximo bloco de código, vamos unir as informações de bairro "corretas" ao banco de dados de locais de votação. Lembre-se que, como discutimos anteriormente, as zonas eleitorais do TRE não são equivalentes à distribuição espacial dos setores censitários. Além disso, não se esqueça de informar que o CRS é do SIRGAS 2000 (código 4674).
 
 ```{r spatial-transformation-rio, message = FALSE}
 # Transforma lvrj em um objeto espacial
 lvrj_espacial <- lvrj |> 
   # Remove os NA, se houver (importante checar quantos NA, se for o caso)
   filter(!is.na(long)) |> 
-  # Objeto com crs = 4326 (WGS84)
-  st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
-  # Transforma para Sirgas2000, com crs == 4674, que é o mesmo do rj_bairros
-  st_transform(4674)
+  # Objeto com crs = 4674 (Sirgas2000)
+  st_as_sf(coords = c("long", "lat"), crs = 4674)
 ```
 
 Nosso próximo passo é utilizar o comando *st_join*, como nos exemplos anteriores, para integrar os dados espaciais de *lvrj_espacial* e *rj_sc*.
@@ -206,7 +188,7 @@ Nosso próximo passo é utilizar o comando *st_join*, como nos exemplos anterior
 lvrj_espacial <- st_join(lvrj_espacial, rj_sc)
 ```
 
-Antes de prosseguir, vamos verificar se o número de NAs (dados ausentes) é muito grande. O que encontraremos, como você perceberá, é que não existe nenhum "missing" nas 1.422 linhas da tabela para a coluna *NM_MUNICIP*.
+Antes de prosseguir, vamos verificar se o número de NAs (dados ausentes) é muito grande. O que encontraremos, como você perceberá, é que não existe nenhum "missing" nas 1.422 linhas da tabela para a coluna *NM_MUNICIP*. Ou seja, todos os locais de votação (pontos) encontraram um setor censitário (polígono) correspondente.
 
 ```{r checagem-rio, message = FALSE}
 # Checa número de NAs (0 de 1.422)
@@ -258,11 +240,11 @@ paes2020_bairro <- paes2020_bairro |>
 summary(paes2020_bairro$percentual)
 ```
 
-Nosso próximo passo será utilizar os mapas do pacote *geobr* (isto é, seu arquivo shp) para gerar um mapa de bairros mais "limpo" do que o que temos e integrar seus dados ao nosso *tibble* original.
+Nosso próximo passo será utilizar os mapas do pacote `geobr` (isto é, seu arquivo shp) para gerar um mapa de bairros mais "limpo" do que o que temos e integrar seus dados ao nosso *tibble* original.
 
-```{r shp-paes, message = FALSE}
+```{r shp-paes, message=FALSE}
 # Abre um shp de bairros mais "limpo"
-rj_bairros <- read_neighborhood() |> 
+rj_bairros <- read_neighborhood(showProgress = F) |> 
   filter(name_muni == "Rio De Janeiro")
 
 # Passa a info de votos pro shp
@@ -291,7 +273,7 @@ rj_bairros_paes  |>
   # Inicia o ggplot
   ggplot() + 
   # Usa uma camada de sf
-  geom_sf(aes_string(fill = "categoria"), color = "black", size = 0.1) +
+  geom_sf(aes(fill = categoria), color = "black", size = 0.1) +
   # Retira o datum
   coord_sf(datum = NA) +
   # Coloca o fill na paleta de verdes
@@ -300,7 +282,7 @@ rj_bairros_paes  |>
   labs(
     title = "Votação de Eduardo Paes (2020, 1º turno)",
     subtitle = "Bairros do município do RJ",
-    caption = "Fonte: Elaborado por Gelape (2023), a partir de\ndados de Daniel Hidalgo, TSE, IBGE.") +
+    caption = "Fonte: Elaborado por Gelape, Guedes Neto e Faganello (2023), a partir de\ndados do TSE, Hidalgo e IBGE.") +
   # Adiciona escala
   ggspatial::annotation_scale(
     location = "br", width_hint = 0.4, line_width = 0.5, 
@@ -321,5 +303,5 @@ rj_bairros_paes  |>
     location = "br", which_north = "true",
     style = north_arrow_fancy_orienteering(),
     # Ajusta a altura da rosa-dos-ventos (pode exigir tentativa e erro)
-    pad_x = unit(17.5, "cm"), pad_y = unit(8.5, "cm")) 
+    pad_x = unit(14, "cm"), pad_y = unit(6.5, "cm")) 
 ```
