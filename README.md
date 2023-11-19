@@ -2,7 +2,7 @@
 
 Este repositório apresenta os materiais do workshop "Mapas Eleitorais com R", realizado no dia 19 de novembro de 2023, como parte da programação da Conferência Brasileira de Jornalismo de Dados e Métodos Digitais, o [Coda.Br 2023](https://escoladedados.org/coda/coda2023/).
 
-Os tutoriais estão disponíveis [neste link]() e as bases de dados necessárias para as atividades estão [neste link](https://github.com/GV-CEPESP/mapaseleitorais2023/tree/main/base).
+Os tutoriais estão disponíveis [neste link](https://gv-cepesp.github.io/mapaseleitorais2023/) e as bases de dados necessárias para as atividades estão [neste link](https://drive.google.com/drive/folders/1Ws_9aE9ueYrcle9--NSaAIBRQS57KNED?usp=sharing).
 
 ## Sobre o Workshop
 
