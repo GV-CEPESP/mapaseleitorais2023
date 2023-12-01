@@ -141,8 +141,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Sobre o Workshop</a>
 <ul>
-<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.1</b> Pré-Requisitos</a></li>
-<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.2</b> Autores</a></li>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#informações-básicas"><i class="fa fa-check"></i><b>1.1</b> Informações básicas</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.2</b> Pré-Requisitos</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.3</b> Autores</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="meu-primeiro-mapa.html"><a href="meu-primeiro-mapa.html"><i class="fa fa-check"></i><b>2</b> Meu Primeiro Mapa</a>
 <ul>
@@ -386,15 +387,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   21.40   33.47   37.40   37.25   40.11   51.86</code></pre>
 <p>Nosso próximo passo será utilizar os mapas do pacote <code>geobr</code> (isto é, seu arquivo shp) para gerar um mapa de bairros mais “limpo” do que o que temos e integrar seus dados ao nosso <em>tibble</em> original.</p>
+<p>Os dados do <code>geobr</code> estão com uma duplicação de bairros. No caso, o mesmo bairro (Marechal Hermes) aparece em duas linhas do objeto espacial, sendo uma tendo como subdistrito Jacarepaguá e outra como Madureira. Para eliminar uma dessas linhas do banco (que duplicaria os votos nessa região ao fazermos o join), consultamos um <a href="https://www.data.rio/datasets/31d845e1c56a49c6a2b0e01420ec83b8">mapa oficial de bairros do município do Rio de Janeiro</a> e verificamos que Marechal Hermes está na Região Administrativa de Madureira, portanto vamos excluir do objeto a linha que se refere a Jacarepaguá.</p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="atividades-extras.html#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Abre um shp de bairros mais &quot;limpo&quot;</span></span>
 <span id="cb59-2"><a href="atividades-extras.html#cb59-2" aria-hidden="true" tabindex="-1"></a>rj_bairros <span class="ot">&lt;-</span> <span class="fu">read_neighborhood</span>(<span class="at">showProgress =</span> F) <span class="sc">|&gt;</span> </span>
-<span id="cb59-3"><a href="atividades-extras.html#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name_muni <span class="sc">==</span> <span class="st">&quot;Rio De Janeiro&quot;</span>)</span>
-<span id="cb59-4"><a href="atividades-extras.html#cb59-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-5"><a href="atividades-extras.html#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Passa a info de votos pro shp</span></span>
-<span id="cb59-6"><a href="atividades-extras.html#cb59-6" aria-hidden="true" tabindex="-1"></a>rj_bairros_paes <span class="ot">&lt;-</span> rj_bairros <span class="sc">|&gt;</span> </span>
-<span id="cb59-7"><a href="atividades-extras.html#cb59-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(paes2020_bairro, </span>
-<span id="cb59-8"><a href="atividades-extras.html#cb59-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;NM_BAIRRO&quot;</span>,</span>
-<span id="cb59-9"><a href="atividades-extras.html#cb59-9" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;code_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;CD_GEOCODB&quot;</span>))</span></code></pre></div>
+<span id="cb59-3"><a href="atividades-extras.html#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Filtra somente o municipio do RJ</span></span>
+<span id="cb59-4"><a href="atividades-extras.html#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name_muni <span class="sc">==</span> <span class="st">&quot;Rio De Janeiro&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb59-5"><a href="atividades-extras.html#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cria coluna para identificar qual linha deve ser removida e a remove</span></span>
+<span id="cb59-6"><a href="atividades-extras.html#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">remover =</span> <span class="fu">ifelse</span>(name_neighborhood <span class="sc">==</span> <span class="st">&quot;Marechal Hermes&quot;</span> <span class="sc">&amp;</span> </span>
+<span id="cb59-7"><a href="atividades-extras.html#cb59-7" aria-hidden="true" tabindex="-1"></a>                            name_subdistrict <span class="sc">==</span> <span class="st">&quot;Jacarepaguá&quot;</span>, T, F)) <span class="sc">|&gt;</span> </span>
+<span id="cb59-8"><a href="atividades-extras.html#cb59-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>remover)</span>
+<span id="cb59-9"><a href="atividades-extras.html#cb59-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-10"><a href="atividades-extras.html#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Passa a info de votos pro shp</span></span>
+<span id="cb59-11"><a href="atividades-extras.html#cb59-11" aria-hidden="true" tabindex="-1"></a>rj_bairros_paes <span class="ot">&lt;-</span> rj_bairros <span class="sc">|&gt;</span> </span>
+<span id="cb59-12"><a href="atividades-extras.html#cb59-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Faremos o join somente por codigo do bairro, pois caso o fizessemos com o</span></span>
+<span id="cb59-13"><a href="atividades-extras.html#cb59-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># nome do bairro, teriamos alguns casos sem combinacao exata, e produziriamos</span></span>
+<span id="cb59-14"><a href="atividades-extras.html#cb59-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># falsos negativos (NA que nao sao NA na prática)</span></span>
+<span id="cb59-15"><a href="atividades-extras.html#cb59-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(paes2020_bairro, </span>
+<span id="cb59-16"><a href="atividades-extras.html#cb59-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;code_neighborhood&quot;</span> <span class="ot">=</span> <span class="st">&quot;CD_GEOCODB&quot;</span>))</span></code></pre></div>
 <p>Por fim, utilizamos estas informações para gerar o mapa com uma escala de percentuais que varia de 10 em 10 p.p. como apresentado abaixo na sequência do comando <em>mutate</em>. Note também que as funções do <em>ggplot</em> estão comentadas para te auxiliar na customização dos mapas.</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="atividades-extras.html#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A partir do objeto espacial</span></span>
 <span id="cb60-2"><a href="atividades-extras.html#cb60-2" aria-hidden="true" tabindex="-1"></a>rj_bairros_paes  <span class="sc">|&gt;</span> </span>

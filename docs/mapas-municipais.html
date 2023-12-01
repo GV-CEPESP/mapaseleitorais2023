@@ -141,8 +141,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Sobre o Workshop</a>
 <ul>
-<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.1</b> Pré-Requisitos</a></li>
-<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.2</b> Autores</a></li>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#informações-básicas"><i class="fa fa-check"></i><b>1.1</b> Informações básicas</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#pré-requisitos"><i class="fa fa-check"></i><b>1.2</b> Pré-Requisitos</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#autores"><i class="fa fa-check"></i><b>1.3</b> Autores</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="meu-primeiro-mapa.html"><a href="meu-primeiro-mapa.html"><i class="fa fa-check"></i><b>2</b> Meu Primeiro Mapa</a>
 <ul>
@@ -232,30 +233,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Para se ter ideia de seu conteúdo, apresentamos sua <code>head</code> abaixo. São 28 colunas (variáveis) e 80.984 linhas (observações) contendo o número de votos que cada um dos três candidatos obteve na eleição de 2020, sendo Boulos para prefeito e os demais para vereador.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="mapas-municipais.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(candsp2020)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 13
-##   dt_geracao ano_eleicao nr_turno sg_uf nm_municipio cd_municipio nr_zona nr_secao nr_local_votacao ds_cargo nm_votavel
-##   &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;               &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;     
-## 1 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      242             1180 Vereador Suplicy   
-## 2 21/12/2020        2020        1 SP    SÃO PAULO           71072     346      408             1309 Vereador Milton Le…
-## 3 21/12/2020        2020        1 SP    SÃO PAULO           71072     346      408             1309 Vereador Holiday   
-## 4 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Vereador Suplicy   
-## 5 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Vereador Holiday   
-## 6 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Prefeito Boulos    
+##   dt_geracao ano_eleicao nr_turno sg_uf nm_municipio cd_municipio nr_zona nr_secao nr_local_votacao ds_cargo nm_votavel  
+##   &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;               &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       
+## 1 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      242             1180 Vereador Suplicy     
+## 2 21/12/2020        2020        1 SP    SÃO PAULO           71072     346      408             1309 Vereador Milton Leite
+## 3 21/12/2020        2020        1 SP    SÃO PAULO           71072     346      408             1309 Vereador Holiday     
+## 4 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Vereador Suplicy     
+## 5 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Vereador Holiday     
+## 6 21/12/2020        2020        1 SP    SÃO PAULO           71072     408      255             1198 Prefeito Boulos      
 ## # ℹ 2 more variables: qt_votos &lt;dbl&gt;, votos_validos_secao &lt;dbl&gt;</code></pre>
 <p>Nosso próximo passo é carregar a base com dados geolocalizados de cada um dos locais de votação no município de São Paulo. Seu nome é <code>lvsp2020.rds</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="mapas-municipais.html#cb15-1" aria-hidden="true" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;base/lvsp2020.rds&quot;</span>)</span></code></pre></div>
 <p>Ao abrir esta base de dados, você verá o endereço de cada local de votação (por ex., o Colégio Objetivo na Av. Paulista, 900, Bela Vista), acompanhado de sua longitude e latitude, além de outros dados espaciais. A base possui 2.063 observações e 19 variáveis.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="mapas-municipais.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lvsp2020)</span></code></pre></div>
 <pre><code>## # A tibble: 6 × 19
-##   local_id   ano sg_uf cd_localidade_tse cod_localidade_ibge nr_zona nr_locvot  nr_cep nm_localidade nm_locvot         
-##      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;             &lt;dbl&gt;               &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;             
-## 1   678500  2020 SP                71072             3550308       1      1015 1310100 SÃO PAULO     COLÉGIO OBJETIVO  
-## 2   670114  2020 SP                71072             3550308       2      1015 5001000 SÃO PAULO     COLÉGIO DAS AMÉRI…
-## 3   688691  2020 SP                71072             3550308       4      1015 3103000 SÃO PAULO     EE. PROF. ANTONIO…
-## 4   694622  2020 SP                71072             3550308       5      1015 1427001 SÃO PAULO     CLUBE ATLÉTICO PA…
-## 5   696661  2020 SP                71072             3550308       6      1015 4117020 SÃO PAULO     EE. MARECHAL FLOR…
-## 6   674162  2020 SP                71072             3550308     246      1015 4754010 SÃO PAULO     EE. PROF. ALBERTO…
-## # ℹ 9 more variables: ds_endereco &lt;chr&gt;, ds_bairro &lt;chr&gt;, pred_long &lt;dbl&gt;, pred_lat &lt;dbl&gt;, pred_dist &lt;dbl&gt;,
-## #   tse_lat &lt;dbl&gt;, tse_long &lt;dbl&gt;, long &lt;dbl&gt;, lat &lt;dbl&gt;</code></pre>
+##   local_id   ano sg_uf cd_localidade_tse cod_localidade_ibge nr_zona nr_locvot nr_cep nm_localidade nm_locvot ds_endereco
+##      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;             &lt;dbl&gt;               &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;     &lt;chr&gt;      
+## 1   678500  2020 SP                71072             3550308       1      1015 1.31e6 SÃO PAULO     COLÉGIO … AV. PAULIS…
+## 2   670114  2020 SP                71072             3550308       2      1015 5.00e6 SÃO PAULO     COLÉGIO … AV. FRANCI…
+## 3   688691  2020 SP                71072             3550308       4      1015 3.10e6 SÃO PAULO     EE. PROF… RUA DA MOÓ…
+## 4   694622  2020 SP                71072             3550308       5      1015 1.43e6 SÃO PAULO     CLUBE AT… RUA ESTADO…
+## 5   696661  2020 SP                71072             3550308       6      1015 4.12e6 SÃO PAULO     EE. MARE… RUA DONA J…
+## 6   674162  2020 SP                71072             3550308     246      1015 4.75e6 SÃO PAULO     EE. PROF… AVENIDA MÁ…
+## # ℹ 8 more variables: ds_bairro &lt;chr&gt;, pred_long &lt;dbl&gt;, pred_lat &lt;dbl&gt;, pred_dist &lt;dbl&gt;, tse_lat &lt;dbl&gt;, tse_long &lt;dbl&gt;,
+## #   long &lt;dbl&gt;, lat &lt;dbl&gt;</code></pre>
 <p>Nosso próximo passo será converter os dados de longitude (<em>long</em>) e latitude (<em>lat</em>) utilizando o pacote <code>sf</code> em um objeto de <em>features espaciais</em>. Isto é importante para compatibilizar a estrutura dos dados com os pacotes e mapas com os quais estamos trabalhando. Mais especificamente, a transformação tem por objetivo utilizar transformar esses dados tabulares em dados espaciais, produzidos com base no sistema de referência de coordenadas (CRS) geográficas SIRGAS 2000. Este passo é padrão para a elaboração da maioria dos mapas brasileiros.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="mapas-municipais.html#cb18-1" aria-hidden="true" tabindex="-1"></a>lvsp2020 <span class="ot">&lt;-</span> </span>
 <span id="cb18-2"><a href="mapas-municipais.html#cb18-2" aria-hidden="true" tabindex="-1"></a>  lvsp2020 <span class="sc">|&gt;</span> </span>

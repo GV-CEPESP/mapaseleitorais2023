@@ -1,4 +1,5 @@
 sobre-o-workshop
+informações-básicas
 pré-requisitos
 autores
 meu-primeiro-mapa
@@ -24,5 +25,3 @@ divisões-administrativas
 distritos-de-são-paulo
 rio-de-janeiro
 informações-da-sessão
-informações-básicas
-texto

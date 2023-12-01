@@ -242,16 +242,25 @@ summary(paes2020_bairro$percentual)
 
 Nosso próximo passo será utilizar os mapas do pacote `geobr` (isto é, seu arquivo shp) para gerar um mapa de bairros mais "limpo" do que o que temos e integrar seus dados ao nosso *tibble* original.
 
+Os dados do `geobr` estão com uma duplicação de bairros. No caso, o mesmo bairro (Marechal Hermes) aparece em duas linhas do objeto espacial, sendo uma tendo como subdistrito Jacarepaguá e outra como Madureira. Para eliminar uma dessas linhas do banco (que duplicaria os votos nessa região ao fazermos o join), consultamos um [mapa oficial de bairros do município do Rio de Janeiro](https://www.data.rio/datasets/31d845e1c56a49c6a2b0e01420ec83b8) e verificamos que Marechal Hermes está na Região Administrativa de Madureira, portanto vamos excluir do objeto a linha que se refere a Jacarepaguá.
+
 ```{r shp-paes, message=FALSE}
 # Abre um shp de bairros mais "limpo"
 rj_bairros <- read_neighborhood(showProgress = F) |> 
-  filter(name_muni == "Rio De Janeiro")
+  # Filtra somente o municipio do RJ
+  filter(name_muni == "Rio De Janeiro") |> 
+  # Cria coluna para identificar qual linha deve ser removida e a remove
+  mutate(remover = ifelse(name_neighborhood == "Marechal Hermes" & 
+                            name_subdistrict == "Jacarepaguá", T, F)) |> 
+  filter(!remover)
 
 # Passa a info de votos pro shp
 rj_bairros_paes <- rj_bairros |> 
+  # Faremos o join somente por codigo do bairro, pois caso o fizessemos com o
+  # nome do bairro, teriamos alguns casos sem combinacao exata, e produziriamos
+  # falsos negativos (NA que nao sao NA na prática)
   left_join(paes2020_bairro, 
-            by = c("name_neighborhood" = "NM_BAIRRO",
-                   "code_neighborhood" = "CD_GEOCODB"))
+            by = c("code_neighborhood" = "CD_GEOCODB"))
 ```
 
 Por fim, utilizamos estas informações para gerar o mapa com uma escala de percentuais que varia de 10 em 10 p.p. como apresentado abaixo na sequência do comando *mutate*. Note também que as funções do *ggplot* estão comentadas para te auxiliar na customização dos mapas.
