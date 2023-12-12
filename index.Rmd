@@ -39,6 +39,6 @@ R, RStudio, pacotes (`tidyverse` e `sf`).
 
 [Marco Antonio Faganello](https://github.com/marcofaga) é pesquisador, cientista de dados e pós-doutorando no CEPESP FGV, doutor em Ciência Política pela Universidade Estadual de Campinas (UNICAMP). Atualmente, pesquisa temas relacionados à eleições, partidos, direita e geografia eleitoral.
 
-### Como citar
+## Como citar
 
 Gelape, Lucas; Guedes-Neto, João Victor; Faganello, Marco Antonio. **Mapas Eleitorais com R**. São Paulo, 2023. Disponível em: https://gv-cepesp.github.io/mapaseleitorais2023/
