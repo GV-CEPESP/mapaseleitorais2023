@@ -2,6 +2,7 @@ sobre-o-workshop
 informações-básicas
 pré-requisitos
 autores
+como-citar
 meu-primeiro-mapa
 a-eleição-presidencial-de-2014
 a-eleição-presidencial-de-2022
